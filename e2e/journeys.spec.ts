@@ -1220,7 +1220,7 @@ test.describe("visitor opens the resume", () => {
     await page.emulateMedia({ media: "print" });
     await expect(page.getByRole("banner")).toBeHidden();
     await expect(page.getByRole("contentinfo")).toBeHidden();
-    await expect(page.getByRole("button", { name: "Print or save as PDF" })).toBeHidden();
+    await expect(page.getByRole("button", { name: "Print this page" })).toBeHidden();
     const colours = await page.evaluate(() => {
       const heading = document.querySelector("h1")!;
       return { paper: getComputedStyle(document.body).backgroundColor, ink: getComputedStyle(heading).color };

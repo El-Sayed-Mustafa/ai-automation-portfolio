@@ -29,8 +29,14 @@ export default function ResumePage() {
   return (
     <div className="container-page pb-24 pt-10 print:p-0">
       <div className="mx-auto mb-6 flex max-w-[52rem] flex-wrap items-center justify-between gap-3 print:hidden">
-        <p className="text-sm text-muted">Built from the same content as this site. Print it, or save it as a PDF from the print dialog.</p>
-        <PrintButton label="Print or save as PDF" />
+        <p className="text-sm text-muted">The CV I send, as a PDF, and the same content as a page.</p>
+        <div className="flex flex-wrap items-center gap-2">
+          {/* A plain link to a file: it downloads without any script. */}
+          <a href="/Elsayed_Mustafa_CV.pdf" download className="btn btn-primary">
+            Download CV (PDF)
+          </a>
+          <PrintButton label="Print this page" />
+        </div>
       </div>
 
       <article className="panel mx-auto max-w-[52rem] p-6 sm:p-10 print:max-w-none print:border-0 print:p-0">
