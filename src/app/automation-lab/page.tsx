@@ -30,10 +30,7 @@ export default function AutomationLabPage() {
           <FlaskConical size={13} aria-hidden /> Automation Lab
         </Tag>
         <h1 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">Run the workflows, then break them</h1>
-        <p className="mt-4 text-lg leading-relaxed text-muted">
-          Each workflow here re-implements the rules of a system I built or worked on, and runs them in your browser on invented data. One of them can also run on the server, against a database of its own.
-          Change the input, inject a failure, step through it, and read what every step received, logged and wrote.
-        </p>
+        <p className="mt-3 text-lg leading-relaxed text-muted">The real rules of my systems, on invented data. Pick one, run it, inject a failure.</p>
       </header>
       {entries.length > 0 ? (
         <LabWorkspace entries={entries} />

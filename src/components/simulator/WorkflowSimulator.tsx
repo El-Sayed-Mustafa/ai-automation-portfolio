@@ -6,6 +6,7 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { Project, Workflow } from "@/content/schema";
 import { getScenarioRuntime, type ScenarioInput, type ScenarioPreset, type ScenarioRuntime } from "@/engine/registry";
 import type { Choice, StepStatus } from "@/engine/types";
+import { TechRow } from "@/components/ui/TechIcon";
 import { SANDBOX_SCENARIO_IDS } from "@/sandbox/protocol";
 import { INSPECTOR_TABS, Inspector, type InspectorTab } from "./Inspector";
 import { Pipeline, ProgressStrip } from "./Pipeline";
@@ -222,6 +223,7 @@ function SimulatorBody({
       : `${selectedStep.label}: ${STEP_STATUS_LABEL[selectedState.status]}`
     : "";
   const panelId = `${uid}-panel`;
+  const [noteOpen, setNoteOpen] = useState(false);
 
   return (
     <div className="panel overflow-hidden shadow-md" data-testid="workflow-simulator">
@@ -242,9 +244,16 @@ function SimulatorBody({
             </span>
           )}
         </div>
-        <p className="mt-2 max-w-3xl text-[0.9375rem] leading-relaxed sm:text-base">{workflow.proves}</p>
-        <p className="mt-2 max-w-3xl text-[0.8125rem] leading-relaxed text-subtle sm:text-sm" data-testid="mode-note">
-          {sandbox && (onServer || (target === "server" && !controller.hasRun)) ? sandbox.note : workflow.modeNote}
+        <TechRow names={workflow.technologies} className="mt-3" />
+        <p className="mt-3 max-w-3xl text-[0.9375rem] leading-relaxed">{workflow.proves}</p>
+        {/* What is real and what is not is always on the page; its full wording opens in place. */}
+        <p className="mt-2 flex max-w-3xl items-start gap-2 text-[0.8125rem] leading-relaxed text-subtle">
+          <span data-testid="mode-note" className={"min-w-0 flex-1 " + (noteOpen ? "" : "line-clamp-1")}>
+            {sandbox && (onServer || (target === "server" && !controller.hasRun)) ? sandbox.note : workflow.modeNote}
+          </span>
+          <button type="button" aria-expanded={noteOpen} onClick={() => setNoteOpen((value) => !value)} className="shrink-0 font-semibold text-accent hover:underline">
+            {noteOpen ? "Less" : "More"}
+          </button>
         </p>
       </div>
 
@@ -262,9 +271,7 @@ function SimulatorBody({
             </div>
           </div>
           <p className="max-w-3xl text-[0.8125rem] leading-relaxed text-muted">
-            {target === "server"
-              ? "The server runs the same program against a database of its own. If it does not answer, the run is simulated here and says so."
-              : "A simulation in this page. Choose “On the server” to run the same program against a real database."}
+            {target === "server" ? "Same program, a real database. If the server does not answer, the run is simulated here and says so." : "Same program, in this page."}
           </p>
         </div>
       ) : null}

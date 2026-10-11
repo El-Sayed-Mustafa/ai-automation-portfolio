@@ -76,6 +76,54 @@ export function NodeTile({
   );
 }
 
+/** A technology's logo as a lit square, like a component's in a diagram. Nothing when the technology has no logo. */
+export function TechTile({ name, size = 28 }: { name: string; size?: number }) {
+  const brand = brandFor(name);
+  if (!brand) return null;
+  return (
+    <span
+      className="lit-tile"
+      style={{ width: size, height: size, borderRadius: Math.round(size * 0.3), "--lit-light": brand.tileLight, "--lit-dark": brand.tileDark, "--lit-ink-light": brand.inkLight, "--lit-ink-dark": brand.inkDark } as CSSProperties}
+      aria-hidden
+    >
+      <svg width={Math.round(size * 0.56)} height={Math.round(size * 0.56)} viewBox="0 0 24 24" className="fill-current">
+        <path d={brand.path} />
+      </svg>
+    </span>
+  );
+}
+
+/**
+ * What a workflow runs on, as a row of logos with their names. A technology
+ * with no logo gets a dot, so the row never says less than the list. With
+ * `compact`, only the logos are drawn, and the whole list is the row's name.
+ */
+export function TechRow({ names, compact = false, className = "" }: { names: readonly string[]; compact?: boolean; className?: string }) {
+  if (compact) {
+    const withLogo = names.filter((name) => brandFor(name));
+    if (withLogo.length === 0) return null;
+    return (
+      <span className={`flex items-center gap-1.5 ${className}`} role="img" aria-label={`Built with ${names.join(", ")}`}>
+        {withLogo.map((name) => (
+          <span key={name} title={name} className="flex">
+            <TechTile name={name} size={24} />
+          </span>
+        ))}
+      </span>
+    );
+  }
+  return (
+    <ul aria-label="Built with" className={`flex flex-wrap items-center gap-x-3.5 gap-y-2 ${className}`}>
+      {names.map((name) => (
+        <li key={name} className="flex items-center gap-1.5 text-[0.8125rem] font-semibold text-fg">
+          {brandFor(name) ? <TechTile name={name} size={26} /> : <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-line-strong" />}
+          {name}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 /** The logo for a line of text that names a technology, or nothing. */
 export function TechGlyph({ name, size = 14 }: { name: string; size?: number }) {
   const brand = brandFor(name);

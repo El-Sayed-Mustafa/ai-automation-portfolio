@@ -74,7 +74,7 @@ test.describe("recruiter explores a project", () => {
     // The figures under it are counted from the site's own content.
     const counts = page.getByRole("list", { name: "This site in numbers" });
     await expect(counts.getByRole("listitem")).toContainText(["Interactive case studies", "Workflows you can run", "Failures you can inject", "Components documented"]);
-    await expect(counts.getByRole("listitem").first()).toContainText("7");
+    await expect(counts.getByRole("listitem").first()).toContainText("8");
     // The picture says what it is and how big the real thing is.
     await expect(page.getByText(/The real system behind .*: 14 components, 18 connections\./)).toBeVisible();
 

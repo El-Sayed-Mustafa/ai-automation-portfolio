@@ -4,7 +4,8 @@ import { ArrowRight, GitBranch, TriangleAlert, UserCheck } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useSyncExternalStore } from "react";
 import { WorkflowSimulator } from "@/components/simulator/WorkflowSimulator";
-import { AppIcon, Tag, Tile } from "@/components/ui/Icon";
+import { AppIcon, Tile } from "@/components/ui/Icon";
+import { TechRow } from "@/components/ui/TechIcon";
 import type { IconName, Project, Tone, Workflow } from "@/content/schema";
 
 export interface LabEntry {
@@ -67,25 +68,32 @@ export function LabWorkspace({ entries }: { entries: LabEntry[] }) {
                   type="button"
                   aria-pressed={selected}
                   onClick={() => select(entry.workflow.id)}
-                  className={"panel panel-link flex h-full w-full gap-3 p-3.5 text-left " + (selected ? "border-accent bg-accent-soft" : "")}
+                  // Positioned, so the words kept for screen readers stay inside the row that scrolls sideways.
+                  className={"panel panel-link relative flex h-full w-full gap-3 p-3.5 text-left " + (selected ? "border-accent bg-accent-soft" : "")}
                 >
                   <Tile tone={entry.tone} solid={selected}>
                     <AppIcon name={entry.icon} />
                   </Tile>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-xs font-bold uppercase tracking-wider text-subtle">{entry.projectTitle}</span>
-                    <span className="mt-0.5 block font-display text-base font-bold leading-snug">{entry.workflow.title}</span>
-                    <span className="mt-1 line-clamp-2 text-sm leading-relaxed text-muted">{entry.workflow.summary}</span>
-                    <span className="mt-2.5 flex flex-wrap gap-1.5">
-                      <Tag tone="blue">
-                        <GitBranch size={11} aria-hidden /> {entry.workflow.steps.length} steps
-                      </Tag>
-                      <Tag tone="rose">
-                        <TriangleAlert size={11} aria-hidden /> {entry.workflow.faults.length} failures
-                      </Tag>
-                      <Tag tone="teal">
-                        <UserCheck size={11} aria-hidden /> {humanSteps} decision{humanSteps === 1 ? "" : "s"}
-                      </Tag>
+                    <span className="line-clamp-2 font-display text-[0.9375rem] font-bold leading-snug">{entry.workflow.title}</span>
+                    <span className="mt-0.5 block truncate text-xs text-muted">{entry.projectTitle}</span>
+                    <span className="mt-2.5 flex flex-wrap items-center justify-between gap-x-2 gap-y-2">
+                      <TechRow names={entry.workflow.technologies} compact />
+                      {/* Steps, failures that can be injected, decisions a person makes. */}
+                      <span className="ml-auto flex shrink-0 items-center gap-2.5 text-xs font-bold">
+                        <span data-tone="blue" className="inline-flex items-center gap-1 text-tone" title="Steps">
+                          <GitBranch size={12} aria-hidden /> {entry.workflow.steps.length}
+                          <span className="sr-only"> steps</span>
+                        </span>
+                        <span data-tone="rose" className="inline-flex items-center gap-1 text-tone" title="Failures you can inject">
+                          <TriangleAlert size={12} aria-hidden /> {entry.workflow.faults.length}
+                          <span className="sr-only"> failures</span>
+                        </span>
+                        <span data-tone="teal" className="inline-flex items-center gap-1 text-tone" title="Decisions a person makes">
+                          <UserCheck size={12} aria-hidden /> {humanSteps}
+                          <span className="sr-only"> decision{humanSteps === 1 ? "" : "s"}</span>
+                        </span>
+                      </span>
                     </span>
                   </span>
                 </button>
@@ -99,11 +107,10 @@ export function LabWorkspace({ entries }: { entries: LabEntry[] }) {
         {/* Remounting on change gives every workflow a clean run, input and selection. */}
         <WorkflowSimulator key={active.workflow.id} workflow={active.workflow} nodeLabels={active.nodeLabels} repository={active.repository} />
         <p className="mt-4 text-sm text-muted">
-          This workflow belongs to{" "}
+          From{" "}
           <Link href={`/projects/${active.projectId}`} className="link inline-flex items-center gap-1">
             {active.projectTitle} <ArrowRight size={13} aria-hidden />
           </Link>
-          , where its architecture and engineering decisions are explained.
         </p>
       </div>
     </div>

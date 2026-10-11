@@ -4,6 +4,7 @@ import {
   siGithubactions,
   siGmail,
   siGoogle,
+  siGooglechrome,
   siGoogleappsscript,
   siGooglebigquery,
   siGooglecalendar,
@@ -113,6 +114,7 @@ const RULES: { pattern: RegExp; icon: SimpleIcon | null }[] = [
   { pattern: /sqlite/i, icon: siSqlite },
   { pattern: /\breact\b/i, icon: siReact },
   { pattern: /docker/i, icon: siDocker },
+  { pattern: /chromium/i, icon: siGooglechrome },
   { pattern: /pandas/i, icon: siPandas },
   { pattern: /python/i, icon: siPython },
   // Plain web pages have no logo of their own, whatever serves them.
