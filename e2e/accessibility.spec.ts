@@ -36,7 +36,7 @@ const PAGES = ["/", "/projects", "/automation-lab", "/resume", "/source-access",
  * the diagram as a list. Only the contrast rule is skipped, and only on what
  * is dimmed.
  */
-const DIMMED = [".react-flow__node > .opacity-30", ".react-flow__node > .opacity-40"];
+const DIMMED = [".react-flow__node > .opacity-30", ".react-flow__node > .opacity-40", "[data-layer-stack] [data-dimmed]"];
 
 interface Finding {
   id: string;
@@ -250,7 +250,7 @@ for (const theme of ["light", "dark"] as const) {
       for (const route of ["/", "/projects", "/automation-lab", CRM, `${CRM}#demo`, `${CRM}#architecture`, `${CRM}#evidence`]) {
         test(`${route}`, async ({ page }) => {
           await open(page, route);
-          if (route.endsWith("#architecture")) await expect(page.locator("#architecture .react-flow__node-arch").first()).toBeVisible();
+          if (route.endsWith("#architecture")) await expect(page.locator("#architecture [data-layer-stack] button").first()).toBeVisible();
           await expectClean(page, `phone ${route}`);
         });
       }

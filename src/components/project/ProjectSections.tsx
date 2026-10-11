@@ -292,9 +292,9 @@ export function OverviewPanel({ project }: { project: Project }) {
               Explore the diagram <ArrowRight size={14} aria-hidden />
             </a>
           </div>
-          {/* On a narrow screen the picture keeps a readable size and scrolls sideways inside its card. */}
+          {/* On a phone the layers are stacked; between that and a desktop the columns keep a readable size and scroll sideways. */}
           <div className="overflow-x-auto border-t border-line">
-            <a href="#architecture" className="block min-w-[46rem] p-3 sm:p-4">
+            <a href="#architecture" className="block p-3 sm:p-4 md:min-w-[46rem]">
               <ArchitecturePicture
                 architecture={project.architecture}
                 label={`The architecture of ${project.title}: ${project.architecture.nodes.length} components in ${project.architecture.layers.length} layers. Opens the interactive diagram, where each one is listed with its details.`}

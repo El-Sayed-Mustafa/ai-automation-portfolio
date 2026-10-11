@@ -171,6 +171,15 @@ for (const size of WIDTHS) {
     test("the architecture diagram opens at a readable size", async ({ page }) => {
       await page.goto(`${CRM}#architecture`);
       const architecture = page.locator("#architecture");
+      if (size.width < 768) {
+        // A phone has the layers stacked top to bottom, with every label at the size it is written in.
+        const card = architecture.locator("[data-layer-stack]").getByRole("button", { name: /^Green API:/ });
+        await expect(card).toBeVisible();
+        expect((await card.boundingBox())!.width).toBeGreaterThanOrEqual(140);
+        const text = card.locator("span").filter({ hasText: /^Green API$/ });
+        expect(await text.evaluate((element) => parseFloat(getComputedStyle(element).fontSize))).toBeGreaterThanOrEqual(12.5);
+        return;
+      }
       const node = architecture.locator(".react-flow__node-arch").first();
       await expect(node).toBeVisible();
       // A component card is 176 units wide; below about 135px its label is under 10.5px on screen.
@@ -183,6 +192,15 @@ for (const size of WIDTHS) {
     test("the whole graph is one tap away and every component stays reachable", async ({ page }) => {
       await page.goto(`${CRM}#architecture`);
       const architecture = page.locator("#architecture");
+      if (size.width < 768) {
+        // Stacked, the whole system is on the page with no tap at all, inside the width of the screen.
+        const cards = architecture.locator("[data-layer-stack]").getByRole("button");
+        await expect(cards).toHaveCount(14);
+        const boxes = await cards.evaluateAll((nodes) => nodes.map((node) => node.getBoundingClientRect().toJSON()));
+        expect(boxes.every((rect) => rect.left >= 0 && rect.right <= size.width)).toBe(true);
+        await expect(architecture.getByText("Read the architecture as a list")).toBeVisible();
+        return;
+      }
       await expect(architecture.locator(".react-flow__node-arch")).toHaveCount(14);
       await architecture.getByRole("button", { name: "Full graph" }).first().click();
       const canvas = (await architecture.getByLabel("Architecture diagram").boundingBox())!;
@@ -226,7 +244,7 @@ test.describe("navigation on a wide screen", () => {
     await main.getByRole("link", { name: "Projects" }).click();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Systems, with their evidence");
     await main.getByRole("link", { name: "Resume" }).click();
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Elsayed Mustafa");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Resume");
     await main.getByRole("link", { name: "About" }).click();
     await expect(page).toHaveURL(/\/#about$/);
     await expect(page.locator("#about-title")).toBeInViewport();

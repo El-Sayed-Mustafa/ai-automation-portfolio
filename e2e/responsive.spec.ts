@@ -84,12 +84,21 @@ test.describe("on a phone", () => {
     await page.goto("/projects/pest-control-crm#architecture");
     const architecture = page.locator("#architecture");
     // A phone shows the first columns at a readable size and says so, with the rest one tap away.
-    await expect(architecture.getByText(/Part of the diagram\. Drag to move/)).toBeVisible();
+    // On a phone the layers are stacked top to bottom: nothing to drag, and every component is on the page.
+    const stack = architecture.locator("[data-layer-stack]");
+    await expect(stack.getByRole("region")).toHaveCount(5);
+    await expect(stack.getByRole("button")).toHaveCount(14);
+    const tops = await stack.getByRole("region").evaluateAll((layers) => layers.map((layer) => layer.getBoundingClientRect().top));
+    expect([...tops].sort((a, b) => a - b)).toEqual(tops);
+    await expect(architecture.locator(".react-flow")).toHaveCount(0);
     await architecture.getByRole("button", { name: /^Office web app:/ }).click();
     await expect(architecture.getByRole("complementary", { name: "Details for Office web app" })).toBeVisible();
     await architecture.getByRole("button", { name: "Close component details" }).click();
-    await architecture.getByRole("button", { name: "show the full graph" }).click();
-    await expect(architecture.getByText(/Part of the diagram\. Drag to move/)).toBeHidden();
+    // Following a request numbers the components its hops arrive at and lets the rest step back.
+    await architecture.getByRole("button", { name: "Data flow" }).click();
+    await architecture.getByRole("group", { name: "Follow a request" }).getByRole("button").first().click();
+    expect(await stack.locator("[data-dimmed]").count()).toBeGreaterThan(3);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   });
 
   test("the menu reaches every page", async ({ page }) => {

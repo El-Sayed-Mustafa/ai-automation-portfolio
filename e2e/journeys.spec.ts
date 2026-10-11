@@ -1202,7 +1202,14 @@ test.describe("visitor opens the resume", () => {
     await page.goto("/");
     await page.getByRole("main").getByRole("link", { name: "View resume" }).click();
     await expect(page).toHaveURL(/\/resume$/);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Elsayed Mustafa");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Resume");
+    // The CV as it is sent: both pages, and the file itself.
+    await expect(page.getByRole("img", { name: /^Page \d of 2 of the CV of Elsayed Mustafa/ })).toHaveCount(2);
+    await expect(page.getByRole("link", { name: "Download CV (PDF)" })).toHaveAttribute("href", "/Elsayed_Mustafa_CV.pdf");
+    const file = await page.request.get("/Elsayed_Mustafa_CV.pdf");
+    expect(file.headers()["content-type"]).toContain("application/pdf");
+    // The same facts as a web page, with their evidence, one press away.
+    await page.getByText("Read it as a web page, with links to the evidence").click();
     for (const section of ["Summary", "Experience", "Selected systems", "Capabilities", "Education", "Certifications"]) {
       await expect(page.getByRole("heading", { level: 2, name: section })).toBeVisible();
     }

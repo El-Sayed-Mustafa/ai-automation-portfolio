@@ -90,7 +90,8 @@ export function ExplorerHeader({
             </button>
           ))}
         </div>
-        <div className="flex gap-1.5">
+        {/* These act on the canvas. A narrow screen has the layers stacked instead, with nothing to zoom or expand. */}
+        <div className="flex gap-1.5 max-md:hidden">
           <button
             type="button"
             disabled={disabled}
@@ -145,13 +146,16 @@ export function RequestPicker({ architecture, flowId, onFlow }: { architecture: 
 export function ExplorerFooter() {
   return (
     <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 border-t border-line bg-surface px-4 py-2.5 text-xs text-muted sm:px-5">
-      <p className="w-full text-[0.8125rem] sm:w-auto sm:text-xs" data-testid="links-hint">
+      <p className="w-full text-[0.8125rem] max-md:hidden sm:w-auto sm:text-xs" data-testid="links-hint">
         <span className="font-semibold text-fg">One line joins two layers.</span> Point at a component, or choose it, to see its own connections.
       </p>
-      <span className="font-semibold text-subtle" id="connection-styles">
+      <p className="w-full text-[0.8125rem] md:hidden">
+        <span className="font-semibold text-fg">Layers, top to bottom.</span> Choose a component to see what it connects to.
+      </p>
+      <span className="font-semibold text-subtle max-md:hidden" id="connection-styles">
         Connections
       </span>
-      <ul className="flex flex-wrap items-center gap-x-4 gap-y-1.5" aria-labelledby="connection-styles">
+      <ul className="flex flex-wrap items-center gap-x-4 gap-y-1.5 max-md:hidden" aria-labelledby="connection-styles">
         {(Object.keys(EDGE_KIND_LABEL) as ArchitectureEdge["kind"][]).map((kind) => (
           <li key={kind} className="flex items-center gap-1.5">
             <svg width="26" height="6" aria-hidden className={kind === "disabled" ? "opacity-40" : ""}>

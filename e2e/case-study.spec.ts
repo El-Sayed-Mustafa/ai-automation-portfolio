@@ -195,12 +195,16 @@ test.describe("the picture of the system on the overview", () => {
     await expectTab(page, "architecture");
   });
 
-  test("keeps a readable size on a phone by scrolling inside its card", async ({ page }) => {
+  test("is stacked top to bottom on a phone, at a size that can be read", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(CRM);
     const system = page.locator("#system");
     const picture = system.getByRole("img", { name: /^The architecture of/ });
-    expect((await picture.boundingBox())!.width).toBeGreaterThan(600);
+    await expect(picture).toHaveCount(1);
+    const box = (await picture.boundingBox())!;
+    expect(box.width).toBeLessThanOrEqual(390);
+    expect(box.height).toBeGreaterThan(box.width);
+    await expect(picture.getByText("Supabase Postgres", { exact: true })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   });
 });
