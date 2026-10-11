@@ -10,6 +10,8 @@ import { TechRow } from "@/components/ui/TechIcon";
 import { SANDBOX_SCENARIO_IDS } from "@/sandbox/protocol";
 import { INSPECTOR_TABS, Inspector, type InspectorTab } from "./Inspector";
 import { Pipeline, ProgressStrip } from "./Pipeline";
+import { RunMap } from "./RunMap";
+import type { RunMapSystem } from "./run-map-system";
 import { DatabasePanel, ServerRunSummary } from "./SandboxPanel";
 import { SetupPanel } from "./SetupPanel";
 import { RUN_STATUS_LABEL, STEP_STATUS_LABEL, formatDuration } from "./format";
@@ -24,6 +26,8 @@ interface WorkflowSimulatorProps {
   /** Architecture node id to display name, so steps can say where they run. */
   nodeLabels: Record<string, string>;
   repository: Project["repository"];
+  /** The system the workflow runs on. With it, the run is also drawn as a signal moving between its components. */
+  system?: RunMapSystem;
   /** "compact" drops the setup form and payload tabs, for use on the home page. */
   variant?: "full" | "compact";
   caseStudyHref?: string;
@@ -38,7 +42,7 @@ const SPEEDS: { value: Speed; label: string }[] = [
 
 const SETTLED: StepStatus[] = ["success", "failed", "skipped", "cancelled"];
 
-export function WorkflowSimulator({ workflow, nodeLabels, repository, variant = "full", caseStudyHref }: WorkflowSimulatorProps) {
+export function WorkflowSimulator({ workflow, system, nodeLabels, repository, variant = "full", caseStudyHref }: WorkflowSimulatorProps) {
   const runtime = getScenarioRuntime(workflow.scenarioId);
   if (!runtime) {
     return (
@@ -50,6 +54,7 @@ export function WorkflowSimulator({ workflow, nodeLabels, repository, variant = 
   return (
     <SimulatorBody
       workflow={workflow}
+      system={system}
       nodeLabels={nodeLabels}
       repository={repository}
       compact={variant === "compact"}
@@ -108,7 +113,8 @@ function SimulatorBody({
   compact,
   caseStudyHref,
   runtime,
-}: Pick<WorkflowSimulatorProps, "workflow" | "nodeLabels" | "repository" | "caseStudyHref"> & { compact: boolean; runtime: ScenarioRuntime }) {
+  system,
+}: Pick<WorkflowSimulatorProps, "workflow" | "nodeLabels" | "repository" | "caseStudyHref" | "system"> & { compact: boolean; runtime: ScenarioRuntime }) {
   const uid = useId();
   // The server runs a workflow only when the content describes that and the server's own list names it.
   const sandbox = workflow.sandbox && SANDBOX_SCENARIO_IDS.includes(workflow.scenarioId) ? workflow.sandbox : undefined;
@@ -393,6 +399,7 @@ function SimulatorBody({
           </span>
         </div>
         <ProgressStrip workflow={workflow} state={state} selectedStepId={shownTab === "setup" ? null : selectedStep.id} onSelect={handleSelect} />
+        {system ? <RunMap architecture={system} workflow={workflow} state={state} activeStepId={followedStepId} /> : null}
         {onServer && controller.server ? <ServerRunSummary server={controller.server} /> : null}
         {waitingStep && waiting ? (
           <DecisionPanel stepLabel={waitingStep.label} prompt={waiting.prompt} choices={waiting.choices} onDecide={controller.decide} />

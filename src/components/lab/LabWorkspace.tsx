@@ -3,6 +3,7 @@
 import { ArrowRight, GitBranch, TriangleAlert, UserCheck } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useSyncExternalStore } from "react";
+import type { RunMapSystem } from "@/components/simulator/run-map-system";
 import { WorkflowSimulator } from "@/components/simulator/WorkflowSimulator";
 import { AppIcon, Tile } from "@/components/ui/Icon";
 import { TechRow } from "@/components/ui/TechIcon";
@@ -15,6 +16,7 @@ export interface LabEntry {
   icon: IconName;
   tone: Tone;
   nodeLabels: Record<string, string>;
+  system: RunMapSystem;
   repository: Project["repository"];
 }
 
@@ -105,7 +107,7 @@ export function LabWorkspace({ entries }: { entries: LabEntry[] }) {
 
       <div className="min-w-0">
         {/* Remounting on change gives every workflow a clean run, input and selection. */}
-        <WorkflowSimulator key={active.workflow.id} workflow={active.workflow} nodeLabels={active.nodeLabels} repository={active.repository} />
+        <WorkflowSimulator key={active.workflow.id} workflow={active.workflow} system={active.system} nodeLabels={active.nodeLabels} repository={active.repository} />
         <p className="mt-4 text-sm text-muted">
           From{" "}
           <Link href={`/projects/${active.projectId}`} className="link inline-flex items-center gap-1">

@@ -26,6 +26,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { ArchitecturePicture } from "@/components/architecture/ArchitecturePicture";
 import { ArchitectureStage } from "@/components/architecture/ArchitectureStage";
+import { runMapSystem } from "@/components/simulator/run-map-system";
 import { WorkflowSimulator } from "@/components/simulator/WorkflowSimulator";
 import { AppIcon, CATEGORY_TONE, TONE_CYCLE, Tag, Tile } from "@/components/ui/Icon";
 import { ClaimText, EvidenceLine, ProvenanceBadge, ProvenanceLegend, ProvenanceMark, SourceList } from "@/components/ui/Provenance";
@@ -396,7 +397,7 @@ export function DemoPanel({ project }: { project: Project }) {
       <div className="space-y-10">
         {project.workflows.map((workflow) => (
           <div key={workflow.id} data-anchor>
-            <WorkflowSimulator workflow={workflow} nodeLabels={nodeLabels} repository={project.repository} />
+            <WorkflowSimulator workflow={workflow} system={runMapSystem(project.architecture)} nodeLabels={nodeLabels} repository={project.repository} />
           </div>
         ))}
       </div>

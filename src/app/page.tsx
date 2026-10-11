@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { MiniArchitecture } from "@/components/architecture/MiniArchitecture";
+import { runMapSystem } from "@/components/simulator/run-map-system";
 import { SystemHub, type HubLayer, type HubRoute, type HubSide } from "@/components/home/SystemHub";
 import { CountUp } from "@/components/ui/CountUp";
 import { layerTone } from "@/components/architecture/NodeDetails";
@@ -434,7 +435,7 @@ export default function HomePage() {
             </Link>
           }
         >
-          <WorkflowSimulator workflow={workflow} nodeLabels={nodeLabels} repository={flagship.repository} variant="compact" caseStudyHref={`/projects/${flagship.id}#demo`} />
+          <WorkflowSimulator workflow={workflow} system={runMapSystem(flagship.architecture)} nodeLabels={nodeLabels} repository={flagship.repository} variant="compact" caseStudyHref={`/projects/${flagship.id}#demo`} />
         </Section>
 
         {site.catalogue.length > 0 ? (

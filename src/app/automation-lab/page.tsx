@@ -1,6 +1,7 @@
 import { FlaskConical } from "lucide-react";
 import type { Metadata } from "next";
 import { LabWorkspace, type LabEntry } from "@/components/lab/LabWorkspace";
+import { runMapSystem } from "@/components/simulator/run-map-system";
 import { Tag } from "@/components/ui/Icon";
 import { getProjects } from "@/content/load";
 
@@ -19,6 +20,7 @@ export default function AutomationLabPage() {
       icon: project.icon,
       tone: project.tone,
       nodeLabels: Object.fromEntries(project.architecture.nodes.map((node) => [node.id, node.label])),
+      system: runMapSystem(project.architecture),
       repository: project.repository,
     })),
   );
