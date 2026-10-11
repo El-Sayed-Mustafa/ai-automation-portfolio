@@ -1,0 +1,2769 @@
+{
+  "id": "lead-enrichment-engine",
+  "title": "Lead Discovery and Contact Enrichment Engine",
+  "tagline": "A Python engine that finds trade businesses, matches licence records to map listings, and lets a phone number into the verified columns only through a gate that scores the name and checks the location.",
+  "summary": "A freelance project that builds contact lists for three trades from public sources. Builders are found through map searches. Electricians come from a public licence register, and each licence is matched to a map listing. Solar retailers come from a public search endpoint. The part worth studying is the match gate: a name score and two location signals decide whether a listing is the licence holder, and only then may its phone number be called verified. Long runs resume from their own output file. The gate has real weaknesses, and this page shows them.",
+  "categories": [
+    "data-engineering",
+    "automation"
+  ],
+  "engagement": "client",
+  "engagementNote": "Freelance client project. The client is not named. The code is public; the lists it produced are not published, because they are lists of real businesses.",
+  "icon": "radar",
+  "tone": "teal",
+  "highlights": [
+    {
+      "text": "Only a match that passes the gate can fill the verified phone column",
+      "provenance": "code"
+    },
+    {
+      "text": "Three signals per listing: name score, suburb or postcode, street",
+      "provenance": "code"
+    },
+    {
+      "text": "Unverified candidates stay in their own columns for a person to review",
+      "provenance": "code"
+    },
+    {
+      "text": "The output file is the checkpoint: one synced row per record",
+      "provenance": "code"
+    },
+    {
+      "text": "A blocked lookup is not saved, so the next pass tries it again",
+      "provenance": "code"
+    },
+    {
+      "text": "The register's human check is done by a person, never by the tool",
+      "provenance": "code"
+    }
+  ],
+  "statusLabel": "Shipped",
+  "roleLabel": "Design and implementation",
+  "status": {
+    "text": "The README marks the project as shipped and reports the totals of finished runs. The code is public. No output file is committed, so those runs cannot be re-checked from the repository.",
+    "provenance": "documented",
+    "sources": [
+      {
+        "path": "README.md",
+        "lines": "12"
+      },
+      {
+        "path": "README.md",
+        "lines": "31-41"
+      },
+      {
+        "path": "README.md",
+        "lines": "226-230"
+      }
+    ]
+  },
+  "repository": {
+    "name": "El-Sayed-Mustafa/victoria-lead-engine",
+    "url": "https://github.com/El-Sayed-Mustafa/victoria-lead-engine",
+    "branch": "main",
+    "visibility": "public",
+    "linkSources": true
+  },
+  "problem": {
+    "text": "A licence register says who may legally do the work, and gives no phone, website or email. A map listing has the contact details and no licence number. Joining the two by name is guesswork, and a wrong guess puts another business's phone number on a licence holder's row with nothing to show that it is wrong.",
+    "provenance": "documented",
+    "sources": [
+      {
+        "path": "README.md",
+        "lines": "19-27"
+      },
+      {
+        "path": "README.md",
+        "lines": "57-59"
+      }
+    ]
+  },
+  "context": [
+    {
+      "text": "Three pipelines share one engine module: builders found through map searches, electricians matched from a public licence register, and solar retailers pulled from a public search endpoint.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "victoria_builders_scraper.py",
+          "lines": "1-16"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "1-22"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "36"
+        },
+        {
+          "path": "solar_scraper.py",
+          "lines": "1-16"
+        }
+      ]
+    },
+    {
+      "text": "Everything is a Python script that reads and writes local CSV files. There is no database and no server.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "requirements.txt",
+          "lines": "1-12"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "748-754"
+        },
+        {
+          "path": "victoria_builders_scraper.py",
+          "lines": "506-513"
+        }
+      ]
+    },
+    {
+      "text": "The licence register sits behind a human check. A person completes it and runs the search, and the harvest script starts reading only once results are on screen. The tool does not attempt the check.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "energysafe_rec_scraper.py",
+          "lines": "9-19"
+        },
+        {
+          "path": "energysafe_rec_scraper.py",
+          "lines": "124-146"
+        },
+        {
+          "path": "energysafe_rec_scraper.py",
+          "lines": "452-458"
+        }
+      ]
+    },
+    {
+      "text": "The documentation describes runs that last days. The repository ships Windows scheduled-task templates that start each worker at logon and restart it when it exits.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "README.md",
+          "lines": "104-115"
+        },
+        {
+          "path": "deploy/enrichment_task.xml",
+          "lines": "7-16"
+        },
+        {
+          "path": "deploy/enrichment_task.xml",
+          "lines": "42-46"
+        }
+      ]
+    },
+    {
+      "text": "The harvested data is not in the repository: every output file is ignored by git.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": ".gitignore",
+          "lines": "6-22"
+        }
+      ]
+    }
+  ],
+  "role": {
+    "text": "Author of the repository: design and implementation.",
+    "provenance": "owner",
+    "sources": []
+  },
+  "challenges": [
+    {
+      "text": "A name match alone is not enough. The same business name can exist in more than one town, and the map returns whichever it finds.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "README.md",
+          "lines": "57-59"
+        }
+      ]
+    },
+    {
+      "text": "When a business has no listing, the map answers with a place or a street instead. Treated as candidates, these would attach stray phone numbers to licences.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "258-272"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "284-290"
+        }
+      ]
+    },
+    {
+      "text": "The register's results grid loads on scroll and stops advancing before the end of the full listing, so one pass cannot reach every row.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "energysafe_rec_scraper.py",
+          "lines": "324-329"
+        },
+        {
+          "path": "energysafe_rec_scraper.py",
+          "lines": "464-482"
+        }
+      ]
+    },
+    {
+      "text": "The map site sometimes answers a search with a block notice. A long run has to notice that, wait, and carry on without recording a wrong answer.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "victoria_builders_scraper.py",
+          "lines": "1151-1200"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "489-503"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "693-705"
+        }
+      ]
+    },
+    {
+      "text": "A run of days outlives the process that started it: the browser crashes, the process is killed, the machine restarts.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "README.md",
+          "lines": "104-115"
+        },
+        {
+          "path": "run_watchdog.py",
+          "lines": "1-13"
+        }
+      ]
+    }
+  ],
+  "solution": [
+    {
+      "text": "The name score blends a character comparison with word overlap, and adds a boost when the licence's distinctive words appear in the listing's name.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "190-214"
+        }
+      ]
+    },
+    {
+      "text": "Location is two separate signals: the suburb or postcode found in the listing's address, and a street verdict with three values, confirmed, contradicted or unknown.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "217-225"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "245-255"
+        }
+      ]
+    },
+    {
+      "text": "One function turns the score and the signals into five statuses. A fixed mapping turns the status into a contact confidence: Verified, Candidate Only or None.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "293-321"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "104-124"
+        }
+      ]
+    },
+    {
+      "text": "What the map returned is always written to candidate columns. The phone and website are copied to the verified columns only for a Verified match, and an email is looked up only then.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "563-587"
+        }
+      ]
+    },
+    {
+      "text": "A guard runs on every path out of the lookup. It derives the confidence again, empties the verified columns unless the row is Verified, and then asserts its invariants.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "127-156"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "511-514"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "554-557"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "589-590"
+        }
+      ]
+    },
+    {
+      "text": "Each result is appended, flushed and synced before the next record starts. On start the script reads its own output and skips every licence already there.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "613-627"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "707-711"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "764-765"
+        }
+      ]
+    },
+    {
+      "text": "A blocked lookup is tried three times with a wait, then left unwritten so that the next pass repeats it. Five in a row restart the browser and pause the run; four passes that save nothing end it.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "82-86"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "478-503"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "693-705"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "779-790"
+        }
+      ]
+    },
+    {
+      "text": "An outer watchdog relaunches the process while work remains, waits longer after a launch that saved nothing, and gives up after twelve such launches.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "run_watchdog.py",
+          "lines": "27-29"
+        },
+        {
+          "path": "run_watchdog.py",
+          "lines": "62-112"
+        }
+      ]
+    }
+  ],
+  "stack": [
+    {
+      "name": "Python",
+      "role": "Every pipeline, the matcher and the watchdogs",
+      "provenance": "code"
+    },
+    {
+      "name": "Selenium with Chrome",
+      "role": "Map searches, listing pages and the register harvest",
+      "provenance": "code"
+    },
+    {
+      "name": "difflib",
+      "role": "The character comparison inside the name score",
+      "provenance": "code"
+    },
+    {
+      "name": "requests and BeautifulSoup",
+      "role": "Fetching business websites and reading email addresses from them",
+      "provenance": "code"
+    },
+    {
+      "name": "pandas and openpyxl",
+      "role": "Rewriting the builders' lead file and packaging Excel workbooks",
+      "provenance": "code"
+    },
+    {
+      "name": "CSV files",
+      "role": "The only store. Each output file is also its run's checkpoint",
+      "provenance": "code"
+    },
+    {
+      "name": "Windows Task Scheduler",
+      "role": "Starts each worker at logon and restarts it when it exits",
+      "provenance": "code"
+    }
+  ],
+  "architecture": {
+    "summary": "Collectors turn three public sources into CSV files. One engine module owns the browser. The licence enrichment reads its queue file, looks each record up through the engine, passes the candidates through the matcher and the trust gate, and appends one row to an output file that is also its checkpoint. A watchdog restarts it when it exits.",
+    "layers": [
+      {
+        "id": "people",
+        "label": "People"
+      },
+      {
+        "id": "supervision",
+        "label": "Supervision"
+      },
+      {
+        "id": "files",
+        "label": "Files"
+      },
+      {
+        "id": "core",
+        "label": "Engine, matcher and gate"
+      },
+      {
+        "id": "collect",
+        "label": "Collectors"
+      },
+      {
+        "id": "sources",
+        "label": "Public sources"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "operator",
+        "label": "Operator",
+        "layer": "people",
+        "kind": "actor",
+        "technology": "One person",
+        "responsibility": "Completes the register's human check, starts the runs and reviews what the gate withheld.",
+        "inputs": [
+          "The register's search page",
+          "Rows marked Candidate Only"
+        ],
+        "outputs": [
+          "A results grid for the harvest to read",
+          "A started watchdog",
+          "Packaged workbooks"
+        ],
+        "details": [
+          "The harvest opens a visible browser and waits up to ten minutes for a person to complete the check and run a search.",
+          "The clean-up script and the workbook build are run by hand.",
+          "Nothing in the code records a review of Candidate Only rows. The columns exist so that one is possible."
+        ],
+        "failureModes": [
+          "Nobody is at the keyboard: the harvest gives up after ten minutes."
+        ],
+        "reliability": [
+          "Once the grid appears the harvest needs no further input."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "energysafe_rec_scraper.py",
+            "lines": "9-19"
+          },
+          {
+            "path": "energysafe_rec_scraper.py",
+            "lines": "124-146"
+          },
+          {
+            "path": "energysafe_rec_scraper.py",
+            "lines": "452-462"
+          },
+          {
+            "path": "clean_retry.py",
+            "lines": "19-21"
+          }
+        ],
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": "watchdog",
+        "label": "Watchdog",
+        "layer": "supervision",
+        "kind": "worker",
+        "technology": "A Python loop around a subprocess",
+        "responsibility": "Relaunches the enrichment process whenever it exits with licences left.",
+        "inputs": [
+          "The process's exit",
+          "The count of finished licences in the output file"
+        ],
+        "outputs": [
+          "A new launch, or a decision to stop"
+        ],
+        "details": [
+          "Progress is measured by reading the output file before and after each launch.",
+          "A launch that saved nothing counts as stalled. The pause before the next launch is 15 seconds normally and 120 seconds while stalled.",
+          "A scheduled-task template starts the watchdog at logon and restarts it if it exits.",
+          "The solar map pass has the same kind of watchdog around it."
+        ],
+        "failureModes": [
+          "The process dies at once on every launch.",
+          "The machine restarts."
+        ],
+        "reliability": [
+          "Twelve stalled launches in a row end the loop instead of restarting for ever.",
+          "A restart of the machine is covered by the scheduled task, not by the watchdog."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "run_watchdog.py",
+            "lines": "27-29"
+          },
+          {
+            "path": "run_watchdog.py",
+            "lines": "62-112"
+          },
+          {
+            "path": "solar_watchdog.py",
+            "lines": "56-84"
+          },
+          {
+            "path": "deploy/enrichment_task.xml",
+            "lines": "7-16"
+          },
+          {
+            "path": "deploy/enrichment_task.xml",
+            "lines": "42-46"
+          }
+        ],
+        "position": {
+          "x": 0,
+          "y": 224
+        }
+      },
+      {
+        "id": "register-harvest",
+        "label": "Register harvest",
+        "layer": "collect",
+        "kind": "worker",
+        "technology": "Selenium, reading a lazy-loaded grid",
+        "responsibility": "Reads every licence row from the register once a person has brought up the results.",
+        "inputs": [
+          "A results grid in a visible browser"
+        ],
+        "outputs": [
+          "Licence number, business name, street address, suburb, state, postcode and expiry"
+        ],
+        "details": [
+          "It finds each row by its licence number instead of by column headers.",
+          "The grid loads more rows on scroll. Scrolling is judged finished only when fifteen scrolls in a row bring no licence number it has not already seen.",
+          "The grid stops advancing before the end of the full listing, so it is read twice: once as sorted, once sorted by name descending. The two passes overlap and are deduplicated on licence number.",
+          "Rows already in the file are not written again, so several searches can accumulate into one file."
+        ],
+        "failureModes": [
+          "The sort cannot be switched: the second pass is skipped and the log says so.",
+          "The grid's layout changes and no row is parsed."
+        ],
+        "reliability": [
+          "Each batch is appended as it is read, so an interrupted harvest keeps what it has."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "energysafe_rec_scraper.py",
+            "lines": "164-196"
+          },
+          {
+            "path": "energysafe_rec_scraper.py",
+            "lines": "255-320"
+          },
+          {
+            "path": "energysafe_rec_scraper.py",
+            "lines": "324-329"
+          },
+          {
+            "path": "energysafe_rec_scraper.py",
+            "lines": "403-421"
+          },
+          {
+            "path": "energysafe_rec_scraper.py",
+            "lines": "464-482"
+          }
+        ],
+        "position": {
+          "x": 310,
+          "y": 0
+        }
+      },
+      {
+        "id": "builders-discovery",
+        "label": "Builders discovery",
+        "layer": "collect",
+        "kind": "worker",
+        "technology": "Map searches, town by keyword",
+        "responsibility": "Discovers builders by running one map search per town and keyword and saving every listing it opens.",
+        "inputs": [
+          "A list of towns",
+          "A list of 22 search keywords"
+        ],
+        "outputs": [
+          "One lead per business",
+          "One report row per search"
+        ],
+        "details": [
+          "A report file records the status of each town and keyword pair. Completed pairs are skipped on the next run and failed ones are run again.",
+          "Leads are deduplicated by map link before a page is opened, and again afterwards by name, phone, website and link.",
+          "Each lead is sorted into a group or marked rejected by its category and name. A rejected lead is still saved.",
+          "Emails are looked up by three background threads, which update the lead file when they finish."
+        ],
+        "failureModes": [
+          "Five listings in a row with no name: the search is abandoned and marked failed.",
+          "Each email result rewrites the whole lead file."
+        ],
+        "reliability": [
+          "A health tracker slows the pace when three in ten recent searches were blocked and pauses for twenty minutes at six in ten.",
+          "The browser is restarted every 100 searches."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "victoria_builders_scraper.py",
+            "lines": "74-108"
+          },
+          {
+            "path": "victoria_builders_scraper.py",
+            "lines": "126-141"
+          },
+          {
+            "path": "victoria_builders_scraper.py",
+            "lines": "305-384"
+          },
+          {
+            "path": "victoria_builders_scraper.py",
+            "lines": "516-533"
+          },
+          {
+            "path": "victoria_builders_scraper.py",
+            "lines": "547-581"
+          },
+          {
+            "path": "victoria_builders_scraper.py",
+            "lines": "688-722"
+          },
+          {
+            "path": "victoria_builders_scraper.py",
+            "lines": "1386-1540"
+          },
+          {
+            "path": "victoria_builders_scraper.py",
+            "lines": "1555-1628"
+          },
+          {
+            "path": "victoria_builders_scraper.py",
+            "lines": "2390-2433"
+          }
+        ],
+        "position": {
+          "x": 310,
+          "y": 112
+        }
+      },
+      {
+        "id": "solar-pipeline",
+        "label": "Solar retailer pipeline",
+        "layer": "collect",
+        "kind": "worker",
+        "technology": "One HTTP pull, then email and map passes",
+        "responsibility": "Pulls the solar retailer register from a public search endpoint and fills in missing contact details.",
+        "inputs": [
+          "Paginated search results"
+        ],
+        "outputs": [
+          "One row per retailer",
+          "An email pass file and a map pass file"
+        ],
+        "details": [
+          "The register comes back as JSON in pages of 250, with no browser.",
+          "The email pass is HTTP only, so it never competes for the browser.",
+          "Retailers missing a phone or a website go through the same per-record lookup and trust gate as the licences, keyed on business number.",
+          "That pass gives the matcher no suburb and no street, only a postcode."
+        ],
+        "failureModes": [
+          "With no street to contradict it, an exact name is verified wherever the listing is.",
+          "A site error may be a dead domain or a timeout."
+        ],
+        "reliability": [
+          "A separate retry script checks site errors again with short timeouts.",
+          "Both passes append and sync one row at a time and skip what is already written."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "solar_scraper.py",
+            "lines": "23-53"
+          },
+          {
+            "path": "solar_scraper.py",
+            "lines": "62-95"
+          },
+          {
+            "path": "solar_email_enrich.py",
+            "lines": "36-76"
+          },
+          {
+            "path": "solar_email_enrich.py",
+            "lines": "93-142"
+          },
+          {
+            "path": "solar_maps_enrich.py",
+            "lines": "58-66"
+          },
+          {
+            "path": "solar_maps_enrich.py",
+            "lines": "119-180"
+          },
+          {
+            "path": "solar_email_retry.py",
+            "lines": "54-83"
+          }
+        ],
+        "position": {
+          "x": 310,
+          "y": 224
+        }
+      },
+      {
+        "id": "licence-file",
+        "label": "Licence file",
+        "layer": "files",
+        "kind": "storage",
+        "technology": "CSV, one row per licence",
+        "responsibility": "Holds the harvested licences and is the queue the enrichment works through.",
+        "inputs": [
+          "Rows from the register harvest"
+        ],
+        "outputs": [
+          "Licence records, business-like names first"
+        ],
+        "details": [
+          "Seven columns: licence number, business name, street address, suburb, state, postcode and expiry.",
+          "The enrichment sorts business-like names ahead of personal names, so the rows most likely to have a listing are saved first."
+        ],
+        "failureModes": [
+          "The file is a snapshot. Nothing compares it with the register later."
+        ],
+        "reliability": [
+          "Deduplicated on licence number as it is written."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "energysafe_rec_scraper.py",
+            "lines": "58-63"
+          },
+          {
+            "path": "energysafe_rec_scraper.py",
+            "lines": "403-421"
+          },
+          {
+            "path": "electrical_enrichment.py",
+            "lines": "324-336"
+          },
+          {
+            "path": "electrical_enrichment.py",
+            "lines": "593-610"
+          },
+          {
+            "path": "electrical_enrichment.py",
+            "lines": "737-739"
+          }
+        ],
+        "position": {
+          "x": 620,
+          "y": 0
+        }
+      },
+      {
+        "id": "checkpoint",
+        "label": "Enriched output file",
+        "layer": "files",
+        "kind": "storage",
+        "technology": "CSV, appended and synced per row",
+        "responsibility": "Receives one guarded row per licence and tells a restarted run what is already done.",
+        "inputs": [
+          "One row from the enrichment"
+        ],
+        "outputs": [
+          "The set of finished licences",
+          "Rows for the email recovery workers and the workbooks"
+        ],
+        "details": [
+          "Nineteen columns in four groups: the licence's identity, what the map returned, what passed the gate, and the judgement.",
+          "A licence counts as done when the file has a row for it with any status except Blocked.",
+          "The file is opened in append mode, and each row is flushed and synced before the next lookup starts."
+        ],
+        "failureModes": [
+          "A row recorded as No Match for the wrong reason stays done.",
+          "A row cut off before its status still counts as done until the clean-up script is run by hand."
+        ],
+        "reliability": [
+          "No separate checkpoint can disagree with the data, because there is none.",
+          "The clean-up script makes a dated backup and replaces the file in one step."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "electrical_enrichment.py",
+            "lines": "88-99"
+          },
+          {
+            "path": "electrical_enrichment.py",
+            "lines": "613-627"
+          },
+          {
+            "path": "electrical_enrichment.py",
+            "lines": "707-711"
+          },
+          {
+            "path": "electrical_enrichment.py",
+            "lines": "748-754"
+          },
+          {
+            "path": "clean_retry.py",
+            "lines": "42-54"
+          },
+          {
+            "path": "clean_retry.py",
+            "lines": "107-117"
+          }
+        ],
+        "position": {
+          "x": 620,
+          "y": 112
+        }
+      },
+      {
+        "id": "workbooks",
+        "label": "Excel workbooks",
+        "layer": "files",
+        "kind": "storage",
+        "technology": "pandas and openpyxl",
+        "responsibility": "Packages the result files for delivery, one sheet per source.",
+        "inputs": [
+          "The result CSV files"
+        ],
+        "outputs": [
+          "Two workbooks with styled headers and filters"
+        ],
+        "details": [
+          "Sources are kept on separate sheets and never merged.",
+          "The sheets hold values only, no formulas.",
+          "The build reads a final enriched file under a different name from the one the enrichment writes. No script in the repository produces that file, so the step between is not in the code."
+        ],
+        "failureModes": [
+          "The final file is out of date with the checkpoint."
+        ],
+        "reliability": [
+          "A missing source becomes an empty sheet instead of an error."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "build_workbooks.py",
+            "lines": "25-28"
+          },
+          {
+            "path": "build_workbooks.py",
+            "lines": "51-68"
+          },
+          {
+            "path": "build_workbooks.py",
+            "lines": "71-99"
+          },
+          {
+            "path": "hunter_enrich.py",
+            "lines": "106-107"
+          }
+        ],
+        "position": {
+          "x": 620,
+          "y": 224
+        }
+      },
+      {
+        "id": "enrichment",
+        "label": "Licence enrichment run",
+        "layer": "core",
+        "kind": "worker",
+        "technology": "Python, one record at a time",
+        "responsibility": "Works through the licence file in passes and produces one row per licence.",
+        "inputs": [
+          "Licences not yet in the output file"
+        ],
+        "outputs": [
+          "One guarded row per licence",
+          "A summary of statuses when the run ends"
+        ],
+        "details": [
+          "Each pass works out what is left from the output file, so a blocked record is simply still there on the next pass.",
+          "A browser error raised in the middle of a record rebuilds the browser and tries that record once more.",
+          "The browser is rebuilt every 80 records.",
+          "After the run the whole file is read back, counted by status and passed through the guard again."
+        ],
+        "failureModes": [
+          "Navigation errors on all three attempts are caught inside the record and become a final No Match.",
+          "A pass that saves nothing."
+        ],
+        "reliability": [
+          "Five blocked records in a row rebuild the browser and pause the run for 90 to 180 seconds.",
+          "A pass that saves nothing is followed by a pause of five to seven minutes. Four such passes end the run with a message to start it again later."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "electrical_enrichment.py",
+            "lines": "656-732"
+          },
+          {
+            "path": "electrical_enrichment.py",
+            "lines": "735-799"
+          },
+          {
+            "path": "electrical_enrichment.py",
+            "lines": "802-846"
+          }
+        ],
+        "position": {
+          "x": 930,
+          "y": 0
+        }
+      },
+      {
+        "id": "browser-engine",
+        "label": "Shared browser engine",
+        "layer": "core",
+        "kind": "backend",
+        "technology": "One Python module, Selenium and Chrome",
+        "responsibility": "Owns the browser: searching the map, reading result links and listing pages, and noticing when the site has blocked the session.",
+        "inputs": [
+          "A search text or a listing link"
+        ],
+        "outputs": [
+          "Result links",
+          "Name, phone, website and address of a listing",
+          "A block label, or none"
+        ],
+        "details": [
+          "Every other script imports this module instead of copying it. The same file is also the builders pipeline.",
+          "Before a results page is read it is checked for a block: the address, the title and the page text.",
+          "Waits between actions are random within set ranges.",
+          "A search that lands directly on one business counts as a result."
+        ],
+        "failureModes": [
+          "A listing without a phone button: the first phone-shaped text on the page is taken instead.",
+          "The site changes its page structure and the selectors stop matching."
+        ],
+        "reliability": [
+          "Page loads time out after 20 seconds.",
+          "Reads of single fields return an empty value instead of raising."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "victoria_builders_scraper.py",
+            "lines": "478-492"
+          },
+          {
+            "path": "victoria_builders_scraper.py",
+            "lines": "1102-1104"
+          },
+          {
+            "path": "victoria_builders_scraper.py",
+            "lines": "1132-1148"
+          },
+          {
+            "path": "victoria_builders_scraper.py",
+            "lines": "1151-1200"
+          },
+          {
+            "path": "victoria_builders_scraper.py",
+            "lines": "1203-1263"
+          },
+          {
+            "path": "victoria_builders_scraper.py",
+            "lines": "1266-1349"
+          }
+        ],
+        "position": {
+          "x": 930,
+          "y": 112
+        }
+      },
+      {
+        "id": "matcher",
+        "label": "Matcher",
+        "layer": "core",
+        "kind": "backend",
+        "technology": "Pure Python and difflib",
+        "responsibility": "Scores each candidate listing against the licence and decides the match status.",
+        "inputs": [
+          "A licence record",
+          "Up to three candidate listings"
+        ],
+        "outputs": [
+          "The best candidate",
+          "One of five match statuses"
+        ],
+        "details": [
+          "Names are compared after legal suffixes and punctuation are removed.",
+          "The name score is the larger of two views. The blend is 0.45 of the character ratio plus 0.55 of the word overlap. The boost is 0.80 of the share of the licence's distinctive words found in the listing plus 0.20 of the character ratio.",
+          "Location is the suburb or postcode found in the listing's address and, separately, whether a word of the licence's street address appears there.",
+          "Thresholds: 0.85 for a high match, 0.68 for a probable one, 0.97 for a name accepted without a confirmed location."
+        ],
+        "failureModes": [
+          "A different business that shares the licence's distinctive word in the same suburb scores as a high match.",
+          "An exact name on a listing with no address is accepted.",
+          "One wrong letter in the distinctive word removes it from both the word overlap and the boost."
+        ],
+        "reliability": [
+          "A place or a bare street address returned in place of a business is passed over.",
+          "A near-exact name whose street contradicts the licence's is sent to a review tier."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "electrical_enrichment.py",
+            "lines": "76-79"
+          },
+          {
+            "path": "electrical_enrichment.py",
+            "lines": "158-214"
+          },
+          {
+            "path": "electrical_enrichment.py",
+            "lines": "217-255"
+          },
+          {
+            "path": "electrical_enrichment.py",
+            "lines": "258-290"
+          },
+          {
+            "path": "electrical_enrichment.py",
+            "lines": "293-321"
+          },
+          {
+            "path": "electrical_enrichment.py",
+            "lines": "520-552"
+          }
+        ],
+        "position": {
+          "x": 930,
+          "y": 224
+        }
+      },
+      {
+        "id": "trust-gate",
+        "label": "Trust gate",
+        "layer": "core",
+        "kind": "backend",
+        "technology": "A fixed mapping and one guard function",
+        "responsibility": "Decides what may be called verified, and removes anything else from the verified columns.",
+        "inputs": [
+          "A row with a match status"
+        ],
+        "outputs": [
+          "The same row with its confidence set and its verified columns kept or emptied"
+        ],
+        "details": [
+          "Matched (High) and Probable Match are Verified. The two review tiers are Candidate Only. Everything else is None.",
+          "The guard derives the confidence from the status itself and ignores what the caller wrote.",
+          "It is called on every path that returns a row, and once more over the whole file after a run.",
+          "The source calls it RULE 7."
+        ],
+        "failureModes": [
+          "It trusts the status: a wrong match that is marked Verified keeps its contact details.",
+          "Its assertions run after the columns are emptied, so for the statuses the matcher produces they cannot fail."
+        ],
+        "reliability": [
+          "A change elsewhere that writes an unverified phone into a verified column is undone before the row is saved."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "electrical_enrichment.py",
+            "lines": "101-124"
+          },
+          {
+            "path": "electrical_enrichment.py",
+            "lines": "127-156"
+          },
+          {
+            "path": "electrical_enrichment.py",
+            "lines": "511-514"
+          },
+          {
+            "path": "electrical_enrichment.py",
+            "lines": "554-557"
+          },
+          {
+            "path": "electrical_enrichment.py",
+            "lines": "589-590"
+          },
+          {
+            "path": "electrical_enrichment.py",
+            "lines": "811-819"
+          }
+        ],
+        "position": {
+          "x": 930,
+          "y": 336
+        }
+      },
+      {
+        "id": "licence-register",
+        "label": "Public licence register",
+        "layer": "sources",
+        "kind": "external",
+        "technology": "Web page behind a human check",
+        "responsibility": "Lists licensed electrical contractors with a name and an address, and no contact details.",
+        "inputs": [
+          "A search run by a person"
+        ],
+        "outputs": [
+          "A grid of licence rows that loads on scroll"
+        ],
+        "details": [
+          "The check is completed by a person in a visible browser. The tool waits for the grid and does not attempt the check.",
+          "The register has no phone, website or email, which is why the map lookup exists."
+        ],
+        "failureModes": [
+          "The grid stops loading before the end of the listing."
+        ],
+        "reliability": [
+          "Read in two sort orders and merged on licence number."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "energysafe_rec_scraper.py",
+            "lines": "1-28"
+          },
+          {
+            "path": "energysafe_rec_scraper.py",
+            "lines": "324-329"
+          }
+        ],
+        "position": {
+          "x": 1240,
+          "y": 0
+        }
+      },
+      {
+        "id": "maps-site",
+        "label": "Public map listings",
+        "layer": "sources",
+        "kind": "external",
+        "technology": "Web pages, read through a browser",
+        "responsibility": "Holds business listings with a phone, a website and an address.",
+        "inputs": [
+          "A search text",
+          "A listing link"
+        ],
+        "outputs": [
+          "A results panel",
+          "One listing page"
+        ],
+        "details": [
+          "Searched with the business name, suburb, state and country.",
+          "For a business it does not know it may return the suburb or a street instead."
+        ],
+        "failureModes": [
+          "It answers with a block notice instead of results.",
+          "It shows a listing without an address."
+        ],
+        "reliability": [
+          "A block is detected before the page is read, and the lookup waits and tries again."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "electrical_enrichment.py",
+            "lines": "470-509"
+          },
+          {
+            "path": "victoria_builders_scraper.py",
+            "lines": "1151-1200"
+          }
+        ],
+        "position": {
+          "x": 1240,
+          "y": 112
+        }
+      },
+      {
+        "id": "business-sites",
+        "label": "Business websites",
+        "layer": "sources",
+        "kind": "external",
+        "technology": "HTTP, with a rendered page as fallback",
+        "responsibility": "The listed business's own site, where an email address may be published.",
+        "inputs": [
+          "The website from a verified listing"
+        ],
+        "outputs": [
+          "An email address, or a reason there is none"
+        ],
+        "details": [
+          "Homepage first on both https and http, then up to three contact pages, then a rendered page.",
+          "An address on the site's own domain is preferred to any other found on the page.",
+          "Social networks and listing aggregators are never fetched."
+        ],
+        "failureModes": [
+          "The site does not answer.",
+          "The address on the page no longer works, and nothing checks."
+        ],
+        "reliability": [
+          "Each request has a 15 second limit, and the homepage request is tried twice.",
+          "A host that never answers is not sent to the rendered-page step."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "electrical_enrichment.py",
+            "lines": "339-345"
+          },
+          {
+            "path": "electrical_enrichment.py",
+            "lines": "354-365"
+          },
+          {
+            "path": "electrical_enrichment.py",
+            "lines": "368-429"
+          },
+          {
+            "path": "victoria_builders_scraper.py",
+            "lines": "729-741"
+          }
+        ],
+        "position": {
+          "x": 1240,
+          "y": 224
+        }
+      },
+      {
+        "id": "retailer-endpoint",
+        "label": "Public retailer search",
+        "layer": "sources",
+        "kind": "external",
+        "technology": "JSON search endpoint",
+        "responsibility": "Returns the register of authorised solar retailers.",
+        "inputs": [
+          "A paginated search request"
+        ],
+        "outputs": [
+          "Account name, website, phone, business number and postcode per retailer"
+        ],
+        "details": [
+          "It is the endpoint the register's own page queries.",
+          "It carries no email addresses, so those are looked up afterwards."
+        ],
+        "failureModes": [
+          "The endpoint changes or is closed."
+        ],
+        "reliability": [
+          "The whole register can be pulled again in one short run."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "solar_scraper.py",
+            "lines": "1-16"
+          },
+          {
+            "path": "solar_scraper.py",
+            "lines": "36-53"
+          }
+        ],
+        "position": {
+          "x": 1240,
+          "y": 336
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "operator-harvest",
+        "from": "operator",
+        "to": "register-harvest",
+        "protocol": "A visible browser window",
+        "data": "The completed human check and a search"
+      },
+      {
+        "id": "harvest-register",
+        "from": "register-harvest",
+        "to": "licence-register",
+        "protocol": "Selenium, scrolling the results grid",
+        "data": "Licence rows"
+      },
+      {
+        "id": "harvest-file",
+        "from": "register-harvest",
+        "to": "licence-file",
+        "protocol": "CSV append, deduplicated on licence number",
+        "data": "Licence records"
+      },
+      {
+        "id": "enrichment-queue",
+        "from": "enrichment",
+        "to": "licence-file",
+        "protocol": "CSV read",
+        "data": "Licences still to look up"
+      },
+      {
+        "id": "enrichment-engine",
+        "from": "enrichment",
+        "to": "browser-engine",
+        "protocol": "Python import, function calls",
+        "data": "One search, then up to three listings"
+      },
+      {
+        "id": "engine-maps",
+        "from": "browser-engine",
+        "to": "maps-site",
+        "protocol": "Selenium, one browser, paced",
+        "data": "A search and listing pages"
+      },
+      {
+        "id": "enrichment-matcher",
+        "from": "enrichment",
+        "to": "matcher",
+        "protocol": "Function call",
+        "data": "The licence and its candidate listings"
+      },
+      {
+        "id": "matcher-gate",
+        "from": "matcher",
+        "to": "trust-gate",
+        "protocol": "Function call",
+        "data": "The best candidate and its match status"
+      },
+      {
+        "id": "enrichment-sites",
+        "from": "enrichment",
+        "to": "business-sites",
+        "protocol": "HTTPS GET, rendered page as fallback",
+        "data": "An email address for a verified match"
+      },
+      {
+        "id": "enrichment-checkpoint",
+        "from": "enrichment",
+        "to": "checkpoint",
+        "protocol": "CSV append, flush and fsync; read back at start",
+        "data": "One guarded row per licence"
+      },
+      {
+        "id": "watchdog-enrichment",
+        "from": "watchdog",
+        "to": "enrichment",
+        "protocol": "Subprocess",
+        "data": "A relaunch while licences remain"
+      },
+      {
+        "id": "watchdog-checkpoint",
+        "from": "watchdog",
+        "to": "checkpoint",
+        "protocol": "CSV read",
+        "data": "The count of finished licences"
+      },
+      {
+        "id": "operator-watchdog",
+        "from": "operator",
+        "to": "watchdog",
+        "protocol": "Command line, or a scheduled task at logon",
+        "data": "The start of an unattended run"
+      },
+      {
+        "id": "builders-engine",
+        "from": "builders-discovery",
+        "to": "browser-engine",
+        "protocol": "The same module",
+        "data": "Town and keyword searches"
+      },
+      {
+        "id": "builders-sites",
+        "from": "builders-discovery",
+        "to": "business-sites",
+        "protocol": "HTTPS GET from background threads",
+        "data": "Email addresses for saved leads",
+        "kind": "async"
+      },
+      {
+        "id": "solar-endpoint",
+        "from": "solar-pipeline",
+        "to": "retailer-endpoint",
+        "protocol": "HTTPS POST, pages of 250",
+        "data": "The retailer register"
+      },
+      {
+        "id": "solar-sites",
+        "from": "solar-pipeline",
+        "to": "business-sites",
+        "protocol": "HTTPS GET",
+        "data": "Email addresses for retailers"
+      },
+      {
+        "id": "solar-enrichment",
+        "from": "solar-pipeline",
+        "to": "enrichment",
+        "protocol": "Python import of the per-record lookup",
+        "data": "Retailers missing a phone or a website"
+      },
+      {
+        "id": "workbooks-checkpoint",
+        "from": "workbooks",
+        "to": "checkpoint",
+        "protocol": "pandas read of a final copy",
+        "data": "Final rows for the electrical workbook"
+      },
+      {
+        "id": "operator-workbooks",
+        "from": "operator",
+        "to": "workbooks",
+        "protocol": "Command line",
+        "data": "A packaging run"
+      }
+    ],
+    "flows": [
+      {
+        "id": "register-harvested",
+        "label": "A person opens the register and the harvest takes over",
+        "description": "A person completes the human check and runs a search. The script then reads the grid in two sort orders and appends each new licence to the queue file.",
+        "path": [
+          "operator-harvest",
+          "harvest-register",
+          "harvest-file"
+        ]
+      },
+      {
+        "id": "licence-looked-up",
+        "label": "One licence is matched to a listing",
+        "description": "The enrichment takes a licence, searches the map through the engine, scores up to three listings, passes the best through the gate, looks up an email if it is verified and appends the row.",
+        "path": [
+          "enrichment-queue",
+          "enrichment-engine",
+          "engine-maps",
+          "enrichment-matcher",
+          "matcher-gate",
+          "enrichment-sites",
+          "enrichment-checkpoint"
+        ]
+      },
+      {
+        "id": "run-survives-a-crash",
+        "label": "A long run survives a crash",
+        "description": "The watchdog starts the process, counts finished licences in the output file when it exits, and starts it again. The new process reads the same file to find what is left.",
+        "path": [
+          "operator-watchdog",
+          "watchdog-enrichment",
+          "watchdog-checkpoint",
+          "enrichment-checkpoint"
+        ]
+      },
+      {
+        "id": "builders-found",
+        "label": "Builders are discovered through map searches",
+        "description": "One search per town and keyword goes through the same engine. Each listing is saved as a lead, and its email is looked up in the background.",
+        "path": [
+          "builders-engine",
+          "engine-maps",
+          "builders-sites"
+        ]
+      },
+      {
+        "id": "retailers-enriched",
+        "label": "Solar retailers are pulled, then completed",
+        "description": "The register comes from a search endpoint. Emails are read from the retailers' own sites, and those still missing a phone or website go through the licence lookup and its gate.",
+        "path": [
+          "solar-endpoint",
+          "solar-sites",
+          "solar-enrichment",
+          "enrichment-engine",
+          "engine-maps"
+        ]
+      }
+    ]
+  },
+  "workflows": [
+    {
+      "id": "licence-to-contact",
+      "title": "One licence through the trust gate",
+      "summary": "Follow one licence record from the queue to a saved row. Choose what the map has for the business and see whether its phone number is verified, kept for review or left out.",
+      "proves": "It shows how a phone number earns the word verified, what happens to a candidate that does not, how a blocked lookup is left for the next pass, and where the gate lets a wrong match through.",
+      "scenarioId": "leads.licence-to-contact",
+      "mode": "simulation",
+      "modeNote": "This is a simulation that runs in your browser. The name score, the location checks, the status decision, the guard and the resume rule are re-implemented from the repository's Python and really run on what you type; this site's tests compare them with values computed by running that Python. The thresholds are the repository's real ones, because the code is public. Everything else is invented: the licence, the businesses, the addresses, the example.test websites and the phone numbers. No real service is called: no map is searched, no register is opened and no website is fetched. Waits that the code draws at random use the middle of their range, and the time that passes is simulated.",
+      "technologies": [
+        "Python",
+        "Selenium with Chrome",
+        "difflib",
+        "CSV files"
+      ],
+      "phases": [
+        {
+          "id": "queue",
+          "label": "Queue"
+        },
+        {
+          "id": "search",
+          "label": "Search"
+        },
+        {
+          "id": "match",
+          "label": "Match"
+        },
+        {
+          "id": "gate",
+          "label": "Trust gate"
+        },
+        {
+          "id": "save",
+          "label": "Save"
+        }
+      ],
+      "steps": [
+        {
+          "id": "record.read",
+          "label": "Take the next licence",
+          "kind": "trigger",
+          "nodeId": "licence-file",
+          "phase": "queue",
+          "summary": "One licence record: a name and an address, no contact details.",
+          "description": "The queue is the file written by the register harvest. That harvest is semi-manual: a person completes the register's human check and runs the search, and the script reads the rows once they are on screen. The enrichment reads the file and puts business-like names ahead of personal ones.",
+          "sources": [
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "324-336"
+            },
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "593-610"
+            },
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "737-739"
+            },
+            {
+              "path": "energysafe_rec_scraper.py",
+              "lines": "9-19"
+            }
+          ]
+        },
+        {
+          "id": "resume.check",
+          "label": "Skip what is already done",
+          "kind": "database",
+          "nodeId": "checkpoint",
+          "phase": "queue",
+          "summary": "The output file is read to see whether this licence already has a row.",
+          "description": "There is no separate checkpoint. A licence is done when the output file holds a row for it with any status except Blocked. Each pass works out what is left from the file again.",
+          "sources": [
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "613-627"
+            },
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "764-765"
+            }
+          ]
+        },
+        {
+          "id": "name.normalise",
+          "label": "Normalise the name",
+          "kind": "transform",
+          "nodeId": "matcher",
+          "phase": "search",
+          "summary": "Legal suffixes and punctuation are removed, leaving the words that identify the business.",
+          "description": "The name is put in lower case, legal suffixes such as Pty Ltd and joining words are removed, and punctuation becomes spaces. Filler words such as electrical are then set aside to find the distinctive ones. In the code this runs inside the scoring function, for both names; the licence's side is shown here first. The search itself uses the name as the licence has it.",
+          "sources": [
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "158-187"
+            },
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "470-472"
+            }
+          ]
+        },
+        {
+          "id": "maps.search",
+          "label": "Search the map",
+          "kind": "api",
+          "nodeId": "maps-site",
+          "phase": "search",
+          "summary": "One search for the name, suburb and state, with up to three attempts.",
+          "description": "The page is checked for a block before it is read. A blocked attempt waits about 10 to 20 seconds and tries again, and a failed one waits about 4 to 8. If no results panel appears after three attempts, the record is marked Blocked when the last error mentions a block, and No Match otherwise.",
+          "sources": [
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "474-514"
+            },
+            {
+              "path": "victoria_builders_scraper.py",
+              "lines": "1151-1200"
+            },
+            {
+              "path": "victoria_builders_scraper.py",
+              "lines": "1203-1215"
+            }
+          ]
+        },
+        {
+          "id": "candidates.read",
+          "label": "Open up to three listings",
+          "kind": "worker",
+          "nodeId": "browser-engine",
+          "phase": "search",
+          "summary": "Each listing's name, phone, website and address are read.",
+          "description": "The first three result links are opened in turn. A result that is the suburb or state itself is passed over, and so is a bare street address with no phone and no website: the map returns these when a business has no listing. In the code each listing is scored before the next is opened; the demo shows reading and scoring as separate steps.",
+          "sources": [
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "516-537"
+            },
+            {
+              "path": "victoria_builders_scraper.py",
+              "lines": "1242-1263"
+            },
+            {
+              "path": "victoria_builders_scraper.py",
+              "lines": "1297-1349"
+            }
+          ]
+        },
+        {
+          "id": "candidates.score",
+          "label": "Score each candidate",
+          "kind": "validation",
+          "nodeId": "matcher",
+          "phase": "match",
+          "summary": "A name score and two location signals for every listing.",
+          "description": "The name score is the larger of two views: 0.45 of the character ratio plus 0.55 of the word overlap, or 0.80 of the share of the licence's distinctive words found in the listing plus 0.20 of the character ratio. Location is checked twice: the suburb or postcode in the listing's address, and a street verdict that can be confirmed, contradicted or unknown.",
+          "sources": [
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "190-214"
+            },
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "217-225"
+            },
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "240-255"
+            },
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "538-543"
+            }
+          ]
+        },
+        {
+          "id": "candidate.pick",
+          "label": "Pick the best",
+          "kind": "transform",
+          "nodeId": "matcher",
+          "phase": "match",
+          "summary": "The highest score wins, and a confirmed location breaks a near tie.",
+          "description": "A candidate replaces the best so far when it scores more than 0.05 higher, or when it is within 0.05 of a best whose location is unconfirmed and its own location is confirmed. The loop stops at the first candidate that scores at least 0.85 with a confirmed location.",
+          "sources": [
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "545-551"
+            }
+          ]
+        },
+        {
+          "id": "status.decide",
+          "label": "Decide the match status",
+          "kind": "validation",
+          "nodeId": "matcher",
+          "phase": "match",
+          "summary": "One of five statuses, from the score and the location signals.",
+          "description": "With a confirmed location, a score of 0.85 is Matched (High) and 0.68 is Probable Match. Without one, a score of 0.97 or more is still Matched (High) unless the street contradicts it, 0.85 is Name Match / Location Mismatch, and 0.68 is Low Confidence. Anything lower is No Match.",
+          "sources": [
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "293-321"
+            },
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "559-560"
+            }
+          ]
+        },
+        {
+          "id": "confidence.derive",
+          "label": "Derive the confidence",
+          "kind": "transform",
+          "nodeId": "trust-gate",
+          "phase": "gate",
+          "summary": "The status decides whether the contact is Verified, Candidate Only or None.",
+          "description": "What the map returned is always written to the candidate columns. The phone and website are copied to the verified columns only when the confidence is Verified.",
+          "sources": [
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "104-124"
+            },
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "561-587"
+            }
+          ]
+        },
+        {
+          "id": "email.chase",
+          "label": "Look up an email",
+          "kind": "api",
+          "nodeId": "business-sites",
+          "phase": "gate",
+          "summary": "Only a verified match has its website visited.",
+          "description": "The homepage is fetched on https and http with one retry each, then up to three contact pages, then a rendered page if the site answered without showing an address. An unverified match is given the email status Skipped (unverified match) and no site is visited. Nothing checks that an address can receive mail.",
+          "sources": [
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "368-429"
+            },
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "574-587"
+            }
+          ]
+        },
+        {
+          "id": "guard.enforce",
+          "label": "Run the guard",
+          "kind": "validation",
+          "nodeId": "trust-gate",
+          "phase": "gate",
+          "summary": "Verified columns are emptied unless the row is Verified, then the invariants are asserted.",
+          "description": "The guard derives the confidence from the status again, empties the three verified columns when it is not Verified, and only then asserts. It is called on every path that returns a row, including the ones that found no candidate. Because it empties before it asserts, it prevents a leak but cannot detect a wrong match.",
+          "sources": [
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "127-156"
+            },
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "511-514"
+            },
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "554-557"
+            },
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "589-590"
+            }
+          ]
+        },
+        {
+          "id": "row.append",
+          "label": "Append the row",
+          "kind": "database",
+          "nodeId": "checkpoint",
+          "phase": "save",
+          "summary": "One row, flushed and synced, unless the lookup was blocked.",
+          "description": "A row marked Blocked is not written, so the licence stays in the queue for the next pass. Any other row is appended, flushed and synced before the next record starts, and from then on a restart skips that licence.",
+          "sources": [
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "693-711"
+            },
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "748-754"
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "key": "licenceName",
+          "label": "Business name on the licence",
+          "type": "text",
+          "maxLength": 60,
+          "help": "As a licence register would have it, with or without a legal suffix. Letters, digits and simple punctuation."
+        },
+        {
+          "key": "listingName",
+          "label": "Name of the closest map listing",
+          "type": "text",
+          "maxLength": 60,
+          "help": "What the map calls the business it found. Ignored when the business is not listed."
+        },
+        {
+          "key": "mapShows",
+          "label": "Where the map places that listing",
+          "type": "select",
+          "options": [
+            "at the licence address",
+            "same suburb, another street",
+            "another suburb",
+            "another suburb, same street name",
+            "not listed"
+          ],
+          "help": "The invented licence is at 27 Wattlebird Road, Northfield 3999. Not listed means the map answers with the suburb itself."
+        },
+        {
+          "key": "firstResult",
+          "label": "What the map shows first",
+          "type": "select",
+          "options": [
+            "an unrelated business",
+            "the same name in another suburb"
+          ],
+          "help": "A second listing with the same name shows how a near tie is broken. Ignored when the business is not listed."
+        }
+      ],
+      "faults": [
+        {
+          "id": "already-done",
+          "label": "This licence already has a row",
+          "stepId": "resume.check",
+          "classification": "implemented",
+          "description": "The output file from an earlier run holds a row for this licence.",
+          "expected": "The record is skipped before anything is searched. Nothing is written twice.",
+          "sources": [
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "613-627"
+            },
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "764-765"
+            }
+          ]
+        },
+        {
+          "id": "lookup-blocked",
+          "label": "The map blocks the lookup",
+          "stepId": "maps.search",
+          "classification": "implemented",
+          "description": "Every attempt gets a block notice instead of results.",
+          "expected": "Three attempts, with a wait of about 10 to 20 seconds after each. The record is marked Blocked, the guard runs, and the row is not written, so the next pass looks the licence up again.",
+          "group": "lookup",
+          "sources": [
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "489-514"
+            },
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "693-705"
+            }
+          ]
+        },
+        {
+          "id": "session-dead",
+          "label": "The browser session dies",
+          "stepId": "maps.search",
+          "classification": "limitation",
+          "description": "Opening the search raises a browser error on every attempt.",
+          "expected": "The error is caught inside the record. Its text does not mention a block, so the record is saved as No Match and is never looked up again.",
+          "group": "lookup",
+          "sources": [
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "478-484"
+            },
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "511-514"
+            },
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "613-627"
+            },
+            {
+              "path": "clean_retry.py",
+              "lines": "32-54"
+            }
+          ]
+        },
+        {
+          "id": "place-result",
+          "label": "The map puts the suburb first",
+          "stepId": "candidates.read",
+          "classification": "implemented",
+          "description": "The first result is the suburb itself, not a business.",
+          "expected": "It is passed over. It still uses one of the three places, so one fewer business is inspected.",
+          "sources": [
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "258-272"
+            },
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "517"
+            },
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "528-532"
+            }
+          ]
+        },
+        {
+          "id": "hidden-address",
+          "label": "The listing shows no address",
+          "stepId": "candidates.read",
+          "classification": "limitation",
+          "description": "The closest listing has a name, a phone and a website, and no address.",
+          "expected": "Neither location signal can say anything. A near-exact name is still Matched (High) and verified; a weaker name drops to a review tier.",
+          "sources": [
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "217-225"
+            },
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "252-254"
+            },
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "311-315"
+            }
+          ]
+        },
+        {
+          "id": "leaky-promotion",
+          "label": "A bug copies an unverified phone into the verified columns",
+          "stepId": "guard.enforce",
+          "classification": "implemented",
+          "description": "A hypothetical change to the promotion step writes the candidate's phone and website into the verified columns of a row that is not verified.",
+          "expected": "The guard empties them before the row is saved. The candidate columns keep what the map returned. On a verified row the fault changes nothing.",
+          "sources": [
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "127-156"
+            },
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "589-590"
+            }
+          ]
+        },
+        {
+          "id": "site-unreachable",
+          "label": "The business website does not answer",
+          "stepId": "email.chase",
+          "classification": "implemented",
+          "description": "Neither https nor http responds.",
+          "expected": "Each is tried twice, the email status becomes Site Error, and the row is saved with its verified phone and website and no email.",
+          "group": "email",
+          "sources": [
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "354-365"
+            },
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "393-402"
+            },
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "413-429"
+            }
+          ]
+        },
+        {
+          "id": "dead-mailbox",
+          "label": "The published email address is dead",
+          "stepId": "email.chase",
+          "classification": "limitation",
+          "description": "The address on the homepage no longer accepts mail.",
+          "expected": "It is saved in the verified email column with the status Found. Nothing checks that an address can receive mail.",
+          "group": "email",
+          "sources": [
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "368-429"
+            },
+            {
+              "path": "victoria_builders_scraper.py",
+              "lines": "808-817"
+            }
+          ]
+        },
+        {
+          "id": "process-killed",
+          "label": "The process is killed before the row is written",
+          "stepId": "row.append",
+          "classification": "implemented",
+          "description": "The enrichment process dies after the lookup and before the append.",
+          "expected": "Nothing of the record is on disk. The watchdog relaunches the process, which does not find the licence in the output file and looks it up again. The row is written once.",
+          "sources": [
+            {
+              "path": "run_watchdog.py",
+              "lines": "62-112"
+            },
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "613-627"
+            },
+            {
+              "path": "electrical_enrichment.py",
+              "lines": "707-711"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "decisions": [
+    {
+      "id": "candidate-and-verified",
+      "title": "Two sets of contact columns, not one with a flag",
+      "problem": "A matcher that fills one phone column and marks doubtful rows beside it relies on every later reader checking the mark.",
+      "options": [
+        {
+          "name": "Candidate columns for what the map returned, verified columns for what passed the gate",
+          "verdict": "chosen",
+          "note": "A reader who ignores every status column still cannot mistake a candidate for a verified contact."
+        },
+        {
+          "name": "One set of contact columns and a status flag",
+          "verdict": "rejected",
+          "note": "Smaller, but one filter left off downstream sends calls to the wrong business."
+        }
+      ],
+      "rationale": "The candidate is worth keeping, because a person can check it. Keeping it somewhere else makes the safe reading the default one. The documentation gives the first half of this reason; the rejected option is not recorded there.",
+      "tradeoffs": [
+        "Five extra columns on every row.",
+        "Nothing in the code records whether a candidate was ever reviewed."
+      ],
+      "evolution": "Add a reviewed-by and a decision column, so that a checked candidate can be promoted with a trace.",
+      "provenance": "inferred",
+      "sources": [
+        {
+          "path": "README.md",
+          "lines": "200-211"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "88-102"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "563-587"
+        }
+      ]
+    },
+    {
+      "id": "enforce-then-assert",
+      "title": "Empty the columns first, then assert",
+      "problem": "A check that only reports a verified phone on an unverified row finds the error after it has been made, and only if someone reads the report.",
+      "options": [
+        {
+          "name": "Derive the confidence, empty the verified columns unless it is Verified, then assert",
+          "verdict": "chosen",
+          "note": "The wrong state is removed on the way out of every lookup."
+        },
+        {
+          "name": "Assert only, and fail the row when the check does not hold",
+          "verdict": "rejected",
+          "note": "It would measure something, but a failed assertion in a run of days either stops the run or is swallowed."
+        }
+      ],
+      "rationale": "The guard makes one promise and keeps it by construction: an unverified row leaves with empty verified columns, whatever the code before it did.",
+      "tradeoffs": [
+        "The whole-file audit can no longer find anything: it runs the function that has already emptied the columns.",
+        "The guard trusts the status. It does nothing about a match that is wrong and marked Verified."
+      ],
+      "evolution": "Keep the guard, and add a separate audit that reads the saved file without changing it and compares verified rows with a hand-checked sample.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "README.md",
+          "lines": "63-78"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "127-156"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "811-819"
+        }
+      ]
+    },
+    {
+      "id": "three-valued-street",
+      "title": "Unknown is not the same as contradicted",
+      "problem": "A listing often shows no street. Treating that like a different street throws away good matches, and treating a different street like no street lets wrong ones through.",
+      "options": [
+        {
+          "name": "A street verdict with three values: confirmed, contradicted, unknown",
+          "verdict": "chosen",
+          "note": "Only a contradiction demotes a near-exact name."
+        },
+        {
+          "name": "A yes or no street check",
+          "verdict": "rejected",
+          "note": "Unknown has to be folded into one side, and either choice is wrong for many rows."
+        }
+      ],
+      "rationale": "The decision function needs to tell a map that did not say from a map that said somewhere else.",
+      "tradeoffs": [
+        "An exact name with an unknown location is accepted, which verifies a listing on its name alone.",
+        "The check compares single words, so the same street name in another suburb counts as confirmed."
+      ],
+      "evolution": "Treat unknown as unconfirmed when deciding what is verified, and compare street number and suburb together.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/ARCHITECTURE.md",
+          "lines": "141-146"
+        },
+        {
+          "path": "docs/ARCHITECTURE.md",
+          "lines": "164"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "245-255"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "299-315"
+        }
+      ]
+    },
+    {
+      "id": "output-is-checkpoint",
+      "title": "The output file is the checkpoint",
+      "problem": "A run of days will be interrupted. A progress file kept beside the data can say a record is done when its row never reached the disk.",
+      "options": [
+        {
+          "name": "Append and sync one row per record, and read the output back to find what is left",
+          "verdict": "chosen",
+          "note": "What is done is exactly what is on disk."
+        },
+        {
+          "name": "A separate progress or state file",
+          "verdict": "rejected",
+          "note": "Two files that must agree, written at different moments."
+        }
+      ],
+      "rationale": "Resume becomes a property of the data. Killing the process at any point loses at most the record in flight.",
+      "tradeoffs": [
+        "The whole output file is read at the start of every pass.",
+        "A row with a wrong final status is done for good: correcting it means removing the row.",
+        "A CSV that is only appended to cannot update a row in place."
+      ],
+      "evolution": "Move the output to SQLite with the licence number as the key, which keeps the same property and allows a row to be corrected.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "README.md",
+          "lines": "113"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "613-627"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "707-711"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "748-754"
+        }
+      ]
+    },
+    {
+      "id": "semi-manual-harvest",
+      "title": "A person does the register's human check",
+      "problem": "The licence register is behind a human check. Reading it fully unattended would mean getting past that check.",
+      "options": [
+        {
+          "name": "Open a visible browser, let a person complete the check and run the search, then read the results",
+          "verdict": "chosen",
+          "note": "The script waits up to ten minutes for a grid to appear and needs no terminal input."
+        },
+        {
+          "name": "Automate the check",
+          "verdict": "rejected",
+          "note": "The documentation calls it fragile and out of bounds."
+        }
+      ],
+      "rationale": "The check is there to be passed by a person. The work is split where the site splits it.",
+      "tradeoffs": [
+        "The harvest cannot run on a schedule.",
+        "A person has to be present each time the register is read again."
+      ],
+      "evolution": "Ask the register's publisher for a data extract, which would remove the browser step.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/ARCHITECTURE.md",
+          "lines": "94-104"
+        },
+        {
+          "path": "energysafe_rec_scraper.py",
+          "lines": "9-19"
+        },
+        {
+          "path": "energysafe_rec_scraper.py",
+          "lines": "124-146"
+        }
+      ]
+    },
+    {
+      "id": "email-only-for-verified",
+      "title": "No email lookup for an unverified match",
+      "problem": "The candidate listing has a website even when the match is doubtful. Reading an email from it costs one request.",
+      "options": [
+        {
+          "name": "Visit the website only when the match is Verified",
+          "verdict": "chosen",
+          "note": "The row records that the lookup was skipped and why."
+        },
+        {
+          "name": "Look up an email for every candidate and keep it beside the candidate",
+          "verdict": "rejected",
+          "note": "An address from the wrong business's site looks as real as a right one."
+        }
+      ],
+      "rationale": "The documentation's reasoning: an email taken from the wrong business is worse than no email.",
+      "tradeoffs": [
+        "A candidate that a reviewer later accepts has no email until someone looks it up.",
+        "The protection depends on the match being right, and the match has known gaps."
+      ],
+      "evolution": "Offer the lookup as a second step for candidates a person has accepted.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/ARCHITECTURE.md",
+          "lines": "269-271"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "574-587"
+        }
+      ]
+    },
+    {
+      "id": "blocked-not-written",
+      "title": "A blocked lookup leaves no row",
+      "problem": "A lookup that was blocked has no answer yet. Something has to make sure it is tried again without the run stopping for it.",
+      "options": [
+        {
+          "name": "Do not write the row, so the licence is still missing from the output on the next pass",
+          "verdict": "chosen",
+          "note": "The retry needs no extra bookkeeping."
+        },
+        {
+          "name": "Write a Blocked row and remove it later with a clean-up script",
+          "verdict": "rejected",
+          "note": "The loader and the clean-up script still handle such rows, and the documentation describes this version."
+        }
+      ],
+      "rationale": "Read from the code, not confirmed by the author: with the output as the only checkpoint, an absent row is the simplest way to say not done.",
+      "tradeoffs": [
+        "A blocked lookup leaves no trace in the data, only in the log.",
+        "A navigation error does not get the same treatment: it is written as No Match."
+      ],
+      "evolution": "Give navigation errors and missing result panels the same temporary status as a block.",
+      "provenance": "inferred",
+      "sources": [
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "622-623"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "656-660"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "693-705"
+        },
+        {
+          "path": "clean_retry.py",
+          "lines": "9-12"
+        },
+        {
+          "path": "docs/ARCHITECTURE.md",
+          "lines": "241"
+        }
+      ]
+    }
+  ],
+  "metrics": [
+    {
+      "id": "verified-licences",
+      "label": "Licences given a verified contact",
+      "value": "4,118 of 18,736",
+      "kind": "count",
+      "method": "Stated in the repository's README and architecture notes as the total of a finished run. The output files are not committed and the figure was not re-derived for this page. It counts rows the gate marked Verified, not rows checked to be right.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "README.md",
+          "lines": "36-38"
+        },
+        {
+          "path": "docs/ARCHITECTURE.md",
+          "lines": "174-177"
+        }
+      ]
+    },
+    {
+      "id": "status-breakdown",
+      "label": "Match status of the 18,736 licences",
+      "value": "3,948 high, 170 probable, 1,118 name only, 434 low confidence, 13,066 no match",
+      "kind": "count",
+      "method": "The table in the repository's architecture notes. Not re-derived: no output file is committed. The five figures add up to 18,736.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/ARCHITECTURE.md",
+          "lines": "174-180"
+        }
+      ]
+    },
+    {
+      "id": "withheld-candidates",
+      "label": "Candidates found and withheld from the verified columns",
+      "value": "1,552",
+      "kind": "count",
+      "method": "Stated in the architecture notes as the number of Candidate Only rows. It equals the two review tiers added together. Not re-derived.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/ARCHITECTURE.md",
+          "lines": "178-179"
+        },
+        {
+          "path": "docs/ARCHITECTURE.md",
+          "lines": "191"
+        }
+      ]
+    },
+    {
+      "id": "no-contact",
+      "label": "Licences with no usable contact",
+      "value": "13,066 of 18,736",
+      "kind": "count",
+      "method": "Stated in the README and the architecture notes, which put most of them down to sole traders with no online presence. That explanation is the author's. The code also records a browser error as No Match, so the share with that cause is not known.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "README.md",
+          "lines": "80"
+        },
+        {
+          "path": "docs/ARCHITECTURE.md",
+          "lines": "180"
+        },
+        {
+          "path": "docs/ARCHITECTURE.md",
+          "lines": "193"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "511-514"
+        }
+      ]
+    },
+    {
+      "id": "guard-audit",
+      "label": "Rows the guard's whole-file check flagged",
+      "value": "0 of 18,736",
+      "kind": "count",
+      "method": "Stated in the README and the architecture notes. The check runs the function that empties the verified columns before it asserts, so it cannot fail for any status the matcher produces. It shows that the guard ran. It is not a measure of match accuracy.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "README.md",
+          "lines": "78"
+        },
+        {
+          "path": "docs/ARCHITECTURE.md",
+          "lines": "189"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "811-819"
+        }
+      ]
+    },
+    {
+      "id": "other-pipelines",
+      "label": "Records from the other two pipelines",
+      "value": "56,981 builder leads, 1,873 solar retailers",
+      "kind": "count",
+      "method": "Stated in the README's results table. The output files are not committed and the figures were not re-derived. The retailer count is also written in the pull script's own description.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "README.md",
+          "lines": "36"
+        },
+        {
+          "path": "solar_scraper.py",
+          "lines": "4"
+        }
+      ]
+    },
+    {
+      "id": "tests",
+      "label": "Automated tests",
+      "value": "None",
+      "kind": "count",
+      "method": "Counted in the repository: 36 tracked files, none of them a test, and no test framework among the dependencies.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "requirements.txt",
+          "lines": "1-12"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    {
+      "id": "no-tests",
+      "title": "There are no automated tests",
+      "current": "The repository has 36 files and none is a test. The scoring functions are pure and easy to test, and they carry every decision about which phone number is trusted.",
+      "proposal": "Add table-driven tests for the name score, the location checks and the status decision, starting from the name pairs that are known to go wrong.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "requirements.txt",
+          "lines": "1-12"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "190-214"
+        }
+      ]
+    },
+    {
+      "id": "audit-is-a-guard",
+      "title": "The zero-violation audit cannot fail, and match accuracy is not measured",
+      "current": "The whole-file audit calls the same function that empties the verified columns and then asserts that they are empty. It reports that the guard ran. Nothing in the repository checks a sample of verified rows against the truth, so how often a verified phone belongs to the right business is not known.",
+      "proposal": "Check a random sample of Verified and Candidate Only rows by hand, publish the error rates, and add an audit that reads the saved file without changing it.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "127-156"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "811-819"
+        }
+      ]
+    },
+    {
+      "id": "namesake",
+      "title": "A namesake in the same suburb is verified",
+      "current": "When every distinctive word of the licence name appears in the listing name, the score is at least 0.80 however many other words the listing adds. With invented names: a licence whose one distinctive word also heads a listing ending in \"& Sons Electrical Services\" scores 0.944, where the plain comparison gives 0.599. In the same suburb that is Matched (High). In another invented pair, a licence named after its suburb scores 0.937 against a bakery that carries the suburb's name.",
+      "proposal": "Count the listing's extra distinctive words against the score, and require the street or a second signal when the boost, not the plain comparison, carried the match.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "177-187"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "198-214"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "302-309"
+        }
+      ]
+    },
+    {
+      "id": "thin-location",
+      "title": "A match can be verified on thin location evidence",
+      "current": "A name scoring 0.97 or more is verified when the listing shows no address at all, because an unknown location is not a contradiction. The street check compares single words, so the same street name in another suburb confirms the location even when suburb and postcode both fail. The solar pass gives the matcher no suburb and no street, so there an exact name is verified wherever the listing is.",
+      "proposal": "Require the suburb or postcode for a Verified result, send an exact name with no location to the review tier, and compare street number and name together.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "240-255"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "302-315"
+        },
+        {
+          "path": "solar_maps_enrich.py",
+          "lines": "58-66"
+        }
+      ]
+    },
+    {
+      "id": "browser-error-no-match",
+      "title": "A browser error is saved as a final No Match",
+      "current": "If opening the search raises a browser error on all three attempts, or the results panel never appears, the record is saved as No Match. Only an error whose text mentions a block is treated as temporary. The resume check then skips the licence and the clean-up script keeps every No Match, so the business is never looked up again. Nothing on that path rebuilds the browser.",
+      "proposal": "Mark these records with the temporary status that a block already has, rebuild the browser when navigation fails, and count them in the run summary.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "478-484"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "505-514"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "613-627"
+        },
+        {
+          "path": "clean_retry.py",
+          "lines": "32-54"
+        }
+      ]
+    },
+    {
+      "id": "email-unchecked",
+      "title": "A found email address is not checked",
+      "current": "The email pass takes an address from the page, preferring one on the site's own domain, and saves it. Nothing checks that the domain accepts mail or that the mailbox exists. A separate recovery worker goes further: its search tier accepts the first address in a web search result for the business name and suburb, with no check that it belongs to the business, and writes it to its own file with the method named.",
+      "proposal": "Check that the domain has a mail server before saving, record in the main file how each address was found, and never label a searched address as verified.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "339-345"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "404-410"
+        },
+        {
+          "path": "email_booster.py",
+          "lines": "170-197"
+        }
+      ]
+    },
+    {
+      "id": "manual-harvest",
+      "title": "The register harvest needs a person every time",
+      "current": "The register is behind a human check that the tool does not attempt. A person completes it and runs the search before any row can be read, and the results grid has to be read twice because it stops loading before the end. The licence file is therefore a snapshot from the day someone sat down to make it.",
+      "proposal": "Ask the register's publisher for a data extract. Until then, record the harvest date in the file and harvest again on a fixed calendar.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "energysafe_rec_scraper.py",
+          "lines": "9-19"
+        },
+        {
+          "path": "energysafe_rec_scraper.py",
+          "lines": "124-146"
+        },
+        {
+          "path": "energysafe_rec_scraper.py",
+          "lines": "324-329"
+        }
+      ]
+    },
+    {
+      "id": "docs-ahead-of-code",
+      "title": "The documentation and the code disagree in places",
+      "current": "The architecture notes say a blocked record is written as Blocked and requeued by the clean-up script; the code does not write it. They say there is no thread pool; the builders pipeline uses one and runs background email threads. They describe the name score as a character ratio; the code blends it with word overlap and a boost. The README mentions a hard cap per session; the daily quota in the code is off by default. This page follows the code. The run totals come only from that documentation.",
+      "proposal": "Rewrite the notes from the code, and commit a small anonymised sample of output so that the totals can be checked.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "docs/ARCHITECTURE.md",
+          "lines": "139"
+        },
+        {
+          "path": "docs/ARCHITECTURE.md",
+          "lines": "241"
+        },
+        {
+          "path": "docs/ARCHITECTURE.md",
+          "lines": "248"
+        },
+        {
+          "path": "README.md",
+          "lines": "228"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "204-213"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "656-660"
+        },
+        {
+          "path": "victoria_builders_scraper.py",
+          "lines": "138"
+        },
+        {
+          "path": "victoria_builders_scraper.py",
+          "lines": "936"
+        },
+        {
+          "path": "victoria_builders_scraper.py",
+          "lines": "1620-1628"
+        }
+      ]
+    }
+  ],
+  "screenshots": [],
+  "screenshotsNote": "No screenshots are published. The project has no user interface, and its outputs are lists of real businesses.",
+  "evidence": [
+    {
+      "label": "Matcher and trust gate",
+      "kind": "source",
+      "description": "The name score, the two location checks, the status decision, the confidence mapping and the guard, in one file with the per-record lookup.",
+      "sources": [
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "76-79"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "113-156"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "190-255"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "293-321"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "461-590"
+        }
+      ]
+    },
+    {
+      "label": "Run and resume",
+      "kind": "source",
+      "description": "The pass loop, the resume loader, the handling of blocked records, the clean-up script and the two watchdogs.",
+      "sources": [
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "613-627"
+        },
+        {
+          "path": "electrical_enrichment.py",
+          "lines": "656-799"
+        },
+        {
+          "path": "run_watchdog.py"
+        },
+        {
+          "path": "solar_watchdog.py"
+        },
+        {
+          "path": "clean_retry.py"
+        }
+      ]
+    },
+    {
+      "label": "Shared engine",
+      "kind": "source",
+      "description": "Search, result links, listing details, block detection and email extraction, imported by every other script.",
+      "sources": [
+        {
+          "path": "victoria_builders_scraper.py",
+          "lines": "784-960"
+        },
+        {
+          "path": "victoria_builders_scraper.py",
+          "lines": "1151-1349"
+        }
+      ]
+    },
+    {
+      "label": "Collectors",
+      "kind": "source",
+      "description": "The semi-manual register harvest, the retailer pull and the retailer map pass.",
+      "sources": [
+        {
+          "path": "energysafe_rec_scraper.py"
+        },
+        {
+          "path": "solar_scraper.py"
+        },
+        {
+          "path": "solar_maps_enrich.py"
+        }
+      ]
+    },
+    {
+      "label": "Deployment templates",
+      "kind": "source",
+      "description": "Scheduled-task definitions and launchers for the long-running workers.",
+      "sources": [
+        {
+          "path": "deploy/README.md"
+        },
+        {
+          "path": "deploy/enrichment_task.xml"
+        },
+        {
+          "path": "deploy/run_enrichment_service.bat"
+        }
+      ]
+    },
+    {
+      "label": "Project documentation",
+      "kind": "documentation",
+      "description": "The README and the architecture notes. They are the only source for the run totals on this page, and they describe some behaviour the code does not have.",
+      "sources": [
+        {
+          "path": "README.md"
+        },
+        {
+          "path": "docs/ARCHITECTURE.md"
+        }
+      ]
+    },
+    {
+      "label": "Tests",
+      "kind": "tests",
+      "description": "None in the repository. The tests behind the demo on this page belong to this site: they compare its re-implementation with values computed by running the repository's Python.",
+      "sources": [
+        {
+          "path": "requirements.txt",
+          "lines": "1-12"
+        }
+      ]
+    },
+    {
+      "label": "Measurements",
+      "kind": "measurements",
+      "description": "No output file is committed, by design: the results are lists of real businesses. Every figure on this page is quoted from the documentation and was not re-derived.",
+      "sources": [
+        {
+          "path": ".gitignore",
+          "lines": "6-22"
+        },
+        {
+          "path": "README.md",
+          "lines": "31-41"
+        }
+      ]
+    }
+  ]
+}

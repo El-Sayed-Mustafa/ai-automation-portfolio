@@ -1,0 +1,2408 @@
+{
+  "id": "rating-estimator",
+  "title": "Amazon Rating Estimator and Review-Removal Simulator",
+  "tagline": "A toolkit that estimates the star rating Amazon displays for a product from its star breakdown alone, and simulates how gaining or removing reviews would move it.",
+  "summary": "Built at BlueBug. Amazon does not publish how it turns a product's reviews into the rating it displays, and the number is not a plain average. A trained model estimates the displayed rating from the star breakdown and was measured on products it never saw in training. The what-if sliders and the target planner use a transparent average instead, so their answers can be checked with a calculator. Both tools are live. A queued, email-gated pipeline for requests by product code is partly built: its scraper, its email and its worker schedule are in progress. This page is based only on the project's public write-up.",
+  "categories": [
+    "ai-engineering",
+    "backend"
+  ],
+  "engagement": "employer",
+  "engagementNote": "Built at BlueBug. The application source is private; the author states it is his and shares it on request. This page is based only on the public write-up, and the demo re-implements what that write-up describes, on invented data.",
+  "icon": "star",
+  "tone": "indigo",
+  "highlights": [
+    {
+      "text": "A trained model estimates the displayed rating from the star breakdown",
+      "provenance": "documented"
+    },
+    {
+      "text": "80.7% exact match on unseen products; rounding the average gets about 68%",
+      "provenance": "documented"
+    },
+    {
+      "text": "Train and test are split by product, so no product is on both sides",
+      "provenance": "documented"
+    },
+    {
+      "text": "What-if sliders use an average that can be checked with a calculator",
+      "provenance": "documented"
+    },
+    {
+      "text": "The planner refuses a target it cannot reach instead of inventing a plan",
+      "provenance": "documented"
+    },
+    {
+      "text": "A queued request is claimed in one transaction, so one worker gets it",
+      "provenance": "documented"
+    }
+  ],
+  "statusLabel": "Tools live, pipeline part-built",
+  "roleLabel": "Engineer at BlueBug",
+  "status": {
+    "text": "Both tools are live and validated, and the model is trained, benchmarked and shipped. The asynchronous request pipeline is partly built: the request queue and the email-quota layer are built and unit-tested, and the scraper integration, transactional email and the worker's schedule are in progress.",
+    "provenance": "documented",
+    "sources": [
+      {
+        "path": "showcase/README.md",
+        "lines": "124-129"
+      }
+    ]
+  },
+  "repository": {
+    "name": "The application source is private",
+    "visibility": "private",
+    "linkSources": false,
+    "writeUpUrl": "https://github.com/El-Sayed-Mustafa/bluebug-rating-showcase"
+  },
+  "problem": {
+    "text": "Amazon does not publish the formula behind the star rating on a product page, and the number is not a plain average of every star the product has received. Reviews are weighted by factors such as recency and verified-purchase status, so two products with the same star counts can display different ratings. A seller who does the arithmetic by hand gets one number and sees another.",
+    "provenance": "documented",
+    "sources": [
+      {
+        "path": "showcase/README.md",
+        "lines": "14-21"
+      }
+    ]
+  },
+  "context": [
+    {
+      "text": "The project is described in a public showcase: its architecture, design decisions and results. The application source is in a private repository that belongs to BlueBug.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "7-10"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "133"
+        }
+      ]
+    },
+    {
+      "text": "Two tools share one backend: a quick estimate from a typed star breakdown, and a full analysis of a product by its code (ASIN).",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "28-33"
+        }
+      ]
+    },
+    {
+      "text": "The frontend is static HTML, CSS and JavaScript with no framework. The backend is a small threaded Python HTTP server with a JSON API.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "64-67"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "119-120"
+        }
+      ]
+    },
+    {
+      "text": "There are two SQLite databases, separated by concern: read-only reference data per product, and the request pipeline in WAL mode.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "73-90"
+        }
+      ]
+    }
+  ],
+  "role": {
+    "text": "Engineer on the project at BlueBug.",
+    "provenance": "owner",
+    "sources": []
+  },
+  "challenges": [
+    {
+      "text": "The plain average is not the displayed number: half-up rounding of it matched the displayed rating on about 68% of held-out products.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "27-29"
+        }
+      ]
+    },
+    {
+      "text": "An accuracy figure is easy to inflate. A feature that carries the displayed rating, an identifier, or one product on both sides of the split would each do it.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "94-97"
+        },
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "14-25"
+        }
+      ]
+    },
+    {
+      "text": "A trained model extrapolates unreliably on hand-typed or degenerate inputs. It can rate removing 6 reviews above removing 10, which is impossible.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "42-46"
+        }
+      ]
+    },
+    {
+      "text": "A planner that always answers would invent a plan for a target that cannot be reached, and a plan reads like an instruction when only reviews that breach the guidelines are actionable.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "106-109"
+        },
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "122-126"
+        }
+      ]
+    },
+    {
+      "text": "A request for any product goes through a queue with a promised 24-hour turnaround, so a failure has to be caught and retried before the deadline.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "75"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "87-88"
+        },
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "105-109"
+        }
+      ]
+    }
+  ],
+  "solution": [
+    {
+      "text": "A LightGBM multiclass model predicts the displayed rating times ten from the product's rating distribution and rounding-boundary features.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "44-45"
+        },
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "10-20"
+        }
+      ]
+    },
+    {
+      "text": "The model never sees the displayed rating or any identifier as a feature, and the train and test split is grouped by product, so reported accuracy is on products it never saw.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "94-97"
+        },
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "22-25"
+        }
+      ]
+    },
+    {
+      "text": "The sliders and the target planner use a transparent half-up weighted average instead of the model, so the what-if result is monotonic and can be checked by hand.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "99-104"
+        },
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "33-48"
+        }
+      ]
+    },
+    {
+      "text": "The planner returns the smallest set of removals that reaches a target, refuses a target it cannot reach, and never proposes a removal that would lower the rating.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "55-69"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "106-109"
+        }
+      ]
+    },
+    {
+      "text": "A product request is gated by a verified email with three free requests, deduplicated, queued in SQLite and claimed by a worker inside an immediate transaction. The write-up reports this layer as built and unit-tested.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "94-104"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "128"
+        }
+      ]
+    },
+    {
+      "text": "Requests are designed to be processed as soon as a worker is free and delivered at the 24-hour mark, with up to three attempts. The scraper, the email and the worker's schedule that this needs are in progress.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "105-109"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "129"
+        }
+      ]
+    }
+  ],
+  "stack": [
+    {
+      "name": "Python",
+      "role": "The backend server and its JSON API",
+      "provenance": "documented"
+    },
+    {
+      "name": "LightGBM",
+      "role": "The multiclass model behind the headline estimate",
+      "provenance": "documented"
+    },
+    {
+      "name": "NumPy and pandas",
+      "role": "Listed in the write-up's stack; where each is used is not described",
+      "provenance": "documented"
+    },
+    {
+      "name": "SQLite in WAL mode",
+      "role": "Product reference data, and the request queue with its email quota",
+      "provenance": "documented"
+    },
+    {
+      "name": "Threaded http.server",
+      "role": "The JSON API and the static files, from one small server",
+      "provenance": "documented"
+    },
+    {
+      "name": "HTML, CSS and JavaScript",
+      "role": "The two tools and the email gate, with no framework",
+      "provenance": "documented"
+    },
+    {
+      "name": "Headless Chromium",
+      "role": "Printing the results page to a PDF report",
+      "provenance": "documented"
+    }
+  ],
+  "beforeAfter": {
+    "title": "Rounding the average against the trained model",
+    "note": "Both columns are the public write-up's own figures, stated as measured on the same held-out products. The evaluation code and data are private and were not re-run for this page.",
+    "before": [
+      {
+        "text": "A seller who does the arithmetic by hand gets one number and sees Amazon show another.",
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "showcase/README.md",
+            "lines": "19-21"
+          }
+        ]
+      },
+      {
+        "text": "Half-up rounding of the plain average matched the displayed rating exactly on about 68% of held-out products.",
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "showcase/SYSTEM_DESIGN.md",
+            "lines": "24-29"
+          }
+        ]
+      }
+    ],
+    "after": [
+      {
+        "text": "The trained model matched it exactly on 80.7% of held-out products.",
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "showcase/README.md",
+            "lines": "47-51"
+          },
+          {
+            "path": "showcase/SYSTEM_DESIGN.md",
+            "lines": "27-29"
+          }
+        ]
+      },
+      {
+        "text": "It was within 0.1 stars on 94.7% of them, with a mean absolute error of 0.034 stars.",
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "showcase/README.md",
+            "lines": "52-53"
+          }
+        ]
+      },
+      {
+        "text": "Tested against a plain weighted-average formula on the same unseen data, the model won on every metric, which the write-up gives as the reason it is the one shipped.",
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "showcase/README.md",
+            "lines": "55-56"
+          }
+        ]
+      }
+    ]
+  },
+  "architecture": {
+    "summary": "A static frontend with two tools talks to one small Python HTTP server. The server answers from a trained model, a transparent simulator and a planner, backed by two SQLite databases. A request for any product goes through an email gate into a queue; the worker, the scraper and the email that would finish it are in progress.",
+    "layers": [
+      {
+        "id": "browser",
+        "label": "Browser"
+      },
+      {
+        "id": "backend",
+        "label": "Python backend"
+      },
+      {
+        "id": "estimators",
+        "label": "Model, simulator and planner"
+      },
+      {
+        "id": "data",
+        "label": "SQLite stores"
+      },
+      {
+        "id": "pipeline",
+        "label": "Request pipeline, partly built"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "seller",
+        "label": "Seller",
+        "layer": "browser",
+        "kind": "actor",
+        "technology": "A visitor with a product listing",
+        "responsibility": "Types a star breakdown or a product code, moves the sliders and sets a target rating.",
+        "inputs": [
+          "The star breakdown shown on a product page"
+        ],
+        "outputs": [
+          "A breakdown, a product code or a target rating",
+          "An email address, for a queued request"
+        ],
+        "details": [
+          "The write-up describes the user as a seller who wants to know what rating the page will display and how it could move.",
+          "The write-up describes no step in the request pipeline where a person decides anything: from the verified email to the report, each step is automatic."
+        ],
+        "failureModes": [
+          "Typing a breakdown no real product has. The model is unreliable there, which is why the sliders do not use it."
+        ],
+        "reliability": [
+          "The plan is framed as a ceiling: only reviews that genuinely breach the marketplace's guidelines are actionable."
+        ],
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "showcase/README.md",
+            "lines": "14-24"
+          },
+          {
+            "path": "showcase/README.md",
+            "lines": "106-109"
+          }
+        ],
+        "position": {
+          "x": 0,
+          "y": 112
+        }
+      },
+      {
+        "id": "quick-tool",
+        "label": "Quick Rating Estimate",
+        "layer": "browser",
+        "kind": "frontend",
+        "technology": "Static HTML, CSS and JavaScript",
+        "responsibility": "Takes a typed star breakdown and shows the estimated displayed rating, with live sliders and a planner for a target rating. It needs no product code and no scraping.",
+        "inputs": [
+          "A star breakdown, typed by hand"
+        ],
+        "outputs": [
+          "The estimated rating",
+          "The what-if result as the sliders move",
+          "A removal plan for a target"
+        ],
+        "details": [
+          "The headline number comes from the model.",
+          "The sliders and the target planner use the transparent average, not the model.",
+          "The write-up says both surfaces agree on the current rating, so the page never shows two conflicting numbers. It does not say how."
+        ],
+        "failureModes": [
+          "A hand-typed, degenerate breakdown is outside what the model was trained on."
+        ],
+        "reliability": [
+          "The what-if result is monotonic: removing more negative reviews can never lower it.",
+          "Reported as live and validated."
+        ],
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "showcase/README.md",
+            "lines": "32"
+          },
+          {
+            "path": "showcase/README.md",
+            "lines": "99-104"
+          },
+          {
+            "path": "showcase/README.md",
+            "lines": "126"
+          },
+          {
+            "path": "showcase/SYSTEM_DESIGN.md",
+            "lines": "33-48"
+          },
+          {
+            "path": "showcase/docs/architecture.svg",
+            "lines": "9-11"
+          }
+        ],
+        "position": {
+          "x": 310,
+          "y": 0
+        }
+      },
+      {
+        "id": "full-tool",
+        "label": "Full Analysis (by ASIN)",
+        "layer": "browser",
+        "kind": "frontend",
+        "technology": "Static HTML, CSS and JavaScript",
+        "responsibility": "Takes a product code and shows a per-review analysis and a removal plan that uses each review's metadata. It is also the way into the queued request flow.",
+        "inputs": [
+          "A product code (ASIN)"
+        ],
+        "outputs": [
+          "A model estimate, the rating distribution and the top negative reviews",
+          "A review-level removal plan"
+        ],
+        "details": [
+          "Each review's metadata is used: verified purchase, helpful votes and recency.",
+          "Any product code is served through the queued, email-gated pipeline, whose scraper, email and worker schedule are in progress.",
+          "What the tool shows for a product it holds no data for is not described in the public write-up."
+        ],
+        "failureModes": [
+          "Not described in the public write-up."
+        ],
+        "reliability": [
+          "The plan is the smallest set of reviews that reaches the target.",
+          "Reported as live and validated."
+        ],
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "showcase/README.md",
+            "lines": "33"
+          },
+          {
+            "path": "showcase/README.md",
+            "lines": "37"
+          },
+          {
+            "path": "showcase/README.md",
+            "lines": "75"
+          },
+          {
+            "path": "showcase/README.md",
+            "lines": "126"
+          },
+          {
+            "path": "showcase/SYSTEM_DESIGN.md",
+            "lines": "62-65"
+          },
+          {
+            "path": "showcase/docs/architecture.svg",
+            "lines": "12-14"
+          }
+        ],
+        "position": {
+          "x": 310,
+          "y": 112
+        }
+      },
+      {
+        "id": "email-gate",
+        "label": "Email gate and quota",
+        "layer": "browser",
+        "kind": "frontend",
+        "technology": "Static page: verify, three free tries, sign-up",
+        "responsibility": "Asks for an email address and its code before a product request is accepted, and shows the invitation to sign up when the free requests are used.",
+        "inputs": [
+          "An email address",
+          "The 6-digit code",
+          "One product code"
+        ],
+        "outputs": [
+          "A verification attempt",
+          "A request submission"
+        ],
+        "details": [
+          "The write-up reports the request queue and the email-quota layer as built and unit-tested. It does not list them as live.",
+          "How the code reaches the visitor is not described, and transactional email is listed as in progress."
+        ],
+        "failureModes": [
+          "A code typed after its 15 minutes.",
+          "A fourth request from an email that has used its three."
+        ],
+        "reliability": [
+          "A refusal for quota carries a flag, so the page invites sign-up instead of showing an error."
+        ],
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "showcase/README.md",
+            "lines": "64-65"
+          },
+          {
+            "path": "showcase/README.md",
+            "lines": "79-81"
+          },
+          {
+            "path": "showcase/README.md",
+            "lines": "128-129"
+          },
+          {
+            "path": "showcase/SYSTEM_DESIGN.md",
+            "lines": "96-100"
+          },
+          {
+            "path": "showcase/docs/architecture.svg",
+            "lines": "15-17"
+          }
+        ],
+        "position": {
+          "x": 310,
+          "y": 224
+        }
+      },
+      {
+        "id": "tools-api",
+        "label": "Estimate and plan endpoints",
+        "layer": "backend",
+        "kind": "backend",
+        "technology": "Threaded Python http.server, JSON over HTTP",
+        "responsibility": "Answers the two tools through /estimate, /simulate, /analyze and /plan, and serves the static files.",
+        "inputs": [
+          "A star breakdown or a product code",
+          "A target rating"
+        ],
+        "outputs": [
+          "An estimate, a what-if result, a per-review analysis or a plan, as JSON"
+        ],
+        "details": [
+          "One small threaded HTTP server exposes the whole JSON API. This card and the next are two groups of endpoints in that one server.",
+          "Which tool calls which endpoint is not spelled out in the write-up."
+        ],
+        "failureModes": [
+          "Not described in the public write-up."
+        ],
+        "reliability": [
+          "Not described beyond the server being threaded."
+        ],
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "showcase/README.md",
+            "lines": "66-67"
+          },
+          {
+            "path": "showcase/README.md",
+            "lines": "119-120"
+          },
+          {
+            "path": "showcase/docs/architecture.svg",
+            "lines": "24-35"
+          }
+        ],
+        "position": {
+          "x": 620,
+          "y": 56
+        }
+      },
+      {
+        "id": "request-api",
+        "label": "Submit and verify endpoints",
+        "layer": "backend",
+        "kind": "backend",
+        "technology": "The same server: /submit and /verify",
+        "responsibility": "Issues and checks the email code, applies the quota, drops a duplicate submission and queues a request.",
+        "inputs": [
+          "An email address and a code",
+          "One product code"
+        ],
+        "outputs": [
+          "Rows in users, email_tokens and requests",
+          "A refusal with a prompt_signup flag when the free requests are used"
+        ],
+        "details": [
+          "A code has six digits and lasts 15 minutes. Issuing a new one invalidates the older ones.",
+          "Three free requests per verified email. Signing up makes the account unlimited.",
+          "Resubmitting a product that is already pending or being processed does not use a free try and does not queue twice.",
+          "Reported as built and unit-tested. Which of the two endpoints issues the code is not described."
+        ],
+        "failureModes": [
+          "An expired or replaced code.",
+          "A fourth request.",
+          "A duplicate submission."
+        ],
+        "reliability": [
+          "Each of those cases has a defined answer in the write-up."
+        ],
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "showcase/SYSTEM_DESIGN.md",
+            "lines": "94-102"
+          },
+          {
+            "path": "showcase/README.md",
+            "lines": "79-82"
+          },
+          {
+            "path": "showcase/README.md",
+            "lines": "128"
+          },
+          {
+            "path": "showcase/docs/architecture.svg",
+            "lines": "32-33"
+          }
+        ],
+        "position": {
+          "x": 620,
+          "y": 224
+        }
+      },
+      {
+        "id": "rating-model",
+        "label": "Rating model",
+        "layer": "estimators",
+        "kind": "backend",
+        "technology": "LightGBM multiclass over the rating times ten",
+        "responsibility": "Predicts the rating the product page displays, from the product's rating distribution.",
+        "whyThisTechnology": {
+          "text": "The write-up gives the reason for a learned model, not for this library: the displayed number is not the raw average, because recency and verified-purchase weighting shift it, and the model captures that shift.",
+          "provenance": "documented",
+          "sources": [
+            {
+              "path": "showcase/SYSTEM_DESIGN.md",
+              "lines": "27-29"
+            }
+          ]
+        },
+        "inputs": [
+          "Per-star counts and shares",
+          "Totals, the written-review ratio and log transforms of the totals",
+          "The raw weighted average and rounding-boundary features"
+        ],
+        "outputs": [
+          "A label from 10 to 50: the displayed rating times ten"
+        ],
+        "details": [
+          "Features come from the distribution only. No product code, review id or buyer name is a feature, and the displayed rating is never an input.",
+          "The split is grouped by product, so each product is entirely in training or entirely in test.",
+          "On held-out products the write-up reports 80.7% exact match, 94.7% within 0.1 stars and a mean absolute error of 0.034 stars, against about 68% exact for half-up rounding of the plain average.",
+          "The trained model is private. The demo on this page does not reproduce it and prints no model estimate."
+        ],
+        "failureModes": [
+          "On hand-typed or degenerate inputs it extrapolates unreliably. It can rate removing 6 reviews above removing 10, which is impossible."
+        ],
+        "reliability": [
+          "It is used only for the headline estimate. The sliders and the planner use the transparent average.",
+          "Reported as trained, benchmarked and shipped."
+        ],
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "showcase/README.md",
+            "lines": "44-56"
+          },
+          {
+            "path": "showcase/README.md",
+            "lines": "94-97"
+          },
+          {
+            "path": "showcase/README.md",
+            "lines": "127"
+          },
+          {
+            "path": "showcase/SYSTEM_DESIGN.md",
+            "lines": "8-29"
+          },
+          {
+            "path": "showcase/docs/architecture.svg",
+            "lines": "46-50"
+          }
+        ],
+        "position": {
+          "x": 930,
+          "y": 0
+        }
+      },
+      {
+        "id": "simulator",
+        "label": "Transparent simulator",
+        "layer": "estimators",
+        "kind": "backend",
+        "technology": "Half-up weighted average, exact",
+        "responsibility": "Answers the what-if sliders: the rating after reviews are added or removed, computed from the counts.",
+        "inputs": [
+          "A star breakdown and the change to try"
+        ],
+        "outputs": [
+          "The rating after the change"
+        ],
+        "details": [
+          "The average of the star levels weighted by their counts, rounded half-up.",
+          "It is monotonic: removing more negative reviews can never lower the result.",
+          "According to the write-up, a test suite asserts this across 15 edge-case distributions with more than 1,500 checks. That suite is private.",
+          "The demo on this page re-implements the average in whole-number arithmetic and tests it on edge cases of its own."
+        ],
+        "failureModes": [
+          "On real distributions the model is more accurate: half-up rounding of the plain average matched about 68% of held-out products exactly."
+        ],
+        "reliability": [
+          "Its result can be checked with a calculator."
+        ],
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "showcase/README.md",
+            "lines": "99-104"
+          },
+          {
+            "path": "showcase/README.md",
+            "lines": "111-113"
+          },
+          {
+            "path": "showcase/SYSTEM_DESIGN.md",
+            "lines": "33-51"
+          },
+          {
+            "path": "showcase/docs/architecture.svg",
+            "lines": "52-56"
+          }
+        ],
+        "position": {
+          "x": 930,
+          "y": 112
+        }
+      },
+      {
+        "id": "planner",
+        "label": "Removal planner",
+        "layer": "estimators",
+        "kind": "backend",
+        "technology": "Smallest set of removals for a target",
+        "responsibility": "Given a target rating, finds the smallest number of removals that reaches it, or says that it cannot be reached.",
+        "inputs": [
+          "A star breakdown, or a product's reviews",
+          "A target rating"
+        ],
+        "outputs": [
+          "A plan such as \"remove N one-star ratings\", or a refusal"
+        ],
+        "details": [
+          "Quick Estimate: bucket-level, on the exact weighted average.",
+          "Full Analysis: review-level. Each removable negative review is ranked by a metadata-aware counterfactual weight (verified, helpful votes, recency), and the smallest prefix that reaches the target is found by binary search over a monotonic cumulative prediction.",
+          "It never proposes removing a review that would lower the rating, such as an above-average review on a low-rated product.",
+          "The weight used for ranking is private. The demo on this page runs only the bucket-level planner."
+        ],
+        "failureModes": [
+          "A target that no set of removals reaches."
+        ],
+        "reliability": [
+          "An unreachable target is refused instead of a plan being invented.",
+          "The figures are a maximum-impact ceiling, not a to-do list: only reviews that genuinely breach the marketplace's guidelines are actionable. Nothing in the write-up describes the tool removing a review."
+        ],
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "showcase/SYSTEM_DESIGN.md",
+            "lines": "55-69"
+          },
+          {
+            "path": "showcase/SYSTEM_DESIGN.md",
+            "lines": "122-126"
+          },
+          {
+            "path": "showcase/README.md",
+            "lines": "106-109"
+          }
+        ],
+        "position": {
+          "x": 930,
+          "y": 224
+        }
+      },
+      {
+        "id": "requests-db",
+        "label": "Request queue and quota",
+        "layer": "data",
+        "kind": "database",
+        "technology": "SQLite in WAL mode: users, email_tokens, requests",
+        "responsibility": "Stores verified emails and their quota, the codes, and every request with its status, attempts and delivery time.",
+        "whyThisTechnology": {
+          "text": "WAL mode is used for concurrent access. The write-up does not say why the queue is a SQLite table and not a separate queue service.",
+          "provenance": "documented",
+          "sources": [
+            {
+              "path": "showcase/SYSTEM_DESIGN.md",
+              "lines": "82"
+            }
+          ]
+        },
+        "inputs": [
+          "Codes, verified users and new requests",
+          "Claims, failures and results from the worker"
+        ],
+        "outputs": [
+          "The next pending request",
+          "What is due for delivery"
+        ],
+        "details": [
+          "A request moves from pending to scraping, then to done or failed.",
+          "It carries created_at and deliver_at, an attempt count, the report's path, a link token, delivered_at and the last error.",
+          "Reported as built and unit-tested."
+        ],
+        "failureModes": [
+          "Two workers reaching for the same request.",
+          "A job that fails part-way."
+        ],
+        "reliability": [
+          "The claim runs inside an immediate transaction, so two workers can never take the same request.",
+          "A failed job returns to pending for up to three attempts, then is marked failed."
+        ],
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "showcase/SYSTEM_DESIGN.md",
+            "lines": "82-90"
+          },
+          {
+            "path": "showcase/SYSTEM_DESIGN.md",
+            "lines": "94-109"
+          },
+          {
+            "path": "showcase/README.md",
+            "lines": "82-83"
+          },
+          {
+            "path": "showcase/README.md",
+            "lines": "128"
+          },
+          {
+            "path": "showcase/docs/architecture.svg",
+            "lines": "58-62"
+          }
+        ],
+        "position": {
+          "x": 620,
+          "y": 372
+        }
+      },
+      {
+        "id": "asin-index",
+        "label": "Product reference data",
+        "layer": "data",
+        "kind": "database",
+        "technology": "SQLite: asin_index, read-only",
+        "responsibility": "Holds, for each product code, a snapshot of its rating distribution and its identifiable reviews.",
+        "inputs": [
+          "Not described: the write-up does not say how this database is filled."
+        ],
+        "outputs": [
+          "A distribution, the displayed rating and the snapshot date",
+          "Reviews with their star, verified flag, helpful votes and date"
+        ],
+        "details": [
+          "The snapshot's counts are the source of truth for the distribution.",
+          "It is kept apart from the request pipeline: reference data in one database, the queue in another."
+        ],
+        "failureModes": [
+          "Not described in the public write-up."
+        ],
+        "reliability": [
+          "It is read-only reference data."
+        ],
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "showcase/SYSTEM_DESIGN.md",
+            "lines": "73-80"
+          },
+          {
+            "path": "showcase/README.md",
+            "lines": "68-69"
+          },
+          {
+            "path": "showcase/docs/architecture.svg",
+            "lines": "58-62"
+          }
+        ],
+        "position": {
+          "x": 930,
+          "y": 372
+        }
+      },
+      {
+        "id": "email-sender",
+        "label": "Transactional email",
+        "layer": "pipeline",
+        "kind": "external",
+        "technology": "Not described: no provider is named",
+        "status": "disabled",
+        "statusNote": "In progress: the write-up lists transactional email as unfinished. The demo on this page sends no message.",
+        "responsibility": "Would email the PDF report and the link to the verified address at the 24-hour mark, after which the request is marked delivered.",
+        "inputs": [
+          "A request that is done and due",
+          "The PDF and the link token"
+        ],
+        "outputs": [
+          "One email to the verified address",
+          "delivered_at on the request"
+        ],
+        "details": [
+          "Delivery is at created_at plus 24 hours, not when the report is ready.",
+          "The pipeline diagram also shows an apology email after three failed attempts.",
+          "How the verification code is sent is not described."
+        ],
+        "failureModes": [
+          "Not described in the public write-up."
+        ],
+        "reliability": [
+          "A request that is done but not yet due is held."
+        ],
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "showcase/SYSTEM_DESIGN.md",
+            "lines": "107-109"
+          },
+          {
+            "path": "showcase/SYSTEM_DESIGN.md",
+            "lines": "113-118"
+          },
+          {
+            "path": "showcase/README.md",
+            "lines": "87-88"
+          },
+          {
+            "path": "showcase/README.md",
+            "lines": "129"
+          },
+          {
+            "path": "showcase/docs/request-pipeline.svg",
+            "lines": "54-62"
+          }
+        ],
+        "position": {
+          "x": 0,
+          "y": 520
+        }
+      },
+      {
+        "id": "report-builder",
+        "label": "Report builder",
+        "layer": "pipeline",
+        "kind": "worker",
+        "technology": "Headless Chromium, print to PDF",
+        "status": "disabled",
+        "statusNote": "Not stated as finished: the write-up's status list does not mention the report step, and it sits after the scraper, which is in progress, so no queued request reaches it yet.",
+        "responsibility": "Once a request is done, renders the results page to a PDF and issues a link token to an interactive results page.",
+        "inputs": [
+          "A request marked done"
+        ],
+        "outputs": [
+          "A PDF report",
+          "A secure link token"
+        ],
+        "details": [
+          "The PDF is the live results page, printed by a headless browser.",
+          "The path of the PDF and the link token are stored on the request.",
+          "How the token is generated and how long it lasts are not described."
+        ],
+        "failureModes": [
+          "Not described in the public write-up."
+        ],
+        "reliability": [
+          "In the write-up's order the report is built early, with the rest of the processing. Only the sending waits for the 24-hour mark."
+        ],
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "showcase/SYSTEM_DESIGN.md",
+            "lines": "113-118"
+          },
+          {
+            "path": "showcase/SYSTEM_DESIGN.md",
+            "lines": "87-88"
+          },
+          {
+            "path": "showcase/README.md",
+            "lines": "86-88"
+          },
+          {
+            "path": "showcase/README.md",
+            "lines": "119-120"
+          },
+          {
+            "path": "showcase/docs/request-pipeline.svg",
+            "lines": "44-46"
+          }
+        ],
+        "position": {
+          "x": 310,
+          "y": 520
+        }
+      },
+      {
+        "id": "worker",
+        "label": "Worker",
+        "layer": "pipeline",
+        "kind": "worker",
+        "technology": "A scheduled job with an atomic claim",
+        "status": "disabled",
+        "statusNote": "In progress: the write-up lists the worker's schedule (\"the worker cron\") as unfinished. The claim and retry rules it uses are built and unit-tested.",
+        "responsibility": "Would claim the next pending request, run it through the scraper, the model and the planner, and have the report built and held for delivery.",
+        "inputs": [
+          "The oldest pending request"
+        ],
+        "outputs": [
+          "A request marked done, returned to pending, or marked failed"
+        ],
+        "details": [
+          "Jobs are designed to be processed as soon as a worker is free and delivered 24 hours after the request was created.",
+          "The time between is a buffer to detect a failure and retry before the promised turnaround.",
+          "How often the schedule would run is not described."
+        ],
+        "failureModes": [
+          "A job that fails part-way.",
+          "Until the schedule exists, nothing in the write-up starts the worker, so a queued request waits."
+        ],
+        "reliability": [
+          "A failed job goes back to pending, for up to three attempts.",
+          "After the third it is marked failed, and the pipeline diagram says an apology email follows."
+        ],
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "showcase/README.md",
+            "lines": "83"
+          },
+          {
+            "path": "showcase/README.md",
+            "lines": "87-88"
+          },
+          {
+            "path": "showcase/README.md",
+            "lines": "129"
+          },
+          {
+            "path": "showcase/SYSTEM_DESIGN.md",
+            "lines": "103-109"
+          },
+          {
+            "path": "showcase/docs/request-pipeline.svg",
+            "lines": "21-23"
+          },
+          {
+            "path": "showcase/docs/request-pipeline.svg",
+            "lines": "59-66"
+          }
+        ],
+        "position": {
+          "x": 620,
+          "y": 520
+        }
+      },
+      {
+        "id": "scraper",
+        "label": "Scraper module",
+        "layer": "pipeline",
+        "kind": "worker",
+        "technology": "Not described beyond \"a scraper module\"",
+        "status": "disabled",
+        "statusNote": "In progress: the write-up lists the scraper integration as unfinished. The demo on this page returns an invented star breakdown in its place.",
+        "responsibility": "Would fetch a product's rating distribution, its reviews and their metadata for a queued request.",
+        "inputs": [
+          "A product code"
+        ],
+        "outputs": [
+          "The distribution, the reviews and their metadata"
+        ],
+        "details": [
+          "What it fetches from, and how, is not described in the public write-up."
+        ],
+        "failureModes": [
+          "A fetch that fails. How it fails is not described."
+        ],
+        "reliability": [
+          "A failed job is retried through the queue, for up to three attempts."
+        ],
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "showcase/README.md",
+            "lines": "84"
+          },
+          {
+            "path": "showcase/README.md",
+            "lines": "129"
+          },
+          {
+            "path": "showcase/SYSTEM_DESIGN.md",
+            "lines": "105-106"
+          },
+          {
+            "path": "showcase/docs/request-pipeline.svg",
+            "lines": "34-37"
+          }
+        ],
+        "position": {
+          "x": 930,
+          "y": 520
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "seller-quick",
+        "from": "seller",
+        "to": "quick-tool",
+        "protocol": "Browser",
+        "data": "A typed star breakdown, slider moves and a target rating"
+      },
+      {
+        "id": "seller-full",
+        "from": "seller",
+        "to": "full-tool",
+        "protocol": "Browser",
+        "data": "A product code"
+      },
+      {
+        "id": "full-gate",
+        "from": "full-tool",
+        "to": "email-gate",
+        "protocol": "Same static frontend",
+        "data": "A request for a product by its code"
+      },
+      {
+        "id": "quick-api",
+        "from": "quick-tool",
+        "to": "tools-api",
+        "protocol": "JSON over HTTP",
+        "data": "A star breakdown, a what-if change, a target rating"
+      },
+      {
+        "id": "full-api",
+        "from": "full-tool",
+        "to": "tools-api",
+        "protocol": "JSON over HTTP",
+        "data": "A product code and a target rating"
+      },
+      {
+        "id": "gate-api",
+        "from": "email-gate",
+        "to": "request-api",
+        "protocol": "JSON over HTTP",
+        "data": "An email address, its 6-digit code and one product code"
+      },
+      {
+        "id": "api-model",
+        "from": "tools-api",
+        "to": "rating-model",
+        "protocol": "Backend call",
+        "data": "A rating distribution, for the headline estimate"
+      },
+      {
+        "id": "api-simulator",
+        "from": "tools-api",
+        "to": "simulator",
+        "protocol": "Backend call",
+        "data": "A breakdown and a what-if change"
+      },
+      {
+        "id": "api-planner",
+        "from": "tools-api",
+        "to": "planner",
+        "protocol": "Backend call",
+        "data": "A breakdown or a product's reviews, and a target"
+      },
+      {
+        "id": "planner-simulator",
+        "from": "planner",
+        "to": "simulator",
+        "protocol": "Uses its average",
+        "data": "The exact weighted average, for the bucket-level plan"
+      },
+      {
+        "id": "api-index",
+        "from": "tools-api",
+        "to": "asin-index",
+        "protocol": "SQL read",
+        "data": "A product's distribution snapshot and its reviews"
+      },
+      {
+        "id": "request-db",
+        "from": "request-api",
+        "to": "requests-db",
+        "protocol": "SQL read and write",
+        "data": "Codes, verified users, quota counts and new requests"
+      },
+      {
+        "id": "worker-db",
+        "from": "worker",
+        "to": "requests-db",
+        "protocol": "SQL, immediate transaction",
+        "data": "The claim of the next pending request, then its status",
+        "kind": "disabled"
+      },
+      {
+        "id": "worker-scraper",
+        "from": "worker",
+        "to": "scraper",
+        "protocol": "Not described in the write-up",
+        "data": "A product code; back come its distribution and reviews",
+        "kind": "disabled"
+      },
+      {
+        "id": "worker-model",
+        "from": "worker",
+        "to": "rating-model",
+        "protocol": "Not described in the write-up",
+        "data": "The fetched distribution, for the estimate",
+        "kind": "disabled"
+      },
+      {
+        "id": "worker-planner",
+        "from": "worker",
+        "to": "planner",
+        "protocol": "Not described in the write-up",
+        "data": "The fetched reviews, for the removal plan",
+        "kind": "disabled"
+      },
+      {
+        "id": "worker-report",
+        "from": "worker",
+        "to": "report-builder",
+        "protocol": "Not described in the write-up",
+        "data": "A request marked done",
+        "kind": "disabled"
+      },
+      {
+        "id": "report-email",
+        "from": "report-builder",
+        "to": "email-sender",
+        "protocol": "Email, at the 24-hour mark",
+        "data": "The PDF report and the link to the results page",
+        "kind": "disabled"
+      },
+      {
+        "id": "email-seller",
+        "from": "email-sender",
+        "to": "seller",
+        "protocol": "Email",
+        "data": "The report and the link, 24 hours after the request",
+        "kind": "disabled"
+      }
+    ],
+    "flows": [
+      {
+        "id": "quick-estimate",
+        "label": "A seller types a star breakdown",
+        "description": "The Quick Rating Estimate sends the breakdown to the server, and the model returns the rating the page is estimated to display.",
+        "path": [
+          "seller-quick",
+          "quick-api",
+          "api-model"
+        ]
+      },
+      {
+        "id": "what-if",
+        "label": "A slider moves or a target is set",
+        "description": "The what-if result and the plan come from the transparent average, not the model, so the answer is monotonic and can be checked by hand.",
+        "path": [
+          "quick-api",
+          "api-simulator",
+          "api-planner",
+          "planner-simulator"
+        ]
+      },
+      {
+        "id": "full-analysis",
+        "label": "A product is analysed by its code",
+        "description": "The server reads the product's snapshot and reviews, the model estimates the rating, and the planner ranks single reviews for a target.",
+        "path": [
+          "seller-full",
+          "full-api",
+          "api-index",
+          "api-model",
+          "api-planner"
+        ]
+      },
+      {
+        "id": "request-submitted",
+        "label": "A request for any product is submitted",
+        "description": "The email is verified with a code, the quota and the duplicate check are applied, and the request is queued. This part is reported as built and unit-tested.",
+        "path": [
+          "full-gate",
+          "gate-api",
+          "request-db"
+        ]
+      },
+      {
+        "id": "request-processed",
+        "label": "A queued request becomes a report (designed, partly in progress)",
+        "description": "The worker claims the request, fetches the product, gets the estimate and the plan, has the report built and delivers it at the 24-hour mark. The scraper, the email and the worker's schedule are in progress, so this path does not run end to end yet.",
+        "path": [
+          "worker-db",
+          "worker-scraper",
+          "worker-model",
+          "worker-planner",
+          "worker-report",
+          "report-email",
+          "email-seller"
+        ]
+      }
+    ]
+  },
+  "workflows": [
+    {
+      "id": "request-to-report",
+      "title": "One product request, from a verified email to a delivered report",
+      "summary": "Follow one request for a product through the email gate, the quota, the queue and a worker, to a report that is held until the 24-hour mark. Choose the star breakdown and the target rating, use up the free requests, or make a step fail.",
+      "proves": "It shows a queue that keeps a promise with room to fail: one code at a time, three free requests, no duplicate, one worker per job, three attempts and delivery at the 24-hour mark, with an estimate that can be checked by hand and a planner that refuses what it cannot reach.",
+      "scenarioId": "rating.request-to-report",
+      "mode": "simulation",
+      "modeNote": "This is a simulation that runs in your browser on invented data: an invented product code, example.test addresses and invented star breakdowns. No real service is called, nothing is scraped and no email is sent. The rules are re-implemented from the public write-up only; the application source is private and was not read. The limits are the ones the write-up states (a 6-digit code, 15 minutes, 3 free requests, 3 attempts, 24 hours). Every other timing is invented and simulated, including the 24 hours that pass. In production the headline estimate comes from a trained model that this page does not have, so no model estimate is shown: the number here is the transparent half-up weighted average, and the plan is the bucket-level planner, both really computed. The production planner for a product ranks single reviews by a private weight, which is not reproduced. In the real system the scraper, the email and the worker's schedule are in progress, so this flow does not yet run end to end there; the fetch step returns an invented breakdown and the email steps send nothing.",
+      "technologies": [
+        "Python",
+        "SQLite (WAL)",
+        "LightGBM",
+        "Headless Chromium"
+      ],
+      "phases": [
+        {
+          "id": "gate",
+          "label": "Email gate"
+        },
+        {
+          "id": "submit",
+          "label": "Quota and queue"
+        },
+        {
+          "id": "process",
+          "label": "Worker"
+        },
+        {
+          "id": "deliver",
+          "label": "Delivery"
+        }
+      ],
+      "steps": [
+        {
+          "id": "email.issue",
+          "label": "Issue a code",
+          "kind": "trigger",
+          "nodeId": "request-api",
+          "phase": "gate",
+          "summary": "A 6-digit code is issued for the visitor's email address.",
+          "description": "The code has six digits and lasts 15 minutes. Issuing a new one invalidates the older ones for that address. Sending the code depends on transactional email, which the write-up lists as in progress; how the code reaches the visitor today is not described. The demo uses a fixed, invented code and sends nothing.",
+          "sources": [
+            {
+              "path": "showcase/SYSTEM_DESIGN.md",
+              "lines": "96-97"
+            },
+            {
+              "path": "showcase/SYSTEM_DESIGN.md",
+              "lines": "86"
+            },
+            {
+              "path": "showcase/README.md",
+              "lines": "79"
+            },
+            {
+              "path": "showcase/README.md",
+              "lines": "129"
+            }
+          ]
+        },
+        {
+          "id": "email.verify",
+          "label": "Verify the email",
+          "kind": "validation",
+          "nodeId": "request-api",
+          "phase": "gate",
+          "summary": "The typed code is checked against the one that was issued.",
+          "description": "A code that matches, has not been replaced and is inside its 15 minutes verifies the address. An expired or replaced code is refused. What happens after a wrong code, such as a limit on attempts, is not described in the public write-up; the demo refuses it and stops.",
+          "sources": [
+            {
+              "path": "showcase/SYSTEM_DESIGN.md",
+              "lines": "96-97"
+            },
+            {
+              "path": "showcase/SYSTEM_DESIGN.md",
+              "lines": "85-86"
+            },
+            {
+              "path": "showcase/README.md",
+              "lines": "79"
+            }
+          ]
+        },
+        {
+          "id": "quota.check",
+          "label": "Check the free requests",
+          "kind": "validation",
+          "nodeId": "request-api",
+          "phase": "submit",
+          "summary": "Three free requests per verified email; the fourth is refused with an invitation to sign up.",
+          "description": "A verified email has three free product requests. The fourth is refused with a prompt_signup flag, so the page can invite the visitor to sign up, which makes the account unlimited. The write-up does not say whether this check or the duplicate check runs first; the demo runs them in the order the write-up lists them.",
+          "sources": [
+            {
+              "path": "showcase/SYSTEM_DESIGN.md",
+              "lines": "98-100"
+            },
+            {
+              "path": "showcase/README.md",
+              "lines": "80-81"
+            }
+          ]
+        },
+        {
+          "id": "request.dedupe",
+          "label": "Look for the same request",
+          "kind": "database",
+          "nodeId": "requests-db",
+          "phase": "submit",
+          "summary": "A product already in the queue for this email is not queued again.",
+          "description": "Resubmitting a product that is already pending or being processed does not use a free request and does not create a second row. The demo returns the earlier request and ends there.",
+          "sources": [
+            {
+              "path": "showcase/SYSTEM_DESIGN.md",
+              "lines": "101-102"
+            }
+          ]
+        },
+        {
+          "id": "request.queue",
+          "label": "Queue the request",
+          "kind": "queue",
+          "nodeId": "requests-db",
+          "phase": "submit",
+          "summary": "The request is stored as pending, to be delivered 24 hours after it was created.",
+          "description": "A row is written to the requests table with the status pending, the time it was created and a delivery time 24 hours later. The demo counts the free request here. The write-up says a duplicate does not use one; it does not say exactly when the counter moves.",
+          "sources": [
+            {
+              "path": "showcase/SYSTEM_DESIGN.md",
+              "lines": "87-89"
+            },
+            {
+              "path": "showcase/SYSTEM_DESIGN.md",
+              "lines": "107-109"
+            },
+            {
+              "path": "showcase/README.md",
+              "lines": "82"
+            }
+          ]
+        },
+        {
+          "id": "worker.claim",
+          "label": "A worker claims it",
+          "kind": "worker",
+          "nodeId": "worker",
+          "phase": "process",
+          "summary": "One worker takes the request, inside one transaction.",
+          "description": "The worker reads the next pending request and marks it inside an immediate transaction, so two workers can never take the same one. The write-up reports the queue as built and unit-tested. The schedule that would start the worker is in progress in the real system; the demo assumes a worker is free five minutes after the request, which is an invented delay.",
+          "sources": [
+            {
+              "path": "showcase/SYSTEM_DESIGN.md",
+              "lines": "103-104"
+            },
+            {
+              "path": "showcase/README.md",
+              "lines": "83"
+            },
+            {
+              "path": "showcase/README.md",
+              "lines": "128-129"
+            },
+            {
+              "path": "showcase/docs/request-pipeline.svg",
+              "lines": "21-23"
+            }
+          ]
+        },
+        {
+          "id": "scrape.fetch",
+          "label": "Fetch the product",
+          "kind": "api",
+          "nodeId": "scraper",
+          "phase": "process",
+          "summary": "The product's star breakdown and reviews are fetched. Here the breakdown is invented.",
+          "description": "In the design a scraper module fetches the product's rating distribution, its reviews and their metadata. The scraper integration is in progress in the real system, so this step returns the invented star breakdown chosen in the form and models no single reviews. A failed job returns to pending for up to three attempts and is then marked failed; in the demo the fetch is the part that fails.",
+          "sources": [
+            {
+              "path": "showcase/README.md",
+              "lines": "84"
+            },
+            {
+              "path": "showcase/README.md",
+              "lines": "129"
+            },
+            {
+              "path": "showcase/SYSTEM_DESIGN.md",
+              "lines": "105-106"
+            },
+            {
+              "path": "showcase/docs/request-pipeline.svg",
+              "lines": "34-37"
+            }
+          ]
+        },
+        {
+          "id": "rating.estimate",
+          "label": "Estimate the rating",
+          "kind": "transform",
+          "nodeId": "rating-model",
+          "phase": "process",
+          "summary": "In production a trained model gives the headline number. This page shows the transparent average instead.",
+          "description": "In production the headline estimate comes from a trained LightGBM model, which is private and is not reproduced here: this page prints no model estimate. What the step computes is the transparent average the write-up documents for the sliders and the planner: the sum of the stars over the number of ratings, rounded half-up to one decimal, in whole-number arithmetic.",
+          "sources": [
+            {
+              "path": "showcase/SYSTEM_DESIGN.md",
+              "lines": "10-12"
+            },
+            {
+              "path": "showcase/SYSTEM_DESIGN.md",
+              "lines": "33-48"
+            },
+            {
+              "path": "showcase/README.md",
+              "lines": "44-45"
+            },
+            {
+              "path": "showcase/README.md",
+              "lines": "99-104"
+            }
+          ]
+        },
+        {
+          "id": "plan.build",
+          "label": "Plan toward the target",
+          "kind": "transform",
+          "nodeId": "planner",
+          "phase": "process",
+          "summary": "The smallest number of removals at one star level that reaches the target, or an honest refusal.",
+          "description": "The bucket-level planner finds the smallest number of removals at a star level that reaches the target on the exact weighted average. It refuses a target no level can reach, and never offers a rating at or above the average, because removing it would not raise the result. The figure is a ceiling: only reviews that genuinely breach the marketplace's guidelines are actionable, and the tool removes nothing. In production a request by product code uses a review-level planner with a private metadata-aware weight, which is not reproduced. The demo reads the bucket-level plan as one star level at a time, and takes the target as an input of the run; the write-up spells out neither. The request is marked done at the end of this step.",
+          "sources": [
+            {
+              "path": "showcase/SYSTEM_DESIGN.md",
+              "lines": "55-69"
+            },
+            {
+              "path": "showcase/SYSTEM_DESIGN.md",
+              "lines": "122-126"
+            },
+            {
+              "path": "showcase/README.md",
+              "lines": "106-109"
+            }
+          ]
+        },
+        {
+          "id": "report.render",
+          "label": "Build the report",
+          "kind": "worker",
+          "nodeId": "report-builder",
+          "phase": "process",
+          "summary": "The results page is printed to a PDF and a link token is issued.",
+          "description": "Once a request is done, the pipeline renders the live results page to a PDF with a headless browser and issues a secure link token to an interactive results page. The path and the token are stored on the request. The demo makes no file and uses a fixed, invented token; how the real token is generated is not described.",
+          "sources": [
+            {
+              "path": "showcase/SYSTEM_DESIGN.md",
+              "lines": "113-118"
+            },
+            {
+              "path": "showcase/SYSTEM_DESIGN.md",
+              "lines": "87-88"
+            },
+            {
+              "path": "showcase/README.md",
+              "lines": "86"
+            }
+          ]
+        },
+        {
+          "id": "delivery.hold",
+          "label": "Hold until the 24-hour mark",
+          "kind": "queue",
+          "nodeId": "requests-db",
+          "phase": "deliver",
+          "summary": "The work is done in minutes; the result waits for the promised time.",
+          "description": "Requests are processed as soon as a worker is free and delivered 24 hours after they were created. The time between is a buffer to detect a failure and retry before the promised turnaround. A delivery asked for before the mark sends nothing. The 24 hours pass on a simulated clock.",
+          "sources": [
+            {
+              "path": "showcase/SYSTEM_DESIGN.md",
+              "lines": "107-109"
+            },
+            {
+              "path": "showcase/README.md",
+              "lines": "87-88"
+            },
+            {
+              "path": "showcase/docs/request-pipeline.svg",
+              "lines": "64-66"
+            }
+          ]
+        },
+        {
+          "id": "delivery.send",
+          "label": "Email the report",
+          "kind": "notification",
+          "nodeId": "email-sender",
+          "phase": "deliver",
+          "summary": "The PDF and the link go to the verified address, and the request is marked delivered.",
+          "description": "At the 24-hour mark the PDF and the link are emailed to the verified address and the request is marked delivered. Transactional email is in progress in the real system, so this step does not run there yet. The demo sends no message and records what the step is designed to do.",
+          "sources": [
+            {
+              "path": "showcase/SYSTEM_DESIGN.md",
+              "lines": "113-118"
+            },
+            {
+              "path": "showcase/README.md",
+              "lines": "87-88"
+            },
+            {
+              "path": "showcase/README.md",
+              "lines": "129"
+            },
+            {
+              "path": "showcase/docs/request-pipeline.svg",
+              "lines": "54-56"
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "key": "breakdown",
+          "label": "Star breakdown of the product",
+          "type": "select",
+          "options": [
+            "mostly positive",
+            "polarised",
+            "small sample",
+            "low rated"
+          ],
+          "help": "Invented counts, standing in for what the scraper would fetch. They show 4.4, 3.3, 3.7 and 2.3."
+        },
+        {
+          "key": "targetRating",
+          "label": "Target rating",
+          "type": "number",
+          "help": "From 1.0 to 5.0. A target the removals cannot reach is refused."
+        },
+        {
+          "key": "freeRequestsUsed",
+          "label": "Free requests this email has used",
+          "type": "number",
+          "help": "From 0 to 3. The write-up's limit is 3: with 3 used, the next request is refused."
+        },
+        {
+          "key": "alreadyQueued",
+          "label": "Same product already requested",
+          "type": "select",
+          "options": [
+            "no",
+            "yes, pending",
+            "yes, scraping"
+          ],
+          "help": "A request that is pending or being processed is not queued a second time. It has used one free request already."
+        },
+        {
+          "key": "codeEntered",
+          "label": "What the visitor types as the code",
+          "type": "select",
+          "options": [
+            "the right code",
+            "a wrong code",
+            "the right code, 20 minutes late"
+          ],
+          "help": "A code lasts 15 minutes."
+        }
+      ],
+      "faults": [
+        {
+          "id": "code-reissued",
+          "label": "The visitor asks for a second code",
+          "stepId": "email.issue",
+          "classification": "implemented",
+          "description": "A second code is issued a minute after the first, and the visitor types the first one.",
+          "expected": "Issuing the second code invalidates the first, so the first is refused. The second is accepted.",
+          "sources": [
+            {
+              "path": "showcase/SYSTEM_DESIGN.md",
+              "lines": "96-97"
+            }
+          ]
+        },
+        {
+          "id": "two-workers",
+          "label": "Two workers reach for the same request",
+          "stepId": "worker.claim",
+          "classification": "implemented",
+          "description": "A second worker asks for work at the moment the first one claims the request.",
+          "expected": "The claim is one immediate transaction, so the second worker finds no pending request and takes nothing. The request is processed once.",
+          "group": "worker",
+          "sources": [
+            {
+              "path": "showcase/SYSTEM_DESIGN.md",
+              "lines": "103-104"
+            },
+            {
+              "path": "showcase/README.md",
+              "lines": "83"
+            }
+          ]
+        },
+        {
+          "id": "worker-not-scheduled",
+          "label": "Nothing starts the worker",
+          "stepId": "worker.claim",
+          "classification": "limitation",
+          "description": "The state the write-up reports today: the queue is built, and the worker's schedule is in progress.",
+          "expected": "The request is queued and stays pending. At the 24-hour mark nothing has been fetched, built or sent. What the visitor is told in that case is not described.",
+          "group": "worker",
+          "sources": [
+            {
+              "path": "showcase/README.md",
+              "lines": "128-129"
+            },
+            {
+              "path": "showcase/docs/request-pipeline.svg",
+              "lines": "21-23"
+            }
+          ]
+        },
+        {
+          "id": "scrape-fails-once",
+          "label": "The fetch fails once",
+          "stepId": "scrape.fetch",
+          "classification": "implemented",
+          "description": "The first attempt returns no star breakdown.",
+          "expected": "The request goes back to pending with one attempt recorded, a worker claims it again and the second attempt succeeds. Delivery is still at the 24-hour mark: the retry used a few minutes of the buffer.",
+          "group": "scrape",
+          "sources": [
+            {
+              "path": "showcase/SYSTEM_DESIGN.md",
+              "lines": "105-109"
+            }
+          ]
+        },
+        {
+          "id": "scrape-fails-three-times",
+          "label": "The fetch fails three times",
+          "stepId": "scrape.fetch",
+          "classification": "implemented",
+          "description": "Every attempt returns no star breakdown.",
+          "expected": "After the third attempt the request is marked failed and is not tried again. No report is built. The write-up's diagram says an apology email follows; email is in progress there, and the demo sends nothing.",
+          "group": "scrape",
+          "sources": [
+            {
+              "path": "showcase/SYSTEM_DESIGN.md",
+              "lines": "105-106"
+            },
+            {
+              "path": "showcase/docs/request-pipeline.svg",
+              "lines": "59-62"
+            }
+          ]
+        },
+        {
+          "id": "early-delivery",
+          "label": "Delivery is asked for before the 24-hour mark",
+          "stepId": "delivery.hold",
+          "classification": "implemented",
+          "description": "A delivery pass runs as soon as the report is ready, almost 24 hours early.",
+          "expected": "The request is done but not due, so nothing is sent. The report goes out at the mark.",
+          "sources": [
+            {
+              "path": "showcase/SYSTEM_DESIGN.md",
+              "lines": "107-109"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "decisions": [
+    {
+      "id": "two-estimators",
+      "title": "Two estimators, on purpose",
+      "problem": "The model is the most accurate estimate on real distributions, and it is trained only on real ones. On hand-typed or degenerate inputs it extrapolates unreliably: it can rate removing 6 reviews above removing 10, which is impossible.",
+      "options": [
+        {
+          "name": "The model for the headline estimate, a transparent half-up weighted average for the sliders and the planner",
+          "verdict": "chosen",
+          "note": "Accuracy for the number that is read; exact, monotonic arithmetic for the tool a user reasons with."
+        },
+        {
+          "name": "The model everywhere",
+          "verdict": "rejected",
+          "note": "A what-if tool that can say fewer removals help more than more removals cannot be trusted, and its result cannot be checked by hand."
+        }
+      ],
+      "rationale": "For a what-if tool the write-up puts monotonicity and verifiability above a fractional gain in accuracy. It says a test suite asserts the monotonic behaviour across 15 edge-case distributions with more than 1,500 checks.",
+      "tradeoffs": [
+        "The sliders and the planner give up the model's accuracy gain.",
+        "Two estimators can disagree on one breakdown. The write-up says both surfaces agree on the current rating, so the page never shows two conflicting numbers; it does not say how that is done."
+      ],
+      "evolution": "Detect an input far from the training data and say so beside the headline estimate, which is the one surface that still uses the model on typed input.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "33-51"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "99-104"
+        }
+      ]
+    },
+    {
+      "id": "grouped-split",
+      "title": "The train and test split is grouped by product",
+      "problem": "An accuracy figure means something only on products the model has not seen. If one product falls on both sides of the split, the model is partly tested on what it was trained on.",
+      "options": [
+        {
+          "name": "A shuffle split grouped by product",
+          "verdict": "chosen",
+          "note": "Every product is entirely in training or entirely in test, never both."
+        },
+        {
+          "name": "A split that lets one product appear on both sides",
+          "verdict": "rejected",
+          "note": "The product would leak across the split. The write-up names this leak; it does not say such a split was tried."
+        }
+      ],
+      "rationale": "The write-up calls it scientific validity over vanity accuracy: the reported figures are exact-match results on products the model never saw.",
+      "tradeoffs": [
+        "The write-up states no cost. In general a grouped split gives a lower figure than a leaky one; how much lower here is not published.",
+        "The sizes of the two sides are not published, so the figures cannot be read with their sample size."
+      ],
+      "evolution": "Publish the number of products on each side of the split and an interval for each figure.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "22-25"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "94-97"
+        }
+      ]
+    },
+    {
+      "id": "distribution-only-features",
+      "title": "No identifiers, and never the displayed rating, as a feature",
+      "problem": "The target is the displayed rating. A feature that carries it, or one that identifies the product, would let a model look the answer up instead of estimating it.",
+      "options": [
+        {
+          "name": "Features from the rating distribution only",
+          "verdict": "chosen",
+          "note": "Per-star counts and shares, totals, the written-review ratio, log transforms, the raw weighted average and rounding-boundary features."
+        },
+        {
+          "name": "Also use the displayed rating, or identifiers such as the product code, a review id or a buyer name",
+          "verdict": "rejected",
+          "note": "The write-up rules each of these out as leakage."
+        }
+      ],
+      "rationale": "The stated aim is an estimate from the star breakdown alone, and the write-up lists the features as distribution-only: no identifiers and no leakage.",
+      "tradeoffs": [
+        "Recency and verified-purchase status, which the write-up says shift the displayed number, are not among the listed features. The model has to capture that shift from the distribution alone."
+      ],
+      "evolution": "Report accuracy by rating band and by number of ratings, to show where distribution-only features are weakest.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "14-20"
+        },
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "27-29"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "94-97"
+        }
+      ]
+    },
+    {
+      "id": "deliver-at-24h",
+      "title": "Process early, deliver at the 24-hour mark",
+      "problem": "A request for any product carries a promised turnaround of 24 hours, and a job can fail.",
+      "options": [
+        {
+          "name": "Work on a request as soon as a worker is free, and deliver it 24 hours after it was created",
+          "verdict": "chosen",
+          "note": "The time between is a buffer to detect a failure and retry."
+        },
+        {
+          "name": "Process each request close to its deadline",
+          "verdict": "rejected",
+          "note": "A failure would be found with no time left to retry. The write-up gives the buffer as its reason; it does not name this alternative."
+        }
+      ],
+      "rationale": "The promise is the turnaround. Doing the work early turns almost all of the 24 hours into room for the three attempts.",
+      "tradeoffs": [
+        "A report that is ready in minutes still waits for the 24-hour mark. The write-up does not say why it is not sent as soon as it is ready.",
+        "A request carries two times, when it was created and when it is due, and delivery is a step of its own."
+      ],
+      "evolution": "Record how long before the mark each request finished, to show how much of the buffer is really used.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "107-109"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "87-88"
+        },
+        {
+          "path": "showcase/docs/request-pipeline.svg",
+          "lines": "64-66"
+        }
+      ]
+    },
+    {
+      "id": "atomic-claim",
+      "title": "A job is claimed inside one immediate transaction",
+      "problem": "More than one worker may look at the queue at the same moment, and a request must not be taken twice.",
+      "options": [
+        {
+          "name": "Read the next pending request and mark it inside one IMMEDIATE transaction",
+          "verdict": "chosen",
+          "note": "Two workers can never take the same request."
+        },
+        {
+          "name": "Read a pending request, then mark it in a separate step",
+          "verdict": "rejected",
+          "note": "Two workers could read the same row before either marks it. The write-up names the guarantee; it does not name this alternative."
+        }
+      ],
+      "rationale": "In SQLite an immediate transaction takes the write lock when it begins, so no other writer can come between the read and the update. The queue is in WAL mode for concurrent access.",
+      "tradeoffs": [
+        "SQLite allows one writer at a time, so claims wait for each other. The write-up does not discuss this; a claim is short next to the job it starts."
+      ],
+      "evolution": "If it is not already there, give a claimed request a lease that expires, so a worker that stops part-way does not leave it in the scraping state. The write-up does not say what happens in that case.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "103-104"
+        },
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "82"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "83"
+        }
+      ]
+    },
+    {
+      "id": "refuse-unreachable",
+      "title": "The planner shows the smallest set, and refuses a target it cannot reach",
+      "problem": "A seller asks what it would take to reach a rating. Some targets cannot be reached by removing reviews, and a longer list than necessary overstates what is needed.",
+      "options": [
+        {
+          "name": "Return the smallest set of removals that reaches the target, or a refusal",
+          "verdict": "chosen",
+          "note": "Never a removal that would lower the rating, such as an above-average review on a low-rated product."
+        },
+        {
+          "name": "Always return a plan",
+          "verdict": "rejected",
+          "note": "In the write-up's words, the planner refuses impossible targets instead of inventing a plan."
+        }
+      ],
+      "rationale": "The write-up calls this honest by construction: the answer is the least that would do it, or the statement that nothing would.",
+      "tradeoffs": [
+        "Finding the smallest set by binary search needs a prediction that only rises as reviews are removed, which ties the planner to the monotonic estimator.",
+        "A refusal is a less welcome answer than a plan."
+      ],
+      "evolution": "If a refusal does not already show it, add the highest rating that removals could reach. The write-up does not say what a refusal displays; the demo on this page shows that ceiling.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "55-69"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "106-109"
+        }
+      ]
+    },
+    {
+      "id": "ceiling-not-todo",
+      "title": "Removal figures are a ceiling, not a to-do list",
+      "problem": "A plan that says \"remove 43 reviews\" reads like an instruction. A review cannot be removed because it is negative: only reviews that genuinely breach the marketplace's guidelines are actionable.",
+      "options": [
+        {
+          "name": "Present the plan as the most that removals could change",
+          "verdict": "chosen",
+          "note": "The number says how far the rating could move if every counted review turned out to be actionable."
+        },
+        {
+          "name": "Present the plan as a list of reviews to have removed",
+          "verdict": "rejected",
+          "note": "In the write-up's words: a maximum-impact ceiling, not a to-do list."
+        }
+      ],
+      "rationale": "The tool estimates and plans. Nothing in the write-up describes it removing a review, or judging which reviews breach the guidelines.",
+      "tradeoffs": [
+        "The headline figure of a plan is an upper bound that a seller will rarely reach.",
+        "The framing depends on the wording around the number, which the write-up does not show."
+      ],
+      "evolution": "Let the seller mark the reviews they have checked against the guidelines, and plan over those only.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "122-126"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "106-109"
+        }
+      ]
+    }
+  ],
+  "metrics": [
+    {
+      "id": "exact-match",
+      "label": "Exact match on held-out products: half-up rounding of the plain average (the baseline), then the trained model",
+      "before": "about 68%",
+      "after": "80.7%",
+      "kind": "measured",
+      "method": "Stated in the public write-up as measured on held-out products, with the split grouped by product. The evaluation code and data are private and were not re-run for this page. The first figure is the baseline, not an earlier version of the model.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "22-29"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "47-51"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "55-56"
+        }
+      ]
+    },
+    {
+      "id": "within-tenth",
+      "label": "Estimates within 0.1 stars of the displayed rating",
+      "value": "94.7%",
+      "kind": "measured",
+      "method": "Stated in the public write-up as measured on held-out products, with the split grouped by product. The evaluation code and data are private and were not re-run for this page.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "47-52"
+        },
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "22-25"
+        }
+      ]
+    },
+    {
+      "id": "mean-absolute-error",
+      "label": "Mean absolute error",
+      "value": "0.034 stars",
+      "kind": "measured",
+      "method": "Stated in the public write-up as measured on held-out products, with the split grouped by product. The evaluation code and data are private and were not re-run for this page.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "47-53"
+        },
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "22-25"
+        }
+      ]
+    },
+    {
+      "id": "monotonicity-checks",
+      "label": "Monotonicity assertions on the simulator, across 15 edge-case distributions",
+      "value": "1,500+",
+      "kind": "count",
+      "method": "Stated in the public write-up as the size of the simulator's automated checks. The test suite is private and was not run for this page; the demo here has edge-case tests of its own, which are not counted in this figure.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "111-113"
+        },
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "50-51"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    {
+      "id": "estimate-not-formula",
+      "title": "An estimate, not Amazon's formula",
+      "current": "The model does not reproduce the marketplace's internal formula. It is a validated estimate: on held-out products about one in five was not an exact match, and the write-up lists calibration among its metrics without publishing the result.",
+      "proposal": "Publish the calibration result and the error by rating band, and show an estimate with its measured error beside it.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "122-124"
+        },
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "22-25"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "49-53"
+        }
+      ]
+    },
+    {
+      "id": "removal-ceiling",
+      "title": "A plan is a ceiling, and the tool removes nothing",
+      "current": "The planner counts the removals that would reach a target. Only reviews that genuinely breach the marketplace's guidelines are actionable, and the write-up describes no check of whether a counted review does. The figure is the most that could change, not what will.",
+      "proposal": "Let the seller mark the reviews they have checked against the guidelines, and compute the reachable rating from those alone.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "125-126"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "106-109"
+        }
+      ]
+    },
+    {
+      "id": "pipeline-unfinished",
+      "title": "The 24-hour pipeline does not run end to end yet",
+      "current": "The request queue and the email-quota layer are built and unit-tested. The scraper integration, transactional email and the worker's schedule are in progress, so the pipeline is not yet complete from a request to a delivered report.",
+      "proposal": "Finish the three parts, then add an end-to-end test that takes one request from a verified email to a delivered report against a stub scraper and a mail sink.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "124-129"
+        }
+      ]
+    },
+    {
+      "id": "model-on-typed-input",
+      "title": "The model is unreliable on hand-typed, degenerate inputs",
+      "current": "The model is trained on real distributions and extrapolates unreliably outside them, which is why the simulator does not use it. The headline estimate of the Quick tool still comes from the model on a typed breakdown, and the write-up does not describe a check for inputs far from the training data.",
+      "proposal": "Measure how far an input is from the training distribution and, past a threshold, show the transparent average with a note instead of the model's number.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "42-48"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "32"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "99-104"
+        }
+      ]
+    },
+    {
+      "id": "single-machine",
+      "title": "The design fits one machine",
+      "current": "The backend is one threaded Python http.server and the queue is a SQLite file. That suits a single host. SQLite allows one writer at a time, and a second machine could not share the file safely. The write-up does not discuss load or scaling.",
+      "proposal": "Keep it as it is while one host is enough. If a second is needed, move the queue to a client-server database and put the API behind a production web server.",
+      "provenance": "inferred",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "64-69"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "119-120"
+        },
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "75-82"
+        }
+      ]
+    },
+    {
+      "id": "model-ageing",
+      "title": "What happens when the marketplace changes its weighting is not described",
+      "current": "The model learns today's relation between a star breakdown and the displayed rating from products collected at some point in time. If the marketplace changes how it weights reviews, accuracy could fall without any error being raised. The write-up describes no re-evaluation schedule.",
+      "proposal": "Re-score a fresh held-out sample on a schedule and alert when exact match falls below a set floor; retrain when it does.",
+      "provenance": "inferred",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "16-24"
+        },
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "22-29"
+        }
+      ]
+    },
+    {
+      "id": "evaluation-size",
+      "title": "The accuracy figures come without their sample size",
+      "current": "The write-up gives three figures on held-out products and the baseline's exact match. It does not publish how many products were in training or in test, how the products were chosen, or an interval for any figure. This page repeats the figures and cannot check them.",
+      "proposal": "Publish the number of products and ratings on each side of the split, how they were sampled, and a confidence interval for each figure.",
+      "provenance": "inferred",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "47-56"
+        },
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "22-29"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/projects/rating-estimator/quick-estimate.png",
+      "alt": "The Quick Rating Estimate tool: a star breakdown typed in by hand, an estimated rating of 4.20 with the model's accuracy note under it, and sliders for adding or removing reviews at each star level.",
+      "caption": "The Quick Rating Estimate tool, as published by the author in the project's public write-up. The star counts in it were typed in as an example.",
+      "width": 1280,
+      "height": 1700
+    }
+  ],
+  "screenshotsNote": "The write-up's second screenshot, of the analysis by product code, is not copied here: it shows the review identifiers of a real product.",
+  "evidence": [
+    {
+      "label": "Public write-up",
+      "kind": "documentation",
+      "description": "The README and the system design note, published on GitHub. Every claim on this page comes from these files; paths that begin with showcase/ are in that repository. The application source is private, belongs to BlueBug and was not read for this page.",
+      "sources": [
+        {
+          "path": "showcase/README.md"
+        },
+        {
+          "path": "showcase/SYSTEM_DESIGN.md"
+        }
+      ]
+    },
+    {
+      "label": "Diagrams",
+      "kind": "documentation",
+      "description": "The architecture diagram and the request-pipeline diagram, read as text. The components and the pipeline steps on this page follow them.",
+      "sources": [
+        {
+          "path": "showcase/docs/architecture.svg"
+        },
+        {
+          "path": "showcase/docs/request-pipeline.svg"
+        }
+      ]
+    },
+    {
+      "label": "Accuracy figures",
+      "kind": "measurements",
+      "description": "Exact match, within 0.1 stars and mean absolute error on held-out products, and the comparison with half-up rounding. These are published figures: the evaluation code and data are private and were not re-run.",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "42-56"
+        },
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "22-29"
+        }
+      ]
+    },
+    {
+      "label": "Data model and queue rules",
+      "kind": "schema",
+      "description": "The two SQLite databases, the three tables of the request pipeline, and the rules for codes, quota, duplicates, claims, retries and delivery.",
+      "sources": [
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "73-90"
+        },
+        {
+          "path": "showcase/SYSTEM_DESIGN.md",
+          "lines": "94-109"
+        }
+      ]
+    },
+    {
+      "label": "Status list",
+      "kind": "documentation",
+      "description": "What is live, what is built and tested, and what is in progress, in the write-up's own list.",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "124-129"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,2135 @@
+{
+  "id": "job-triage-pipeline",
+  "title": "Job Triage Pipeline with LLM Guardrails",
+  "tagline": "A scheduled pipeline that screens job postings with a hosted model, checks every answer the model gives in code, and leaves the decision to a person.",
+  "summary": "A personal pipeline that fetches job postings every hour, filters them with plain rules, scores the rest with a hosted model, challenges that score with a second pass, and sends the good ones to Telegram with a CV assembled from pre-written bullets. It never applies on its own. The interesting part is not the model call but the code around it.",
+  "categories": [
+    "ai-engineering",
+    "automation",
+    "backend"
+  ],
+  "engagement": "personal",
+  "engagementNote": "Personal project with a public repository. It screens postings for one person and never submits an application.",
+  "icon": "briefcase",
+  "tone": "amber",
+  "highlights": [
+    {
+      "text": "A rules-only filter runs before any model call",
+      "provenance": "code"
+    },
+    {
+      "text": "Every model answer is checked against a schema, then in code",
+      "provenance": "code"
+    },
+    {
+      "text": "A second, adversarial pass keeps the lower score",
+      "provenance": "code"
+    },
+    {
+      "text": "The model picks CV bullets by id and cannot write text",
+      "provenance": "code"
+    },
+    {
+      "text": "A person makes every application decision",
+      "provenance": "code"
+    },
+    {
+      "text": "Follow-ups record what actually happened",
+      "provenance": "code"
+    }
+  ],
+  "statusLabel": "Scheduled workflow",
+  "roleLabel": "Sole author",
+  "status": {
+    "text": "Defined as an hourly scheduled workflow",
+    "provenance": "code",
+    "sources": [
+      {
+        "path": ".github/workflows/poll-jobs.yml",
+        "lines": "7"
+      }
+    ]
+  },
+  "repository": {
+    "name": "El-Sayed-Mustafa/apply-agent",
+    "url": "https://github.com/El-Sayed-Mustafa/apply-agent",
+    "branch": "main",
+    "visibility": "public",
+    "linkSources": false
+  },
+  "problem": {
+    "text": "Reading job boards, judging each posting and adjusting a CV for it is repetitive work. A model can do it, but left alone it scores generously, varies between runs and can write experience that does not exist.",
+    "provenance": "documented",
+    "sources": [
+      {
+        "path": "src/tailor.py",
+        "lines": "1-12"
+      },
+      {
+        "path": "src/scoring.py",
+        "lines": "218-232"
+      }
+    ]
+  },
+  "context": [
+    {
+      "text": "Postings come from five applicant-tracking-system APIs and six job aggregators, all read without credentials.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "src/adapters.py",
+          "lines": "229-235"
+        },
+        {
+          "path": "src/aggregators.py",
+          "lines": "165"
+        }
+      ]
+    },
+    {
+      "text": "It serves one person: one CV file, and one Telegram chat that the webhook accepts.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "supabase/functions/telegram-webhook/index.ts",
+          "lines": "17-19"
+        }
+      ]
+    },
+    {
+      "text": "It never applies. The person applies through the posting's own link and tells the pipeline what happened.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "supabase/functions/telegram-webhook/index.ts",
+          "lines": "27-55"
+        }
+      ]
+    }
+  ],
+  "role": {
+    "text": "Sole author: design, implementation and tests.",
+    "provenance": "owner",
+    "sources": []
+  },
+  "challenges": [
+    {
+      "text": "The same posting scored up to 10 points apart between identical calls, so one call could not be trusted to decide what gets sent.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "src/scoring.py",
+          "lines": "226-229"
+        }
+      ]
+    },
+    {
+      "text": "A model asked to tailor a CV can invent experience. Telling it not to is an instruction; it had to be made impossible.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "src/tailor.py",
+          "lines": "1-12"
+        }
+      ]
+    },
+    {
+      "text": "The webhook that records decisions is the only part open to the internet, and anyone who learns its address can post to it.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "supabase/functions/telegram-webhook/index.ts",
+          "lines": "1-13"
+        }
+      ]
+    },
+    {
+      "text": "Each model has its own free daily quota, and a run that stops halfway must lose nothing.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "src/scoring.py",
+          "lines": "1-13"
+        },
+        {
+          "path": "src/scoring.py",
+          "lines": "28-38"
+        }
+      ]
+    }
+  ],
+  "solution": [
+    {
+      "text": "A filter made only of regular expressions decides whether a posting is worth a model call at all: role, seniority, work-authorisation phrases, then location.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "src/targeting.py",
+          "lines": "145-181"
+        }
+      ]
+    },
+    {
+      "text": "Every model call asks for JSON against a schema, and code still checks the answer: the score must be a whole number from 0 to 100.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "src/scoring.py",
+          "lines": "110-121"
+        },
+        {
+          "path": "src/scoring.py",
+          "lines": "280-323"
+        }
+      ]
+    },
+    {
+      "text": "A second call sees the strengths the first one claimed, but not its score, and argues against them. The lower of the two scores is kept.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "src/scoring.py",
+          "lines": "218-266"
+        },
+        {
+          "path": "src/scoring.py",
+          "lines": "443-457"
+        }
+      ]
+    },
+    {
+      "text": "For the CV, the model returns bullet ids only. The text is read from a file, and an id that is unknown, repeated or in the wrong section is dropped.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "src/tailor.py",
+          "lines": "150-172"
+        },
+        {
+          "path": "src/tailor.py",
+          "lines": "208-262"
+        }
+      ]
+    },
+    {
+      "text": "A person decides in Telegram. The webhook checks a secret header, the chat and the shape of the data before it writes anything.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "supabase/functions/telegram-webhook/index.ts",
+          "lines": "65-116"
+        }
+      ]
+    }
+  ],
+  "stack": [
+    {
+      "name": "Python 3.12",
+      "role": "The pipeline stages, run as command-line modules",
+      "provenance": "code"
+    },
+    {
+      "name": "Gemini through the google-genai SDK",
+      "role": "Scoring, the adversarial pass and bullet selection, all with a JSON response schema",
+      "provenance": "code"
+    },
+    {
+      "name": "Supabase Postgres",
+      "role": "Jobs, scores, deliveries, applications and a run ledger; the tables act as the queues",
+      "provenance": "code"
+    },
+    {
+      "name": "Supabase Edge Function (Deno, TypeScript)",
+      "role": "The Telegram webhook that records decisions",
+      "provenance": "code"
+    },
+    {
+      "name": "Telegram Bot API",
+      "role": "Delivery of postings with buttons, and the follow-up questions",
+      "provenance": "code"
+    },
+    {
+      "name": "GitHub Actions",
+      "role": "Hourly schedule, with the test suite as the first step of every run",
+      "provenance": "code"
+    },
+    {
+      "name": "Playwright (Chromium)",
+      "role": "Renders the one-page CV as a PDF",
+      "provenance": "code"
+    },
+    {
+      "name": "pytest",
+      "role": "204 test functions, including contract tests on recorded job-board payloads",
+      "provenance": "code"
+    }
+  ],
+  "architecture": {
+    "summary": "Four command-line stages run in order on a schedule and meet only in the database. A missing row is the queue: a job without a score is waiting to be scored, and a score without a delivery is waiting to be sent. The one internet-facing piece is the webhook.",
+    "layers": [
+      {
+        "id": "schedule",
+        "label": "Schedule and config"
+      },
+      {
+        "id": "pipeline",
+        "label": "Pipeline stages"
+      },
+      {
+        "id": "support",
+        "label": "Rules and discovery"
+      },
+      {
+        "id": "data",
+        "label": "Data and webhook"
+      },
+      {
+        "id": "external",
+        "label": "External services"
+      },
+      {
+        "id": "people",
+        "label": "People"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "github-actions",
+        "label": "GitHub Actions",
+        "layer": "schedule",
+        "kind": "worker",
+        "technology": "Scheduled workflow, hourly",
+        "responsibility": "Runs the test suite, then the four stages in order: fetch, score, notify, follow up.",
+        "inputs": [
+          "A cron trigger at minute 7 of every hour",
+          "Repository secrets"
+        ],
+        "outputs": [
+          "One run of each stage"
+        ],
+        "details": [
+          "The tests run first, so a change in a job board's response format stops the run before any data is written.",
+          "Scoring, notifying and following up are allowed to fail without hiding the result of the fetch.",
+          "The job has a 10-minute limit."
+        ],
+        "failureModes": [
+          "Two runs overlapping would do the same work twice."
+        ],
+        "reliability": [
+          "A concurrency group makes a new run wait for the previous one instead of cancelling it."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": ".github/workflows/poll-jobs.yml",
+            "lines": "7-24"
+          },
+          {
+            "path": ".github/workflows/poll-jobs.yml",
+            "lines": "54-98"
+          }
+        ],
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": "config",
+        "label": "Config files",
+        "layer": "schedule",
+        "kind": "storage",
+        "technology": "YAML files in the repository",
+        "responsibility": "Hold what the pipeline is looking for: the seed list of companies, the targeting policy, and the CV as numbered bullets.",
+        "inputs": [
+          "Edits by the owner"
+        ],
+        "outputs": [
+          "The policy for the filter",
+          "The CV text for scoring and tailoring"
+        ],
+        "details": [
+          "Each CV bullet has an id, a rank chosen by the owner and tags.",
+          "A hash of the CV file is stored with every score, so scores made against different versions of the CV are never mixed."
+        ],
+        "failureModes": [],
+        "reliability": [],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "src/tailor.py",
+            "lines": "97-127"
+          },
+          {
+            "path": "src/scoring.py",
+            "lines": "206-215"
+          }
+        ],
+        "position": {
+          "x": 0,
+          "y": 160
+        }
+      },
+      {
+        "id": "candidate",
+        "label": "The candidate",
+        "layer": "people",
+        "kind": "actor",
+        "technology": "A person, in Telegram",
+        "responsibility": "Reads the score, the gaps and the CV, decides, applies by hand, and later reports what happened.",
+        "inputs": [
+          "A message with a score, matched points, gaps, a CV and three buttons"
+        ],
+        "outputs": [
+          "A decision",
+          "A confirmation",
+          "An outcome"
+        ],
+        "details": [
+          "Tapping Applied records an intention. A later question records whether the application was actually sent.",
+          "The three answers are stored separately because they are the labels any future evaluation of the scores would use."
+        ],
+        "failureModes": [
+          "A person may never answer the outcome question."
+        ],
+        "reliability": [
+          "An application with no answer is closed automatically after 21 days, so the record is complete either way."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "supabase/functions/telegram-webhook/index.ts",
+            "lines": "27-55"
+          },
+          {
+            "path": "src/followup.py",
+            "lines": "114-138"
+          }
+        ],
+        "position": {
+          "x": 0,
+          "y": 480
+        }
+      },
+      {
+        "id": "fetcher",
+        "label": "Fetch stage",
+        "layer": "pipeline",
+        "kind": "backend",
+        "technology": "Python: adapters for five job-board APIs and six aggregators",
+        "responsibility": "Pulls postings, turns five response formats into one shape, fingerprints each posting and stores only the new ones.",
+        "whyThisTechnology": {
+          "text": "The fingerprint leaves out the posting's id and address, so a repost under a new id is the same job. It includes the location on purpose, so one role in two cities is two opportunities.",
+          "provenance": "documented",
+          "sources": [
+            {
+              "path": "src/adapters.py",
+              "lines": "46-65"
+            }
+          ]
+        },
+        "inputs": [
+          "The registry of companies",
+          "Job-board responses"
+        ],
+        "outputs": [
+          "New rows in the jobs table",
+          "An updated last-seen time for known postings",
+          "A run record"
+        ],
+        "details": [
+          "The fingerprint is a SHA-256 of the normalised company, title, location and the first 4,000 characters of the description.",
+          "Each source is fetched inside its own error handler, and an empty board is recorded differently from a failed one."
+        ],
+        "failureModes": [
+          "A job board changes its response format or goes quiet.",
+          "A fetch is attempted once and is not retried."
+        ],
+        "reliability": [
+          "A source that returns less than half of what it returned on the previous run raises an alert.",
+          "The run fails outright only when every source fails."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "src/adapters.py",
+            "lines": "31-65"
+          },
+          {
+            "path": "src/main.py",
+            "lines": "79-169"
+          }
+        ],
+        "position": {
+          "x": 310,
+          "y": 0
+        }
+      },
+      {
+        "id": "scorer",
+        "label": "Score stage",
+        "layer": "pipeline",
+        "kind": "backend",
+        "technology": "Python with the google-genai SDK",
+        "responsibility": "Takes postings that pass the filter and have no score yet, scores each one, challenges the score with a second call and stores the lower result.",
+        "whyThisTechnology": {
+          "text": "The table is the queue. A posting without a score row for the current version is pending work, so a run can stop anywhere and the next one continues from there.",
+          "provenance": "documented",
+          "sources": [
+            {
+              "path": "src/scoring.py",
+              "lines": "1-13"
+            }
+          ]
+        },
+        "inputs": [
+          "Unscored postings",
+          "The CV as text, without name, contact details or links"
+        ],
+        "outputs": [
+          "A score row with both scores, the verdict, matched points, gaps and the model used",
+          "A failure counter per posting"
+        ],
+        "details": [
+          "Up to 20 postings per run inside a 420-second budget.",
+          "Changing the scorer version re-queues every posting and keeps the old scores for comparison.",
+          "Models are tried in order. The one that answers moves to the front for the rest of the run."
+        ],
+        "failureModes": [
+          "A per-minute limit or an overloaded model.",
+          "A daily quota running out.",
+          "An answer that is valid JSON but makes no sense.",
+          "Model calls have no timeout of their own."
+        ],
+        "reliability": [
+          "Up to 4 tries per model, waiting for the server's hint when it gives one, otherwise doubling.",
+          "A daily quota moves straight to the next model; an error that cannot succeed stops at once.",
+          "A posting that fails 3 times is left out of the queue."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "src/scoring.py",
+            "lines": "280-323"
+          },
+          {
+            "path": "src/scoring.py",
+            "lines": "327-366"
+          },
+          {
+            "path": "src/scoring.py",
+            "lines": "398-495"
+          }
+        ],
+        "position": {
+          "x": 310,
+          "y": 160
+        }
+      },
+      {
+        "id": "notifier",
+        "label": "Notify stage",
+        "layer": "pipeline",
+        "kind": "backend",
+        "technology": "Python, with Playwright for the PDF",
+        "responsibility": "Picks scored postings above the threshold that have not been sent, tailors a one-page CV for each and sends it to Telegram with three buttons.",
+        "inputs": [
+          "Scores of 70 or more with no delivery row",
+          "The bullet catalogue"
+        ],
+        "outputs": [
+          "A Telegram message with a PDF",
+          "A delivery row for every attempt"
+        ],
+        "details": [
+          "The same company and title in another city is treated as one advertisement and sent once.",
+          "At most 5 postings per run, the highest scores first.",
+          "Bullets are ordered by the owner's rank, not by the order the model returned them.",
+          "If tailoring fails, the posting is sent without a CV."
+        ],
+        "failureModes": [
+          "A send can fail after the CV is built."
+        ],
+        "reliability": [
+          "A delivery row is written for failures as well as successes, so a failing send is not retried every hour.",
+          "Text messages are retried up to 3 times, honouring Telegram's retry-after value."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "src/notify.py",
+            "lines": "38-177"
+          },
+          {
+            "path": "src/render.py",
+            "lines": "135-148"
+          },
+          {
+            "path": "src/telegram.py",
+            "lines": "130-147"
+          }
+        ],
+        "position": {
+          "x": 310,
+          "y": 320
+        }
+      },
+      {
+        "id": "followup",
+        "label": "Follow-up stage",
+        "layer": "pipeline",
+        "kind": "backend",
+        "technology": "Python",
+        "responsibility": "Asks, one hour after a decision, whether the application was really sent, and seven days later what came of it.",
+        "inputs": [
+          "Applications with a question still to ask"
+        ],
+        "outputs": [
+          "A question in Telegram",
+          "A stamp recording that it was asked"
+        ],
+        "details": [
+          "Unanswered applications are closed as no response after 21 days."
+        ],
+        "failureModes": [
+          "The question fails to send."
+        ],
+        "reliability": [
+          "The question is stamped as asked even when the send fails, so it is never asked twice."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "src/followup.py",
+            "lines": "39-42"
+          },
+          {
+            "path": "src/followup.py",
+            "lines": "64-72"
+          },
+          {
+            "path": "src/followup.py",
+            "lines": "141-171"
+          }
+        ],
+        "position": {
+          "x": 310,
+          "y": 480
+        }
+      },
+      {
+        "id": "discovery",
+        "label": "Company discovery",
+        "layer": "support",
+        "kind": "backend",
+        "technology": "Python, 10 parallel probes",
+        "responsibility": "Turns company names seen on aggregators into job-board addresses, so the list of companies grows by itself.",
+        "whyThisTechnology": {
+          "text": "The author measured a 22% success rate at about 0.9 seconds per company, and judged it worth it because a company resolved once keeps providing postings.",
+          "provenance": "documented",
+          "sources": [
+            {
+              "path": "src/discovery.py",
+              "lines": "13-14"
+            }
+          ]
+        },
+        "inputs": [
+          "Company names from aggregator postings whose title matches a sought role"
+        ],
+        "outputs": [
+          "Companies marked active or unresolved"
+        ],
+        "details": [
+          "At most 25 names per run.",
+          "An unresolved name is tried again after 14 days."
+        ],
+        "failureModes": [
+          "Without the role filter, one run added about 2,400 postings and kept growing, according to a note in the code."
+        ],
+        "reliability": [
+          "A failure here does not fail the fetch."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "src/discovery.py",
+            "lines": "190-239"
+          }
+        ],
+        "position": {
+          "x": 620,
+          "y": -20
+        }
+      },
+      {
+        "id": "targeting",
+        "label": "Targeting policy",
+        "layer": "support",
+        "kind": "backend",
+        "technology": "Python regular expressions, no model",
+        "responsibility": "Decides whether a posting is worth scoring: the role, the years required, work-authorisation phrases and the location.",
+        "whyThisTechnology": {
+          "text": "No model on purpose. It is free, instant and gives the same answer every time, and it is the baseline a model would have to beat.",
+          "provenance": "documented",
+          "sources": [
+            {
+              "path": "src/targeting.py",
+              "lines": "1-10"
+            }
+          ]
+        },
+        "inputs": [
+          "Title, location, work mode and description"
+        ],
+        "outputs": [
+          "Eligible or not, with the reason"
+        ],
+        "details": [
+          "Rejecting phrases are checked before accepting ones, because a sentence that refuses sponsorship also contains the word.",
+          "The highest number of years in the text is the one that counts.",
+          "A posting that says nothing about work authorisation passes."
+        ],
+        "failureModes": [
+          "A phrase the patterns do not know is treated as saying nothing."
+        ],
+        "reliability": [
+          "A dedicated test file covers negated phrases, country tiers and seniority."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "src/targeting.py",
+            "lines": "70-181"
+          },
+          {
+            "path": "tests/test_targeting.py"
+          }
+        ],
+        "position": {
+          "x": 620,
+          "y": 130
+        }
+      },
+      {
+        "id": "postgres",
+        "label": "Supabase Postgres",
+        "layer": "data",
+        "kind": "database",
+        "technology": "PostgreSQL on Supabase",
+        "responsibility": "Holds postings, companies, scores, failed attempts, deliveries, applications and a record of every run.",
+        "inputs": [
+          "Writes from the four stages and the webhook"
+        ],
+        "outputs": [
+          "The pending work for each stage"
+        ],
+        "details": [
+          "Uniqueness is the idempotency: one posting per fingerprint, one score per posting and version, one delivery per posting and channel, one application per posting.",
+          "Row-level security is on with no policies, so only the server key can read or write."
+        ],
+        "failureModes": [
+          "The SQL files in the repository are behind the columns the code writes; the live schema was changed outside them."
+        ],
+        "reliability": [
+          "Every stage writes with an upsert, so repeating a run does not duplicate anything."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "sql",
+            "note": "five SQL files"
+          }
+        ],
+        "position": {
+          "x": 620,
+          "y": 310
+        }
+      },
+      {
+        "id": "edge-function",
+        "label": "Telegram webhook",
+        "layer": "data",
+        "kind": "backend",
+        "technology": "Supabase Edge Function (Deno, TypeScript)",
+        "responsibility": "Receives button presses from Telegram and records them. It is the only part of the system reachable from the internet.",
+        "whyThisTechnology": {
+          "text": "Three checks run before any write, so that a leaked secret alone is not enough: a secret header, the chat the press came from, and the shape of the data.",
+          "provenance": "documented",
+          "sources": [
+            {
+              "path": "supabase/functions/telegram-webhook/index.ts",
+              "lines": "1-13"
+            }
+          ]
+        },
+        "inputs": [
+          "A callback from Telegram with a key and a posting number"
+        ],
+        "outputs": [
+          "One application row, created or updated",
+          "A reply that replaces the buttons with the chosen label"
+        ],
+        "details": [
+          "The data must match a key of one or two letters, a colon and up to twelve digits, and the key must be a known one.",
+          "The write is an upsert on the posting, so a second press updates the decision."
+        ],
+        "failureModes": [
+          "There is no rate limit and no protection against a captured request being replayed."
+        ],
+        "reliability": [
+          "A wrong secret gets a 403 and nothing else happens."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "supabase/functions/telegram-webhook/index.ts",
+            "lines": "65-152"
+          }
+        ],
+        "position": {
+          "x": 620,
+          "y": 470
+        }
+      },
+      {
+        "id": "job-boards",
+        "label": "Job boards",
+        "layer": "external",
+        "kind": "external",
+        "technology": "Five applicant-tracking APIs and six aggregators",
+        "responsibility": "Publish the postings.",
+        "inputs": [
+          "Requests without credentials"
+        ],
+        "outputs": [
+          "Postings in six or more different formats"
+        ],
+        "details": [
+          "Greenhouse, Lever, Ashby, Recruitee and Workable boards, plus six remote-job feeds."
+        ],
+        "failureModes": [
+          "A format change breaks an adapter."
+        ],
+        "reliability": [
+          "Recorded responses from each board are replayed as tests before every run."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "src/adapters.py",
+            "lines": "113-235"
+          },
+          {
+            "path": "src/aggregators.py",
+            "lines": "64-173"
+          },
+          {
+            "path": "tests/test_adapters.py"
+          }
+        ],
+        "position": {
+          "x": 930,
+          "y": -20
+        }
+      },
+      {
+        "id": "gemini",
+        "label": "Hosted model",
+        "layer": "external",
+        "kind": "external",
+        "technology": "Gemini Flash models",
+        "responsibility": "Answers three kinds of question: how well a posting fits, where that judgement is too generous, and which CV bullets to show.",
+        "inputs": [
+          "A prompt and a JSON response schema"
+        ],
+        "outputs": [
+          "JSON that code then checks"
+        ],
+        "details": [
+          "Lighter models were taken out of the rotation after the author measured one of them finding Python in none of 45 postings that mention it."
+        ],
+        "failureModes": [
+          "Rate limits, daily quotas, overload.",
+          "An answer that fits the schema and is still wrong."
+        ],
+        "reliability": [
+          "When every model's quota is used up the run stops and the queue waits; nothing is lost."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "src/scoring.py",
+            "lines": "28-47"
+          }
+        ],
+        "position": {
+          "x": 930,
+          "y": 160
+        }
+      },
+      {
+        "id": "telegram",
+        "label": "Telegram",
+        "layer": "external",
+        "kind": "external",
+        "technology": "Bot API",
+        "responsibility": "Delivers the postings and the follow-up questions, and reports button presses to the webhook.",
+        "inputs": [
+          "Messages with inline buttons"
+        ],
+        "outputs": [
+          "Button presses, sent to the webhook with a secret header"
+        ],
+        "details": [
+          "The data behind a button is only a key and a posting number, such as a:123."
+        ],
+        "failureModes": [
+          "Sending too fast is throttled."
+        ],
+        "reliability": [
+          "Messages are spaced 1.5 seconds apart."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "src/telegram.py",
+            "lines": "99-112"
+          },
+          {
+            "path": "src/notify.py",
+            "lines": "35"
+          }
+        ],
+        "position": {
+          "x": 930,
+          "y": 340
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "run-fetch",
+        "from": "github-actions",
+        "to": "fetcher",
+        "protocol": "Scheduled step",
+        "data": "Start the fetch",
+        "kind": "async"
+      },
+      {
+        "id": "run-score",
+        "from": "github-actions",
+        "to": "scorer",
+        "protocol": "Scheduled step",
+        "data": "Start scoring",
+        "kind": "async"
+      },
+      {
+        "id": "run-notify",
+        "from": "github-actions",
+        "to": "notifier",
+        "protocol": "Scheduled step",
+        "data": "Start notifying",
+        "kind": "async"
+      },
+      {
+        "id": "run-followup",
+        "from": "github-actions",
+        "to": "followup",
+        "protocol": "Scheduled step",
+        "data": "Start the follow-up",
+        "kind": "async"
+      },
+      {
+        "id": "config-fetch",
+        "from": "config",
+        "to": "fetcher",
+        "protocol": "File read",
+        "data": "Seed list of companies"
+      },
+      {
+        "id": "config-score",
+        "from": "config",
+        "to": "scorer",
+        "protocol": "File read",
+        "data": "The CV, without contact details"
+      },
+      {
+        "id": "fetch-boards",
+        "from": "fetcher",
+        "to": "job-boards",
+        "protocol": "HTTPS GET, 20 s timeout",
+        "data": "Postings"
+      },
+      {
+        "id": "fetch-discovery",
+        "from": "fetcher",
+        "to": "discovery",
+        "protocol": "Function call",
+        "data": "Company names from aggregators"
+      },
+      {
+        "id": "discovery-boards",
+        "from": "discovery",
+        "to": "job-boards",
+        "protocol": "HTTPS probes, 8 s timeout",
+        "data": "Guesses at a company's board address"
+      },
+      {
+        "id": "discovery-db",
+        "from": "discovery",
+        "to": "postgres",
+        "protocol": "Upsert",
+        "data": "Companies, resolved or not"
+      },
+      {
+        "id": "fetch-db",
+        "from": "fetcher",
+        "to": "postgres",
+        "protocol": "Lookup by fingerprint, then insert",
+        "data": "New postings and last-seen times"
+      },
+      {
+        "id": "score-policy",
+        "from": "scorer",
+        "to": "targeting",
+        "protocol": "Function call, before any model call",
+        "data": "Title, location, description"
+      },
+      {
+        "id": "score-model",
+        "from": "scorer",
+        "to": "gemini",
+        "protocol": "generateContent with a JSON schema",
+        "data": "Rubric, CV and posting; score and refutation back"
+      },
+      {
+        "id": "score-db",
+        "from": "scorer",
+        "to": "postgres",
+        "protocol": "Upsert",
+        "data": "Scores and failed attempts"
+      },
+      {
+        "id": "notify-db",
+        "from": "notifier",
+        "to": "postgres",
+        "protocol": "Select, then upsert",
+        "data": "Unsent scores in; delivery rows out"
+      },
+      {
+        "id": "notify-model",
+        "from": "notifier",
+        "to": "gemini",
+        "protocol": "generateContent with a JSON schema",
+        "data": "Bullet catalogue in; bullet ids back"
+      },
+      {
+        "id": "notify-telegram",
+        "from": "notifier",
+        "to": "telegram",
+        "protocol": "sendDocument with inline buttons",
+        "data": "Score, gaps, CV"
+      },
+      {
+        "id": "telegram-candidate",
+        "from": "telegram",
+        "to": "candidate",
+        "protocol": "Chat message",
+        "data": "The posting and three buttons"
+      },
+      {
+        "id": "telegram-webhook",
+        "from": "telegram",
+        "to": "edge-function",
+        "protocol": "Webhook POST with a secret header",
+        "data": "A key and a posting number"
+      },
+      {
+        "id": "webhook-db",
+        "from": "edge-function",
+        "to": "postgres",
+        "protocol": "Upsert on the posting",
+        "data": "Decision, confirmation or outcome"
+      },
+      {
+        "id": "followup-db",
+        "from": "followup",
+        "to": "postgres",
+        "protocol": "Select, then update",
+        "data": "Applications with a question due"
+      },
+      {
+        "id": "followup-telegram",
+        "from": "followup",
+        "to": "telegram",
+        "protocol": "sendMessage with inline buttons",
+        "data": "A question"
+      }
+    ],
+    "flows": [
+      {
+        "id": "fetch-and-store",
+        "label": "A posting is fetched and stored",
+        "description": "The schedule starts the fetch, which reads the job boards, fingerprints each posting and stores only the ones it has not seen.",
+        "path": [
+          "run-fetch",
+          "fetch-boards",
+          "fetch-db"
+        ]
+      },
+      {
+        "id": "score",
+        "label": "A posting is scored",
+        "description": "The scorer asks the policy first. Only postings that pass are sent to the model, twice, and the lower score is stored.",
+        "path": [
+          "run-score",
+          "score-policy",
+          "score-model",
+          "score-db"
+        ]
+      },
+      {
+        "id": "deliver",
+        "label": "A good match reaches the candidate",
+        "description": "The notifier picks unsent scores above the threshold, has the model choose CV bullets by id, and sends the result to Telegram.",
+        "path": [
+          "run-notify",
+          "notify-db",
+          "notify-model",
+          "notify-telegram",
+          "telegram-candidate"
+        ]
+      },
+      {
+        "id": "decide",
+        "label": "A decision is recorded",
+        "description": "The candidate presses a button. Telegram calls the webhook, which makes its three checks and writes one row.",
+        "path": [
+          "telegram-candidate",
+          "telegram-webhook",
+          "webhook-db"
+        ]
+      },
+      {
+        "id": "discover",
+        "label": "A new company is discovered",
+        "description": "A company name seen on an aggregator is probed against the job boards and added to the registry when it resolves.",
+        "path": [
+          "fetch-boards",
+          "fetch-discovery",
+          "discovery-boards",
+          "discovery-db"
+        ]
+      }
+    ]
+  },
+  "workflows": [
+    {
+      "id": "posting-to-decision",
+      "title": "A job posting, from fetch to human decision",
+      "summary": "Follow one posting through the pipeline. You choose the posting and what the model answers; the checks around the model are the real ones.",
+      "proves": "It shows the code around a model call: a free filter before it, checks on its answer after it, a second pass that argues against the first, and a person who makes the final decision.",
+      "scenarioId": "triage.posting-to-decision",
+      "mode": "simulation",
+      "modeNote": "This runs in your browser on invented data. No model is called: the model's answers are scripted, and you choose which one it gives. The filter, the checks on the answers and the webhook rules are re-implemented from the project's code and really run. Timings are simulated, not measured.",
+      "technologies": [
+        "Python",
+        "Gemini",
+        "PostgreSQL",
+        "Supabase Edge Functions",
+        "Telegram Bot API"
+      ],
+      "phases": [
+        {
+          "id": "intake",
+          "label": "Intake"
+        },
+        {
+          "id": "screening",
+          "label": "Screening"
+        },
+        {
+          "id": "delivery",
+          "label": "Delivery"
+        },
+        {
+          "id": "decision",
+          "label": "Human decision"
+        },
+        {
+          "id": "followup",
+          "label": "Follow-up"
+        }
+      ],
+      "steps": [
+        {
+          "id": "job.fingerprint",
+          "label": "Fingerprint the posting",
+          "kind": "transform",
+          "nodeId": "fetcher",
+          "phase": "intake",
+          "summary": "The posting gets an identity that survives being reposted.",
+          "description": "The company, title, location and the first 4,000 characters of the description are normalised and hashed with SHA-256. The posting's id and address are left out, so a repost is the same job. The location is included, so one role in two cities is two jobs.",
+          "sources": [
+            {
+              "path": "src/adapters.py",
+              "lines": "46-65"
+            }
+          ]
+        },
+        {
+          "id": "job.dedupe",
+          "label": "Store it if it is new",
+          "kind": "database",
+          "nodeId": "postgres",
+          "phase": "intake",
+          "summary": "A posting already seen is not stored, scored or sent again.",
+          "description": "Existing fingerprints are looked up first. A known posting only has its last-seen time updated; a new one is inserted. A posting with no score row is, by that fact alone, waiting to be scored.",
+          "sources": [
+            {
+              "path": "src/main.py",
+              "lines": "59-77"
+            },
+            {
+              "path": "src/main.py",
+              "lines": "150-169"
+            }
+          ]
+        },
+        {
+          "id": "policy.gate",
+          "label": "Apply the targeting policy",
+          "kind": "validation",
+          "nodeId": "targeting",
+          "phase": "screening",
+          "summary": "Plain rules decide whether the posting deserves a model call.",
+          "description": "In order: the role must be one being sought and not senior, the years required must be under the limit, the text must not rule out candidates from abroad, and the role must be remote or in a listed country. Rejecting phrases are checked before accepting ones. A posting that says nothing about authorisation passes.",
+          "sources": [
+            {
+              "path": "src/targeting.py",
+              "lines": "145-181"
+            }
+          ]
+        },
+        {
+          "id": "llm.score",
+          "label": "Score the fit",
+          "kind": "api",
+          "nodeId": "scorer",
+          "phase": "screening",
+          "summary": "The model scores the posting against the CV, and code checks its answer.",
+          "description": "The prompt holds an anchored five-band rubric, the CV without name, contact details or links, and the posting. The answer must be JSON matching a schema, and code then checks that the score is a whole number from 0 to 100. Limits and overload are retried up to 4 times per model; a daily quota moves to the next model at once.",
+          "sources": [
+            {
+              "path": "src/scoring.py",
+              "lines": "123-155"
+            },
+            {
+              "path": "src/scoring.py",
+              "lines": "158-185"
+            },
+            {
+              "path": "src/scoring.py",
+              "lines": "280-323"
+            }
+          ]
+        },
+        {
+          "id": "llm.refute",
+          "label": "Argue against the score",
+          "kind": "api",
+          "nodeId": "scorer",
+          "phase": "screening",
+          "summary": "A second call tries to show the first one was too generous.",
+          "description": "The second call receives the strengths the first one claimed, but not its score, so it cannot simply agree with the number. It is told to treat anything uncertain as not met. If this call fails, the first score stands.",
+          "sources": [
+            {
+              "path": "src/scoring.py",
+              "lines": "74-108"
+            },
+            {
+              "path": "src/scoring.py",
+              "lines": "218-266"
+            }
+          ]
+        },
+        {
+          "id": "score.save",
+          "label": "Keep the lower score",
+          "kind": "database",
+          "nodeId": "postgres",
+          "phase": "screening",
+          "summary": "The final score is the lower of the two, and both are stored.",
+          "description": "The verdict comes from the second pass only when it scored lower, and its unmet requirements are added to the gaps. The row records both scores, the model, and a hash of the CV file, and is keyed by posting and scorer version.",
+          "sources": [
+            {
+              "path": "src/scoring.py",
+              "lines": "457-480"
+            }
+          ]
+        },
+        {
+          "id": "notify.select",
+          "label": "Decide whether to send it",
+          "kind": "validation",
+          "nodeId": "notifier",
+          "phase": "delivery",
+          "summary": "Only scores of 70 or more are sent, and only once.",
+          "description": "The posting must clear the threshold and have no delivery row. The same company and title in another city counts as the same advertisement. At most 5 are sent per run, highest first.",
+          "sources": [
+            {
+              "path": "src/notify.py",
+              "lines": "29-33"
+            },
+            {
+              "path": "src/notify.py",
+              "lines": "38-96"
+            }
+          ]
+        },
+        {
+          "id": "llm.tailor",
+          "label": "Choose CV bullets by id",
+          "kind": "api",
+          "nodeId": "notifier",
+          "phase": "delivery",
+          "summary": "The model picks from numbered bullets. It cannot write new ones.",
+          "description": "The model sees a catalogue of bullets and returns ids. An id that is unknown, repeated or from the wrong section is dropped. Projects are then balanced in code: at most three, two bullets each, and a project with fewer is removed. If too little is left, the posting is sent without a CV.",
+          "sources": [
+            {
+              "path": "src/tailor.py",
+              "lines": "150-205"
+            },
+            {
+              "path": "src/tailor.py",
+              "lines": "208-262"
+            },
+            {
+              "path": "src/notify.py",
+              "lines": "98-131"
+            }
+          ]
+        },
+        {
+          "id": "cv.render",
+          "label": "Build the CV",
+          "kind": "transform",
+          "nodeId": "notifier",
+          "phase": "delivery",
+          "summary": "The CV is assembled from the owner's own text.",
+          "description": "Every line is read from the CV file by id. Within an entry the bullets follow the owner's rank, not the model's order. The real pipeline renders one A4 page as a PDF and trims from the end until it fits.",
+          "sources": [
+            {
+              "path": "src/render.py",
+              "lines": "135-148"
+            },
+            {
+              "path": "src/render.py",
+              "lines": "327-362"
+            }
+          ]
+        },
+        {
+          "id": "telegram.send",
+          "label": "Send it to Telegram",
+          "kind": "notification",
+          "nodeId": "telegram",
+          "phase": "delivery",
+          "summary": "The posting arrives with its score, its gaps, the CV and three buttons.",
+          "description": "The message carries the score, up to three matched points and three gaps, the reasoning and the CV. The buttons hold only a key and the posting number. A delivery row is written whether the send works or fails.",
+          "sources": [
+            {
+              "path": "src/notify.py",
+              "lines": "133-177"
+            },
+            {
+              "path": "src/telegram.py",
+              "lines": "99-112"
+            }
+          ]
+        },
+        {
+          "id": "human.decide",
+          "label": "The candidate decides",
+          "kind": "human",
+          "nodeId": "candidate",
+          "phase": "decision",
+          "summary": "A person reads it and chooses. In this demo that person is you.",
+          "description": "Applied, Not suitable or Later. The pipeline never applies on its own: the person applies through the posting's link.",
+          "sources": [
+            {
+              "path": "supabase/functions/telegram-webhook/index.ts",
+              "lines": "27-31"
+            }
+          ]
+        },
+        {
+          "id": "webhook.verify",
+          "label": "Verify the button press",
+          "kind": "validation",
+          "nodeId": "edge-function",
+          "phase": "decision",
+          "summary": "Three checks run before anything is written.",
+          "description": "First the secret header that only Telegram was given; without it the answer is 403. Then the chat the press came from. Then the data, which must be a known key, a colon and a number. A request that fails any check writes nothing.",
+          "sources": [
+            {
+              "path": "supabase/functions/telegram-webhook/index.ts",
+              "lines": "65-116"
+            }
+          ]
+        },
+        {
+          "id": "decision.record",
+          "label": "Record the decision",
+          "kind": "database",
+          "nodeId": "postgres",
+          "phase": "decision",
+          "summary": "One row per posting, however many times a button is pressed.",
+          "description": "The write is an upsert on the posting, so a second press updates the decision instead of adding a row. Telegram is answered at once, and the buttons are replaced with the chosen label.",
+          "sources": [
+            {
+              "path": "supabase/functions/telegram-webhook/index.ts",
+              "lines": "118-152"
+            }
+          ]
+        },
+        {
+          "id": "followup.confirm",
+          "label": "Ask whether it was sent",
+          "kind": "human",
+          "nodeId": "followup",
+          "phase": "followup",
+          "summary": "An hour later: did the intention become an application?",
+          "description": "Applications marked applied, not yet confirmed and not yet asked, decided more than an hour ago, get a question. It is stamped as asked even if the send fails. The answer is stored separately from the first decision.",
+          "sources": [
+            {
+              "path": "src/followup.py",
+              "lines": "64-72"
+            },
+            {
+              "path": "src/followup.py",
+              "lines": "141-171"
+            }
+          ]
+        },
+        {
+          "id": "followup.outcome",
+          "label": "Ask what happened",
+          "kind": "human",
+          "nodeId": "followup",
+          "phase": "followup",
+          "summary": "A week later: a reply, an interview, a rejection, or nothing.",
+          "description": "Confirmed applications without an outcome are asked after seven days. One that is never answered is closed as no response after 21 days, so silence is recorded too.",
+          "sources": [
+            {
+              "path": "src/followup.py",
+              "lines": "87-97"
+            },
+            {
+              "path": "src/followup.py",
+              "lines": "114-138"
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "key": "title",
+          "label": "Job title",
+          "type": "text",
+          "maxLength": 80,
+          "help": "The policy reads the title. Try adding \"Senior\"."
+        },
+        {
+          "key": "location",
+          "label": "Location",
+          "type": "text",
+          "maxLength": 60
+        },
+        {
+          "key": "workMode",
+          "label": "Work mode",
+          "type": "select",
+          "options": [
+            "remote",
+            "hybrid",
+            "onsite"
+          ]
+        },
+        {
+          "key": "description",
+          "label": "Description",
+          "type": "textarea",
+          "maxLength": 600,
+          "help": "The policy also reads this text: years of experience, and phrases about sponsorship."
+        },
+        {
+          "key": "modelProfile",
+          "label": "What the scripted model answers",
+          "type": "select",
+          "options": [
+            "strong fit",
+            "first pass too generous",
+            "weak fit"
+          ],
+          "help": "No model is called. This chooses which fixed answer it gives."
+        }
+      ],
+      "faults": [
+        {
+          "id": "repost",
+          "label": "The posting is a repost",
+          "stepId": "job.dedupe",
+          "classification": "implemented",
+          "description": "The company published the same job again under a new id.",
+          "expected": "The fingerprint matches a stored posting. Only its last-seen time changes; nothing is scored or sent again.",
+          "sources": [
+            {
+              "path": "src/adapters.py",
+              "lines": "46-65"
+            },
+            {
+              "path": "src/main.py",
+              "lines": "150-169"
+            }
+          ]
+        },
+        {
+          "id": "rate-limit",
+          "label": "The model is rate-limited, then overloaded",
+          "stepId": "llm.score",
+          "classification": "implemented",
+          "group": "score",
+          "description": "Two calls fail before one succeeds.",
+          "expected": "The first wait uses the delay the server asked for; the second doubles. Half a second is added to each. The third call succeeds.",
+          "sources": [
+            {
+              "path": "src/scoring.py",
+              "lines": "200-203"
+            },
+            {
+              "path": "src/scoring.py",
+              "lines": "293-309"
+            }
+          ]
+        },
+        {
+          "id": "daily-quota",
+          "label": "The model's daily quota is used up",
+          "stepId": "llm.score",
+          "classification": "implemented",
+          "group": "score",
+          "description": "Waiting will not help until tomorrow.",
+          "expected": "There is no wait. The next model in the list is tried at once, and it stays first for the rest of the run.",
+          "sources": [
+            {
+              "path": "src/scoring.py",
+              "lines": "269-277"
+            },
+            {
+              "path": "src/scoring.py",
+              "lines": "298-301"
+            }
+          ]
+        },
+        {
+          "id": "invalid-json",
+          "label": "The model returns broken JSON",
+          "stepId": "llm.score",
+          "classification": "implemented",
+          "group": "score",
+          "description": "The answer is cut off halfway.",
+          "expected": "The attempt is recorded and the posting keeps no score, so the next run tries again. After 3 failures it is left out of the queue.",
+          "sources": [
+            {
+              "path": "src/scoring.py",
+              "lines": "311-315"
+            },
+            {
+              "path": "src/scoring.py",
+              "lines": "383-395"
+            }
+          ]
+        },
+        {
+          "id": "score-out-of-range",
+          "label": "The model returns a score of 140",
+          "stepId": "llm.score",
+          "classification": "implemented",
+          "group": "score",
+          "description": "The answer is valid JSON and matches the schema, and is still nonsense.",
+          "expected": "The range check rejects it. A schema guarantees the shape of an answer, not its meaning.",
+          "sources": [
+            {
+              "path": "src/scoring.py",
+              "lines": "317-321"
+            }
+          ]
+        },
+        {
+          "id": "refuter-fails",
+          "label": "The second pass fails",
+          "stepId": "llm.refute",
+          "classification": "implemented",
+          "description": "The adversarial call returns an error that is not worth retrying.",
+          "expected": "The first score stands and the error is stored in place of the refuter's note.",
+          "sources": [
+            {
+              "path": "src/scoring.py",
+              "lines": "443-457"
+            }
+          ]
+        },
+        {
+          "id": "same-role-other-city",
+          "label": "The same role was already sent for another city",
+          "stepId": "notify.select",
+          "classification": "implemented",
+          "description": "The company advertises one role in two locations.",
+          "expected": "It is stored and scored as its own posting, and not sent a second time.",
+          "sources": [
+            {
+              "path": "src/notify.py",
+              "lines": "70-96"
+            }
+          ]
+        },
+        {
+          "id": "invented-ids",
+          "label": "The model invents a bullet id",
+          "stepId": "llm.tailor",
+          "classification": "implemented",
+          "group": "tailor",
+          "description": "It returns an id that does not exist, repeats one, and lists an experience bullet under projects.",
+          "expected": "All three are dropped and logged. The CV is built from what remains, and nothing invented can appear in it.",
+          "sources": [
+            {
+              "path": "src/tailor.py",
+              "lines": "150-172"
+            }
+          ]
+        },
+        {
+          "id": "tailor-fails",
+          "label": "Too few valid bullets come back",
+          "stepId": "llm.tailor",
+          "classification": "implemented",
+          "group": "tailor",
+          "description": "After the invalid ids are removed, there is not enough for a page.",
+          "expected": "The posting is sent as text, without a CV.",
+          "sources": [
+            {
+              "path": "src/tailor.py",
+              "lines": "249-250"
+            },
+            {
+              "path": "src/notify.py",
+              "lines": "98-117"
+            }
+          ]
+        },
+        {
+          "id": "forged-webhook",
+          "label": "Someone posts to the webhook without the secret",
+          "stepId": "webhook.verify",
+          "classification": "implemented",
+          "group": "webhook",
+          "description": "The webhook address is public, so anyone can send it a request.",
+          "expected": "403 at the first check. Nothing is written. The genuine press that follows is processed normally.",
+          "sources": [
+            {
+              "path": "supabase/functions/telegram-webhook/index.ts",
+              "lines": "65-69"
+            }
+          ]
+        },
+        {
+          "id": "wrong-chat",
+          "label": "The right secret arrives from another chat",
+          "stepId": "webhook.verify",
+          "classification": "implemented",
+          "group": "webhook",
+          "description": "The secret has leaked, and a request comes from a different conversation.",
+          "expected": "Refused at the second check, with an alert to that chat. Nothing is written.",
+          "sources": [
+            {
+              "path": "supabase/functions/telegram-webhook/index.ts",
+              "lines": "85-94"
+            }
+          ]
+        },
+        {
+          "id": "malformed-callback",
+          "label": "The button data is not a key and a number",
+          "stepId": "webhook.verify",
+          "classification": "implemented",
+          "group": "webhook",
+          "description": "The request carries extra text after the posting number.",
+          "expected": "Refused at the third check. The database is not touched.",
+          "sources": [
+            {
+              "path": "supabase/functions/telegram-webhook/index.ts",
+              "lines": "96-116"
+            }
+          ]
+        },
+        {
+          "id": "double-tap",
+          "label": "The button is pressed twice",
+          "stepId": "decision.record",
+          "classification": "implemented",
+          "description": "A second press arrives before the buttons are replaced.",
+          "expected": "The same row is updated. There is still one application for the posting.",
+          "sources": [
+            {
+              "path": "supabase/functions/telegram-webhook/index.ts",
+              "lines": "118-130"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "decisions": [
+    {
+      "id": "ids-not-text",
+      "title": "The model returns ids, never text",
+      "problem": "A model asked to tailor a CV can add experience the person does not have.",
+      "options": [
+        {
+          "name": "Let the model write the CV and forbid invention in the prompt",
+          "verdict": "rejected",
+          "note": "A prompt is a request. Nothing stops the model from ignoring it."
+        },
+        {
+          "name": "Give the model a catalogue of numbered bullets and accept only ids",
+          "verdict": "chosen",
+          "note": "The text is read from a file, so the model has no way to put new words on the page."
+        }
+      ],
+      "rationale": "Invention is not forbidden in the prompt; it has no path in the design. An id that is not in the catalogue is dropped and the rest goes through.",
+      "tradeoffs": [
+        "The CV can only say what was written in advance, so a strength with no bullet cannot be shown.",
+        "The catalogue has to be maintained by hand."
+      ],
+      "evolution": "Let the model propose new bullets for the owner to approve, and add them to the catalogue only after that.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "src/tailor.py",
+          "lines": "1-12"
+        },
+        {
+          "path": "src/tailor.py",
+          "lines": "150-172"
+        }
+      ]
+    },
+    {
+      "id": "two-passes",
+      "title": "Two passes, and the lower score wins",
+      "problem": "The author measured the same posting scoring up to 10 points apart between identical calls.",
+      "options": [
+        {
+          "name": "Trust a single call",
+          "verdict": "rejected",
+          "note": "A generous outlier sends a posting that is not worth an hour."
+        },
+        {
+          "name": "Add a second call that argues against the first and keep the lower score",
+          "verdict": "chosen",
+          "note": "It reduces the swing, and when it errs it errs toward not sending."
+        }
+      ],
+      "rationale": "A good posting scored too low costs one missed listing among many. A poor one scored too high costs an hour. The second call sees the claimed strengths but not the number, so it cannot simply agree with it.",
+      "tradeoffs": [
+        "Every scored posting costs two calls.",
+        "Some good postings are held back."
+      ],
+      "evolution": "The second pass can be switched off by configuration, so its effect can be measured against outcomes once enough of them are recorded.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "src/scoring.py",
+          "lines": "58-60"
+        },
+        {
+          "path": "src/scoring.py",
+          "lines": "218-232"
+        }
+      ]
+    },
+    {
+      "id": "rules-before-model",
+      "title": "Plain rules before any model call",
+      "problem": "Most postings are obviously wrong for one person: the wrong role, too senior, or closed to applicants from abroad.",
+      "options": [
+        {
+          "name": "Send every posting to the model",
+          "verdict": "rejected",
+          "note": "It spends quota on postings a pattern can reject, and the answer varies."
+        },
+        {
+          "name": "Filter with regular expressions first",
+          "verdict": "chosen",
+          "note": "Free, instant and the same every time."
+        }
+      ],
+      "rationale": "The filter is also the baseline: if a model is not measurably better at this than a file of patterns, the patterns stay. A posting that says nothing about authorisation passes, because rejecting it would throw away most of the market.",
+      "tradeoffs": [
+        "A phrasing the patterns do not know gets through, or is missed.",
+        "The patterns need maintaining as wording changes."
+      ],
+      "evolution": "Measure the model against this baseline on the recorded outcomes before letting it replace any rule.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "src/targeting.py",
+          "lines": "1-10"
+        },
+        {
+          "path": "src/targeting.py",
+          "lines": "145-160"
+        }
+      ]
+    },
+    {
+      "id": "table-is-queue",
+      "title": "The table is the queue",
+      "problem": "A scheduled run can be stopped by a time limit, a quota or a crash at any point.",
+      "options": [
+        {
+          "name": "Keep a list of pending work in memory or in a queue service",
+          "verdict": "rejected",
+          "note": "State to lose, or another service to run."
+        },
+        {
+          "name": "Treat a missing row as pending work",
+          "verdict": "chosen",
+          "note": "A posting without a score is waiting to be scored; a score without a delivery is waiting to be sent."
+        }
+      ],
+      "rationale": "The run can fail halfway and the next one continues from where it stopped, because nothing about progress is held outside the database.",
+      "tradeoffs": [
+        "Finding pending work means reading what is done and subtracting it, which is acceptable at hundreds of rows and would not be at millions."
+      ],
+      "evolution": "Move the selection into a SQL function if the tables grow.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "src/scoring.py",
+          "lines": "1-13"
+        },
+        {
+          "path": "src/scoring.py",
+          "lines": "327-340"
+        }
+      ]
+    },
+    {
+      "id": "weak-models-out",
+      "title": "Weak models were taken out of the rotation",
+      "problem": "When the better models ran out of quota, the rotation fell through to a lighter one.",
+      "options": [
+        {
+          "name": "Fall back to whichever model still has quota",
+          "verdict": "rejected",
+          "note": "The author found the lighter model had made 173 of 234 scores, and that it found Python in none of 45 postings that mention it."
+        },
+        {
+          "name": "Stop the run and let the queue wait",
+          "verdict": "chosen",
+          "note": "Scores already made by a weak model are treated as not done and are redone."
+        }
+      ],
+      "rationale": "A wrong score that looks right is worse than no score. The queue is the table, so stopping loses nothing.",
+      "tradeoffs": [
+        "On a day when quotas run out, postings wait until the next day."
+      ],
+      "evolution": "Add a small fixed set of labelled postings and run each candidate model against it before it enters the rotation.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "src/scoring.py",
+          "lines": "28-47"
+        },
+        {
+          "path": "src/scoring.py",
+          "lines": "334-340"
+        }
+      ]
+    },
+    {
+      "id": "three-labels",
+      "title": "Intention, confirmation and outcome are stored apart",
+      "problem": "Pressing Applied in a chat is not the same as sending an application, and neither says whether anyone replied.",
+      "options": [
+        {
+          "name": "One status column",
+          "verdict": "rejected",
+          "note": "It would mix what was intended with what happened, and every later measurement would rest on wrong labels."
+        },
+        {
+          "name": "Three separate facts, asked at three different times",
+          "verdict": "chosen",
+          "note": "The decision at once, the confirmation after an hour, the outcome after a week."
+        }
+      ],
+      "rationale": "This table is the ground truth for any claim about how well the scores work. Unanswered applications are closed automatically after 21 days so that silence is recorded as data.",
+      "tradeoffs": [
+        "It asks the person two more questions per application."
+      ],
+      "evolution": "Use these labels to measure whether a higher score predicts a reply. That measurement is planned and not built.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "supabase/functions/telegram-webhook/index.ts",
+          "lines": "33-55"
+        },
+        {
+          "path": "src/followup.py",
+          "lines": "114-122"
+        }
+      ]
+    }
+  ],
+  "metrics": [
+    {
+      "id": "model-call-sites",
+      "label": "Model calls behind a schema and a code check",
+      "value": "3 of 3",
+      "kind": "count",
+      "method": "Counted in the source: scoring, the adversarial pass and bullet selection each request JSON against a schema and validate the answer in code.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "src/scoring.py",
+          "lines": "218-323"
+        },
+        {
+          "path": "src/tailor.py",
+          "lines": "208-262"
+        }
+      ]
+    },
+    {
+      "id": "sources",
+      "label": "Posting sources",
+      "value": "5 job-board APIs, 6 aggregators",
+      "kind": "count",
+      "method": "Counted in the adapter and aggregator registries.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "src/adapters.py",
+          "lines": "229-235"
+        },
+        {
+          "path": "src/aggregators.py",
+          "lines": "165"
+        }
+      ]
+    },
+    {
+      "id": "tests",
+      "label": "Automated tests",
+      "value": "204 test functions",
+      "kind": "count",
+      "method": "Counted in the repository's 11 test files. They were not run for this page.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "tests"
+        }
+      ]
+    },
+    {
+      "id": "score-variance",
+      "label": "Score swing on one identical posting",
+      "value": "up to ±10 points",
+      "kind": "measured",
+      "method": "Reported by the author in a comment as the reason for the second pass. The measurement data is not in the repository.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "src/scoring.py",
+          "lines": "226-229"
+        }
+      ]
+    },
+    {
+      "id": "weak-model",
+      "label": "A lighter model finding Python in postings that mention it",
+      "value": "0 of 45",
+      "kind": "measured",
+      "method": "Reported by the author in a comment as the reason lighter models were removed. The measurement data is not in the repository.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "src/scoring.py",
+          "lines": "32-36"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    {
+      "id": "no-outcome-evaluation",
+      "title": "Scores are not yet measured against outcomes",
+      "current": "The pipeline records decisions, confirmations and outcomes, and prints simple counts. Nothing compares scores with what happened.",
+      "proposal": "Once enough outcomes are recorded, measure whether a higher score predicts a reply, and whether the second pass improves that.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "src/followup.py",
+          "lines": "175-220"
+        }
+      ]
+    },
+    {
+      "id": "posting-text-in-prompt",
+      "title": "Posting text goes into the prompt as it is",
+      "current": "A posting could contain text addressed to the model. The damage is bounded by the range check, the lower-of-two rule and id-only tailoring, but nothing marks the text as untrusted.",
+      "proposal": "Fence the posting text and tell the model it is data, then add postings written to manipulate the score to the test set.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "src/scoring.py",
+          "lines": "123-155"
+        },
+        {
+          "path": "src/scoring.py",
+          "lines": "187-196"
+        }
+      ]
+    },
+    {
+      "id": "no-model-timeout",
+      "title": "Model calls have no timeout",
+      "current": "A call that hangs is stopped only by the 10-minute limit on the whole run. A 420-second budget is checked between postings, not during a call.",
+      "proposal": "Set a timeout on each call and treat it like an overload error.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "src/scoring.py",
+          "lines": "283-292"
+        },
+        {
+          "path": "src/scoring.py",
+          "lines": "420-422"
+        }
+      ]
+    },
+    {
+      "id": "schema-drift",
+      "title": "The SQL in the repository is behind the code",
+      "current": "The code writes columns that the SQL files do not create, such as the CV version and the refuter's score. The live schema was changed by hand.",
+      "proposal": "Adopt a migration tool and add the missing migrations, so the repository alone can rebuild the database.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "sql/004_scores.sql"
+        },
+        {
+          "path": "src/scoring.py",
+          "lines": "461-480"
+        }
+      ]
+    },
+    {
+      "id": "observability",
+      "title": "Observability is print statements and a failure email",
+      "current": "Stages print to the workflow log and write a run record. There are no structured logs, metrics or alerts beyond a failed run.",
+      "proposal": "Emit structured log lines and alert on the run record: no successful run for some hours, or a rising failure count.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "src/main.py",
+          "lines": "100-137"
+        }
+      ]
+    }
+  ],
+  "screenshots": [],
+  "screenshotsNote": "The repository has no screenshots. The interface is a private Telegram chat, and a capture of it would show personal details.",
+  "evidence": [
+    {
+      "label": "Pipeline source",
+      "kind": "source",
+      "description": "The Python stages: adapters, the targeting policy, scoring, tailoring, rendering, notifying and the follow-up.",
+      "sources": [
+        {
+          "path": "src/scoring.py"
+        },
+        {
+          "path": "src/tailor.py"
+        },
+        {
+          "path": "src/targeting.py"
+        },
+        {
+          "path": "src/notify.py"
+        },
+        {
+          "path": "src/followup.py"
+        }
+      ]
+    },
+    {
+      "label": "Webhook function",
+      "kind": "source",
+      "description": "The Edge Function that records button presses, with its three checks.",
+      "sources": [
+        {
+          "path": "supabase/functions/telegram-webhook/index.ts"
+        }
+      ]
+    },
+    {
+      "label": "Tests",
+      "kind": "tests",
+      "description": "11 test files, including contract tests on recorded job-board responses, tests that invented ids are dropped, and a test that no contact detail reaches a prompt.",
+      "sources": [
+        {
+          "path": "tests/test_tailor.py"
+        },
+        {
+          "path": "tests/test_scoring.py"
+        },
+        {
+          "path": "tests/test_targeting.py"
+        },
+        {
+          "path": "tests/test_adapters.py"
+        }
+      ]
+    },
+    {
+      "label": "Schedule",
+      "kind": "documentation",
+      "description": "The workflow that runs the tests and then the four stages every hour.",
+      "sources": [
+        {
+          "path": ".github/workflows/poll-jobs.yml"
+        }
+      ]
+    },
+    {
+      "label": "Database schema",
+      "kind": "schema",
+      "description": "Five SQL files creating seven tables. They do not include every column the code writes.",
+      "sources": [
+        {
+          "path": "sql"
+        }
+      ]
+    },
+    {
+      "label": "Tests for this page's simulation",
+      "kind": "tests",
+      "description": "The re-implemented rules and every path of the demo are covered by unit tests in this portfolio's own repository.",
+      "sources": []
+    }
+  ]
+}

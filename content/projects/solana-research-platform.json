@@ -1,0 +1,2275 @@
+{
+  "id": "solana-research-platform",
+  "title": "Solana Trading Research Platform",
+  "tagline": "A research platform that runs trading strategies as competing hypotheses on paper, records every decision, and changes a rule only after it survives replay and an out-of-sample test.",
+  "summary": "A personal platform for studying short-lived tokens on Solana. A scanner filters the market through ordered gates and records why each token was rejected. Several strategies take the same signal as separate paper positions, so their rules are compared on identical entries. A replay engine and a set of statistical guards decide whether a rule has earned a change. Paper trading is the default; the public write-up publishes the method and the findings, including the ideas that failed.",
+  "categories": [
+    "data-engineering",
+    "backend",
+    "automation"
+  ],
+  "engagement": "personal",
+  "engagementNote": "Personal research project in a private repository, with a public write-up. Strategy parameters are not published there or here: every threshold in the demo on this page is invented.",
+  "icon": "candlestick",
+  "tone": "violet",
+  "highlights": [
+    {
+      "text": "Every scanned token gets a recorded verdict",
+      "provenance": "code"
+    },
+    {
+      "text": "Strategies trade the same signal side by side, on paper",
+      "provenance": "code"
+    },
+    {
+      "text": "A wrong price tick is ignored instead of booked as an exit",
+      "provenance": "code"
+    },
+    {
+      "text": "A position can only be closed once",
+      "provenance": "code"
+    },
+    {
+      "text": "A replay that reads the live rules' own constants",
+      "provenance": "code"
+    },
+    {
+      "text": "Development code cannot open the holdout data",
+      "provenance": "code"
+    }
+  ],
+  "statusLabel": "Running, on paper by default",
+  "roleLabel": "Owner and engineer",
+  "status": {
+    "text": "A running research platform. Paper trading is the default; a real-execution layer exists behind two switches and a wallet key.",
+    "provenance": "code",
+    "sources": [
+      {
+        "path": "config.py",
+        "lines": "70-72"
+      },
+      {
+        "path": "config.py",
+        "lines": "270-277"
+      },
+      {
+        "path": "app/trading/jupiter_trader.py",
+        "lines": "42-63"
+      }
+    ]
+  },
+  "repository": {
+    "name": "El-Sayed-Mustafa/solana-market-bot",
+    "url": "https://github.com/El-Sayed-Mustafa/solana-market-bot",
+    "branch": "main",
+    "visibility": "private",
+    "linkSources": false,
+    "writeUpUrl": "https://github.com/El-Sayed-Mustafa/solana-market-bot-showcase"
+  },
+  "problem": {
+    "text": "A trading idea is easy to believe and hard to check. A backtest can report a profit that comes from a biased sample, a single lucky trade or a model of the exits that is not the one that runs. The platform exists to make a strategy prove itself before anything depends on it.",
+    "provenance": "documented",
+    "sources": [
+      {
+        "path": "showcase/README.md",
+        "lines": "14-19"
+      },
+      {
+        "path": "app/backtest/replay_engine.py",
+        "lines": "1-14"
+      },
+      {
+        "path": "app/backtest/pumpswap_paths.py",
+        "lines": "55-67"
+      }
+    ]
+  },
+  "context": [
+    {
+      "text": "The author describes it as an evidence factory with strategies as hypotheses: paper-first, measurement-driven.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "3-5"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "14"
+        }
+      ]
+    },
+    {
+      "text": "It runs as a few long-lived Python services on one machine: the trading service, a control room, and separate recorders that only observe.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/docs/ARCHITECTURE.md",
+          "lines": "9-44"
+        }
+      ]
+    },
+    {
+      "text": "State lives in SQLite files in WAL mode. Recorders and the trading service never share a write path.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/docs/ARCHITECTURE.md",
+          "lines": "50-56"
+        },
+        {
+          "path": "app/database/db.py",
+          "lines": "203-213"
+        }
+      ]
+    },
+    {
+      "text": "Market data comes from several public providers, each behind its own rate limiter.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "app/clients/birdeye_client.py",
+          "lines": "56-63"
+        },
+        {
+          "path": "app/clients/dexscreener_client.py",
+          "lines": "28-30"
+        }
+      ]
+    }
+  ],
+  "role": {
+    "text": "Owner and engineer of the platform.",
+    "provenance": "owner",
+    "sources": []
+  },
+  "challenges": [
+    {
+      "text": "A simplified model of the exits agreed with what really happened only about 73% of the time, so results from it could not be trusted.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "app/backtest/replay_engine.py",
+          "lines": "1-14"
+        }
+      ]
+    },
+    {
+      "text": "Dropping minutes without trades from a price path quietly removed the tokens that died. One backtest read +24% per trade on a market that lost money.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "app/backtest/pumpswap_paths.py",
+          "lines": "55-67"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "76"
+        }
+      ]
+    },
+    {
+      "text": "A research sensor used up a shared provider quota and left the money path unable to read balances.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "config.py",
+          "lines": "55-57"
+        },
+        {
+          "path": "showcase/docs/ARCHITECTURE.md",
+          "lines": "46"
+        }
+      ]
+    },
+    {
+      "text": "A price feed sometimes returns a value that is simply wrong. Booking it as a stop would record a loss that never happened.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "app/utils/helpers.py",
+          "lines": "137-159"
+        }
+      ]
+    },
+    {
+      "text": "A system that can place real orders must not place one by accident while it is being used for research.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "app/trading/jupiter_trader.py",
+          "lines": "46-63"
+        }
+      ]
+    }
+  ],
+  "solution": [
+    {
+      "text": "A scanner applies its gates in a fixed order and stores every token's verdict with the gate that rejected it, so the funnel itself is data.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "app/scanners/token_scanner.py",
+          "lines": "128-242"
+        },
+        {
+          "path": "app/scanners/token_scanner.py",
+          "lines": "306-307"
+        }
+      ]
+    },
+    {
+      "text": "Each strategy opens its own paper position on the same signal, with guards scoped to that strategy, so rules are compared on identical entries.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "app/strategies/base.py",
+          "lines": "42-57"
+        },
+        {
+          "path": "app/strategies/runner.py",
+          "lines": "97-120"
+        }
+      ]
+    },
+    {
+      "text": "The cost of a trade is measured at entry: the sell is quoted for exactly what the buy would deliver.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "app/strategies/runner.py",
+          "lines": "107-114"
+        }
+      ]
+    },
+    {
+      "text": "The monitor ignores a tick from a different pool than the one locked at entry, and a price that implies a collapse while liquidity is still healthy.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "app/strategies/runner.py",
+          "lines": "250-272"
+        },
+        {
+          "path": "app/utils/helpers.py",
+          "lines": "137-159"
+        }
+      ]
+    },
+    {
+      "text": "Closing a position is idempotent: the update applies only to an open row and reports whether this call was the one that closed it.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "app/database/queries.py",
+          "lines": "673-694"
+        }
+      ]
+    },
+    {
+      "text": "The replay engine re-runs the live exit ladder in its real order and reads its constants from the live strategy module, so the two cannot drift apart silently.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "app/backtest/replay_engine.py",
+          "lines": "1-14"
+        }
+      ]
+    },
+    {
+      "text": "Development code cannot open the sealed holdout data: asking for any split other than train or validation raises an error.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "app/backtest/external_data.py",
+          "lines": "134-140"
+        }
+      ]
+    }
+  ],
+  "stack": [
+    {
+      "name": "Python",
+      "role": "The trading service, recorders, replay engine and research scripts",
+      "provenance": "code"
+    },
+    {
+      "name": "SQLite in WAL mode",
+      "role": "Four ledgers: trades and scans, launches, wallet activity, external paths",
+      "provenance": "code"
+    },
+    {
+      "name": "httpx and websockets",
+      "role": "Provider clients, and the stream that wakes the monitor",
+      "provenance": "code"
+    },
+    {
+      "name": "Streamlit",
+      "role": "The control room",
+      "provenance": "code"
+    },
+    {
+      "name": "Jupiter, DexScreener, Birdeye, Helius",
+      "role": "Quotes, market snapshots, discovery, and chain access",
+      "provenance": "code"
+    },
+    {
+      "name": "Google BigQuery",
+      "role": "Rebuilding an external market for out-of-sample tests",
+      "provenance": "code"
+    },
+    {
+      "name": "pytest",
+      "role": "110 tests over guards, recorders, data governance and research tools",
+      "provenance": "code"
+    }
+  ],
+  "architecture": {
+    "summary": "One trading service scans, opens paper positions for several strategies and watches them; separate recorders only observe; research runs offline against what was recorded. The real-execution layer hangs off the paper flow as a shadow and is off unless every switch is on.",
+    "layers": [
+      {
+        "id": "control",
+        "label": "Control"
+      },
+      {
+        "id": "research",
+        "label": "Research, offline"
+      },
+      {
+        "id": "sensors",
+        "label": "Sensors"
+      },
+      {
+        "id": "data",
+        "label": "Data"
+      },
+      {
+        "id": "core",
+        "label": "Trading service"
+      },
+      {
+        "id": "external",
+        "label": "External services"
+      },
+      {
+        "id": "execution",
+        "label": "Real execution, behind switches"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "owner",
+        "label": "Owner",
+        "layer": "control",
+        "kind": "actor",
+        "technology": "One person",
+        "responsibility": "Runs research, decides whether a rule changes, and holds the switches for real execution.",
+        "inputs": [
+          "The control room",
+          "Backtest and evaluation reports"
+        ],
+        "outputs": [
+          "A change to a rule, or a decision not to change it"
+        ],
+        "details": [
+          "No person decides anything in the paper flow from scan to close.",
+          "Adopting a rule after an evaluation is a human decision; the code reports, it does not enforce."
+        ],
+        "failureModes": [
+          "Believing one good trade."
+        ],
+        "reliability": [
+          "The evaluation lists the checks a candidate fails, so the reason not to adopt is written down."
+        ],
+        "provenance": "inferred",
+        "sources": [
+          {
+            "path": "app/backtest/v23_candidate.py",
+            "lines": "124-153"
+          }
+        ],
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": "dashboard",
+        "label": "Control room",
+        "layer": "control",
+        "kind": "frontend",
+        "technology": "Streamlit, reading the same database",
+        "responsibility": "Shows positions, per-strategy scoreboards and market state, and offers manual close and the real-money toggle.",
+        "inputs": [
+          "The ledgers",
+          "The trading service's heartbeat"
+        ],
+        "outputs": [
+          "Manual actions",
+          "A toggle file the trading service reads"
+        ],
+        "details": [
+          "It reads the trading service's heartbeat to know which mode is active, instead of trusting its own environment.",
+          "Switching to real mode asks for a typed confirmation."
+        ],
+        "failureModes": [
+          "A dashboard left open with stale settings mislabels the mode."
+        ],
+        "reliability": [
+          "Mode comes from the service's own heartbeat, after a stale dashboard once mislabelled a real-money switch as a rehearsal."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "dashboard.py",
+            "lines": "607-655"
+          },
+          {
+            "path": "app/trading/live_pilot.py",
+            "lines": "192-196"
+          }
+        ],
+        "position": {
+          "x": 0,
+          "y": 112
+        }
+      },
+      {
+        "id": "scanner",
+        "label": "Token scanner",
+        "layer": "core",
+        "kind": "worker",
+        "technology": "A Python thread, one scan per cycle",
+        "responsibility": "Finds candidate tokens and applies the scanner's gates.",
+        "inputs": [
+          "Trending lists and boosted profiles from three sources",
+          "Market snapshots"
+        ],
+        "outputs": [
+          "A verdict for every token",
+          "A signal for each one that passes"
+        ],
+        "details": [
+          "Eleven gates in a fixed order; the first that rejects is stored with the token.",
+          "A signal for the same token is not raised again inside a time window.",
+          "Each discovery source is isolated: one failing does not stop the scan."
+        ],
+        "failureModes": [
+          "A source is unreachable or over its quota.",
+          "Every source is empty."
+        ],
+        "reliability": [
+          "A failed source is logged and skipped.",
+          "A source whose quota is gone is skipped by a circuit breaker until a cooldown ends."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "app/scanners/token_scanner.py",
+            "lines": "128-242"
+          },
+          {
+            "path": "app/scanners/token_scanner.py",
+            "lines": "306-322"
+          },
+          {
+            "path": "app/scanners/token_scanner.py",
+            "lines": "369-422"
+          }
+        ],
+        "position": {
+          "x": 310,
+          "y": 0
+        }
+      },
+      {
+        "id": "entry-pipeline",
+        "label": "Entry pipeline",
+        "layer": "core",
+        "kind": "backend",
+        "technology": "One function, run once per signal",
+        "responsibility": "Builds one entry context that every strategy shares.",
+        "inputs": [
+          "A signal"
+        ],
+        "outputs": [
+          "Buy quote, return-leg quote, round-trip cost, execution band and size"
+        ],
+        "details": [
+          "The return leg is quoted for the exact token amount the buy would receive.",
+          "Cost sorts the trade into a band: cheap, acceptable, or observation only."
+        ],
+        "failureModes": [
+          "A quote is unavailable."
+        ],
+        "reliability": [
+          "An unknown cost falls into the most cautious band.",
+          "A refusal is written to a rejections table with its reason."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "app/strategies/runner.py",
+            "lines": "97-120"
+          }
+        ],
+        "position": {
+          "x": 310,
+          "y": 112
+        }
+      },
+      {
+        "id": "risk-manager",
+        "label": "Risk manager",
+        "layer": "core",
+        "kind": "backend",
+        "technology": "Ordered checks, pure Python",
+        "responsibility": "Approves or refuses an entry and sets its size.",
+        "inputs": [
+          "Price, liquidity, risk score, the quote and the wallet balance"
+        ],
+        "outputs": [
+          "Approved with a size, or refused with a reason"
+        ],
+        "details": [
+          "Checks run in a fixed order and the first failure is the reason.",
+          "Size is the smaller of a fixed cap and a share of the wallet."
+        ],
+        "failureModes": [
+          "Missing price or liquidity."
+        ],
+        "reliability": [
+          "A refusal stops every strategy and is recorded."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "app/trading/risk_manager.py",
+            "lines": "27-79"
+          }
+        ],
+        "position": {
+          "x": 310,
+          "y": 224
+        }
+      },
+      {
+        "id": "strategies",
+        "label": "Strategy harness",
+        "layer": "core",
+        "kind": "backend",
+        "technology": "A control strategy and shadow variants",
+        "responsibility": "Lets each strategy decide separately whether to open, and how to exit.",
+        "inputs": [
+          "The shared entry context",
+          "Position state on every check"
+        ],
+        "outputs": [
+          "One paper trade per strategy",
+          "An exit decision"
+        ],
+        "details": [
+          "Guards are scoped to one strategy, so strategies do not block each other on the same token.",
+          "The exit ladder is a list of rules in a fixed order; the first that matches wins.",
+          "A partial exit creates a child row, and reports weigh the two legs into one trade."
+        ],
+        "failureModes": [
+          "A shadow strategy is too expensive to trade a given signal."
+        ],
+        "reliability": [
+          "A shadow that cannot trade a signal records why and observes.",
+          "A retired strategy's profile stays in the code so its recorded trades still replay."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "app/strategies/base.py",
+            "lines": "42-57"
+          },
+          {
+            "path": "app/strategies/lowliq.py",
+            "lines": "667-761"
+          },
+          {
+            "path": "app/strategies/lowliq_v23.py",
+            "lines": "70-97"
+          }
+        ],
+        "position": {
+          "x": 310,
+          "y": 336
+        }
+      },
+      {
+        "id": "monitor",
+        "label": "Position monitor",
+        "layer": "core",
+        "kind": "worker",
+        "technology": "A Python thread, polling",
+        "responsibility": "Checks every open position, applies the safety exits, then asks each strategy for its exit.",
+        "inputs": [
+          "One batched snapshot request for all open positions",
+          "A wake-up from the WebSocket watcher"
+        ],
+        "outputs": [
+          "Closes",
+          "A stored sample of the market state behind every decision"
+        ],
+        "details": [
+          "A tick from a different pool than the one locked at entry is ignored.",
+          "A price that implies a collapse while liquidity is healthy is ignored.",
+          "Liquidity being pulled closes every strategy's position, whatever its own rule says."
+        ],
+        "failureModes": [
+          "A held token stops returning a snapshot.",
+          "The snapshot provider is slow."
+        ],
+        "reliability": [
+          "Guards run before any mark is recorded, so a bad tick cannot distort a position's history.",
+          "On restart, open positions are checked before the loop starts."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "app/strategies/runner.py",
+            "lines": "231-330"
+          },
+          {
+            "path": "app/utils/helpers.py",
+            "lines": "137-159"
+          }
+        ],
+        "position": {
+          "x": 310,
+          "y": 448
+        }
+      },
+      {
+        "id": "database",
+        "label": "SQLite ledgers",
+        "layer": "data",
+        "kind": "database",
+        "technology": "SQLite, WAL mode, four files",
+        "responsibility": "Holds scans, signals, paper trades, position samples and the recorders' data.",
+        "inputs": [
+          "Inserts and updates from the trading service and the recorders"
+        ],
+        "outputs": [
+          "Rows for the control room and for research"
+        ],
+        "details": [
+          "A close updates only a row that is still open.",
+          "Migrations are additive and safe to run again.",
+          "Indexes for the control room's reads took its heaviest panel from 68 seconds to 43 milliseconds."
+        ],
+        "failureModes": [
+          "Two writers at once."
+        ],
+        "reliability": [
+          "A ten-second busy timeout.",
+          "Recorders write to their own files, never to the trading ledger."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "app/database/queries.py",
+            "lines": "673-694"
+          },
+          {
+            "path": "app/database/db.py",
+            "lines": "203-213"
+          },
+          {
+            "path": "app/recorders/launch_recorder.py",
+            "lines": "114-116"
+          }
+        ],
+        "position": {
+          "x": 620,
+          "y": 168
+        }
+      },
+      {
+        "id": "live-pilot",
+        "label": "Real-execution pilot",
+        "layer": "execution",
+        "kind": "backend",
+        "technology": "Signing and sending, behind switches",
+        "status": "disabled",
+        "statusNote": "Off by default. A real order needs two settings turned on, a wallet key and a toggle in the control room. The demo on this page never passes them.",
+        "responsibility": "Would shadow a paper trade with a small real one.",
+        "inputs": [
+          "A paper open or close from an eligible strategy"
+        ],
+        "outputs": [
+          "A ledger row for each real leg"
+        ],
+        "details": [
+          "The switches are checked in order in one place, and each refusal is logged with its reason.",
+          "Selling is gated separately from buying, so switching real buying off cannot strand a position.",
+          "Results are taken from on-chain balance changes, not from the quote."
+        ],
+        "failureModes": [
+          "A transaction that looks failed but went through."
+        ],
+        "reliability": [
+          "Sent transactions are reconciled against the chain on a timer.",
+          "A reservation is written before quoting, so concurrent callers see it."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "config.py",
+            "lines": "70-72"
+          },
+          {
+            "path": "config.py",
+            "lines": "270-277"
+          },
+          {
+            "path": "app/trading/jupiter_trader.py",
+            "lines": "46-63"
+          },
+          {
+            "path": "app/trading/live_pilot.py",
+            "lines": "1-30"
+          }
+        ],
+        "position": {
+          "x": 620,
+          "y": 392
+        }
+      },
+      {
+        "id": "research",
+        "label": "Replay and evaluation",
+        "layer": "research",
+        "kind": "backend",
+        "technology": "Python modules, run by hand",
+        "responsibility": "Replays recorded trades against candidate rules and decides whether a candidate has earned promotion.",
+        "inputs": [
+          "Recorded trades and position samples",
+          "External price paths"
+        ],
+        "outputs": [
+          "A report of the checks a candidate passes and fails"
+        ],
+        "details": [
+          "The replay reads the live ladder's constants from the live module.",
+          "External paths are a continuous minute grid, so tokens that died stay in the sample.",
+          "Guards: preserve the big winners, hold in both halves of the period, hold without the best trades, and a paired bootstrap."
+        ],
+        "failureModes": [
+          "Tuning on the data used to judge.",
+          "A result carried by a few trades."
+        ],
+        "reliability": [
+          "Datasets are verified against pinned checksums and split by time with an embargo.",
+          "The module that loads development data refuses to open the holdout."
+        ],
+        "whyThisTechnology": {
+          "text": "A faithful replay replaced a simplified simulator once measuring the simulator showed it agreed with real outcomes only about 73% of the time.",
+          "provenance": "documented",
+          "sources": [
+            {
+              "path": "app/backtest/replay_engine.py",
+              "lines": "1-14"
+            }
+          ]
+        },
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "app/backtest/replay_engine.py",
+            "lines": "1-14"
+          },
+          {
+            "path": "app/backtest/external_data.py",
+            "lines": "134-140"
+          },
+          {
+            "path": "app/backtest/pumpswap_paths.py",
+            "lines": "55-67"
+          },
+          {
+            "path": "app/backtest/v23_candidate.py",
+            "lines": "110-153"
+          }
+        ],
+        "position": {
+          "x": 930,
+          "y": 112
+        }
+      },
+      {
+        "id": "recorders",
+        "label": "Recorders",
+        "layer": "sensors",
+        "kind": "worker",
+        "technology": "Separate services that only observe",
+        "responsibility": "Record token launches, price ticks and public wallet activity for later study.",
+        "inputs": [
+          "A launch stream",
+          "Polled prices"
+        ],
+        "outputs": [
+          "Rows in their own databases"
+        ],
+        "details": [
+          "A strategy that was tested and retired keeps its recorder, so the question can be asked again.",
+          "Recorders use their own provider keys."
+        ],
+        "failureModes": [
+          "The stream disconnects.",
+          "The service restarts mid-window."
+        ],
+        "reliability": [
+          "Reconnect with a growing delay.",
+          "In-flight tracking windows are recovered on restart."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "app/recorders/launch_recorder.py",
+            "lines": "196-248"
+          },
+          {
+            "path": "app/recorders/curve_sniper.py",
+            "lines": "1-14"
+          }
+        ],
+        "position": {
+          "x": 930,
+          "y": 336
+        }
+      },
+      {
+        "id": "dexscreener",
+        "label": "DexScreener",
+        "layer": "external",
+        "kind": "external",
+        "technology": "Market data API",
+        "responsibility": "Supplies market snapshots by token address.",
+        "inputs": [
+          "Batches of 30 addresses"
+        ],
+        "outputs": [
+          "Price, liquidity, volume and the pool they came from"
+        ],
+        "details": [
+          "When a token trades in several pools the deepest is kept.",
+          "A snapshot without a price or liquidity is discarded."
+        ],
+        "failureModes": [
+          "A token returns no snapshot.",
+          "The request is slow."
+        ],
+        "reliability": [
+          "A process-wide rate limiter.",
+          "Requests retry with a growing delay and never raise."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "app/clients/dexscreener_client.py",
+            "lines": "112-143"
+          },
+          {
+            "path": "app/utils/helpers.py",
+            "lines": "62-64"
+          }
+        ],
+        "position": {
+          "x": 1240,
+          "y": 0
+        }
+      },
+      {
+        "id": "birdeye",
+        "label": "Birdeye",
+        "layer": "external",
+        "kind": "external",
+        "technology": "Market data API",
+        "responsibility": "Supplies trending tokens and holder statistics.",
+        "inputs": [
+          "Rate-limited requests through one choke point"
+        ],
+        "outputs": [
+          "Token lists and holder counts"
+        ],
+        "details": [
+          "A circuit breaker opens when the provider says its monthly quota is used up.",
+          "The breaker logs once, on the trip, not on every blocked call."
+        ],
+        "failureModes": [
+          "The quota runs out."
+        ],
+        "reliability": [
+          "While the circuit is open every call is a no-op, and discovery uses the other sources.",
+          "It closes again by itself after a cooldown."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "app/clients/birdeye_client.py",
+            "lines": "28-63"
+          }
+        ],
+        "position": {
+          "x": 1240,
+          "y": 112
+        }
+      },
+      {
+        "id": "jupiter",
+        "label": "Jupiter",
+        "layer": "external",
+        "kind": "external",
+        "technology": "Swap quote API",
+        "responsibility": "Quotes swaps, which is how the platform tests whether a token can be sold and what a round trip costs.",
+        "inputs": [
+          "A token, a direction and an amount"
+        ],
+        "outputs": [
+          "A quote"
+        ],
+        "details": [
+          "The scanner's bulk probes use a keyless host, so they cannot use up the order path's quota.",
+          "Two keys rotate, and a rate-limit answer switches key at once."
+        ],
+        "failureModes": [
+          "Rate limits.",
+          "A stale quote on the order path."
+        ],
+        "reliability": [
+          "Urgent quotes fail fast instead of returning an old price."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "app/clients/jupiter_client.py",
+            "lines": "56-116"
+          }
+        ],
+        "position": {
+          "x": 1240,
+          "y": 224
+        }
+      },
+      {
+        "id": "helius",
+        "label": "Helius",
+        "layer": "external",
+        "kind": "external",
+        "technology": "RPC and WebSocket",
+        "responsibility": "Wakes the monitor when something touches a held token's pool, and is the chain access for real execution.",
+        "inputs": [
+          "A subscription per open position's pool"
+        ],
+        "outputs": [
+          "A notification"
+        ],
+        "details": [
+          "The stream is only a trigger: the price still comes from the normal fetch.",
+          "No socket is held when there are no positions."
+        ],
+        "failureModes": [
+          "The socket drops."
+        ],
+        "reliability": [
+          "If it drops, monitoring falls back to polling and nothing breaks.",
+          "Its key is kept for the money path alone, after a sensor once used up a shared quota."
+        ],
+        "whyThisTechnology": {
+          "text": "Subscribing to transactions that mention the pool was chosen over subscribing to the pool's account, which delivered no notifications on an active pool when tested.",
+          "provenance": "documented",
+          "sources": [
+            {
+              "path": "app/clients/helius_ws.py",
+              "lines": "9-15"
+            }
+          ]
+        },
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "app/clients/helius_ws.py",
+            "lines": "1-24"
+          },
+          {
+            "path": "config.py",
+            "lines": "55-57"
+          }
+        ],
+        "position": {
+          "x": 1240,
+          "y": 336
+        }
+      },
+      {
+        "id": "bigquery",
+        "label": "BigQuery public dataset",
+        "layer": "external",
+        "kind": "external",
+        "technology": "Google BigQuery",
+        "responsibility": "Source of an external market's trades, rebuilt into price paths for out-of-sample tests.",
+        "inputs": [
+          "Research queries"
+        ],
+        "outputs": [
+          "Trades by token and time"
+        ],
+        "details": [
+          "Used by research scripts only, never by the trading service."
+        ],
+        "failureModes": [
+          "Query cost."
+        ],
+        "reliability": [
+          "The cheaper of two tables was chosen after checking that it decodes every sampled trade."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "scripts/collect_pumpswap_paths.py",
+            "lines": "10-22"
+          }
+        ],
+        "position": {
+          "x": 1240,
+          "y": 448
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "scanner-birdeye",
+        "from": "scanner",
+        "to": "birdeye",
+        "protocol": "HTTPS GET, rate-limited",
+        "data": "Trending tokens"
+      },
+      {
+        "id": "scanner-dexscreener",
+        "from": "scanner",
+        "to": "dexscreener",
+        "protocol": "HTTPS GET, batches of 30",
+        "data": "Market snapshots by address"
+      },
+      {
+        "id": "scanner-jupiter",
+        "from": "scanner",
+        "to": "jupiter",
+        "protocol": "HTTPS GET, keyless host",
+        "data": "A buy quote and a sell quote: can it be sold back?"
+      },
+      {
+        "id": "scanner-db",
+        "from": "scanner",
+        "to": "database",
+        "protocol": "SQL insert",
+        "data": "Every token's verdict, and each signal"
+      },
+      {
+        "id": "scanner-entry",
+        "from": "scanner",
+        "to": "entry-pipeline",
+        "protocol": "Function call",
+        "data": "One signal"
+      },
+      {
+        "id": "entry-jupiter",
+        "from": "entry-pipeline",
+        "to": "jupiter",
+        "protocol": "HTTPS GET",
+        "data": "The buy quote and the return-leg quote"
+      },
+      {
+        "id": "entry-risk",
+        "from": "entry-pipeline",
+        "to": "risk-manager",
+        "protocol": "Function call",
+        "data": "Quote, liquidity and risk score"
+      },
+      {
+        "id": "entry-strategies",
+        "from": "entry-pipeline",
+        "to": "strategies",
+        "protocol": "Function call",
+        "data": "One shared entry context"
+      },
+      {
+        "id": "strategies-db",
+        "from": "strategies",
+        "to": "database",
+        "protocol": "SQL insert",
+        "data": "One paper trade per strategy, and each refusal"
+      },
+      {
+        "id": "monitor-dexscreener",
+        "from": "monitor",
+        "to": "dexscreener",
+        "protocol": "HTTPS GET, one batch",
+        "data": "Snapshots for every open position"
+      },
+      {
+        "id": "helius-monitor",
+        "from": "helius",
+        "to": "monitor",
+        "protocol": "WebSocket notification",
+        "data": "A wake-up: something touched the pool",
+        "kind": "async"
+      },
+      {
+        "id": "monitor-strategies",
+        "from": "monitor",
+        "to": "strategies",
+        "protocol": "Function call",
+        "data": "Position state, for the exit rule"
+      },
+      {
+        "id": "monitor-db",
+        "from": "monitor",
+        "to": "database",
+        "protocol": "SQL update and insert",
+        "data": "Closes, and the market state behind each decision"
+      },
+      {
+        "id": "strategies-pilot",
+        "from": "strategies",
+        "to": "live-pilot",
+        "protocol": "Function hook",
+        "data": "A paper open or close to shadow",
+        "kind": "disabled"
+      },
+      {
+        "id": "pilot-jupiter",
+        "from": "live-pilot",
+        "to": "jupiter",
+        "protocol": "HTTPS POST",
+        "data": "A swap transaction to sign",
+        "kind": "disabled"
+      },
+      {
+        "id": "pilot-helius",
+        "from": "live-pilot",
+        "to": "helius",
+        "protocol": "JSON-RPC",
+        "data": "Send, then confirm",
+        "kind": "disabled"
+      },
+      {
+        "id": "dashboard-pilot",
+        "from": "dashboard",
+        "to": "live-pilot",
+        "protocol": "A toggle file",
+        "data": "Real buying on or off",
+        "kind": "disabled"
+      },
+      {
+        "id": "research-db",
+        "from": "research",
+        "to": "database",
+        "protocol": "SQL read",
+        "data": "Recorded trades and the market state behind them"
+      },
+      {
+        "id": "research-bigquery",
+        "from": "research",
+        "to": "bigquery",
+        "protocol": "Client library",
+        "data": "External trades for out-of-sample tests",
+        "kind": "async"
+      },
+      {
+        "id": "recorders-db",
+        "from": "recorders",
+        "to": "database",
+        "protocol": "SQL insert, separate files",
+        "data": "Launches, price ticks and wallet activity",
+        "kind": "async"
+      },
+      {
+        "id": "dashboard-db",
+        "from": "dashboard",
+        "to": "database",
+        "protocol": "SQL read",
+        "data": "Positions, scoreboards and market state"
+      },
+      {
+        "id": "owner-dashboard",
+        "from": "owner",
+        "to": "dashboard",
+        "protocol": "Browser",
+        "data": "Monitoring and manual actions"
+      },
+      {
+        "id": "owner-research",
+        "from": "owner",
+        "to": "research",
+        "protocol": "Command line",
+        "data": "Backtests and candidate evaluations"
+      }
+    ],
+    "flows": [
+      {
+        "id": "token-scanned",
+        "label": "A token is scanned",
+        "description": "The scanner collects candidates, fetches their snapshots, probes whether each can be sold back, and stores a verdict for every one.",
+        "path": [
+          "scanner-birdeye",
+          "scanner-dexscreener",
+          "scanner-jupiter",
+          "scanner-db"
+        ]
+      },
+      {
+        "id": "signal-to-positions",
+        "label": "A signal becomes paper positions",
+        "description": "One entry context is built from two quotes, the risk manager approves it, and each strategy opens its own paper trade.",
+        "path": [
+          "scanner-entry",
+          "entry-jupiter",
+          "entry-risk",
+          "entry-strategies",
+          "strategies-db"
+        ]
+      },
+      {
+        "id": "position-watched",
+        "label": "A position is watched and closed",
+        "description": "A notification wakes the monitor, which fetches every open position in one request, asks each strategy for its exit and records the close.",
+        "path": [
+          "helius-monitor",
+          "monitor-dexscreener",
+          "monitor-strategies",
+          "monitor-db"
+        ]
+      },
+      {
+        "id": "rule-tested",
+        "label": "A rule is tested before it changes",
+        "description": "The owner runs an evaluation: recorded trades are replayed, and an external market is used as data the rule has not seen.",
+        "path": [
+          "owner-research",
+          "research-db",
+          "research-bigquery"
+        ]
+      },
+      {
+        "id": "owner-watches",
+        "label": "The owner opens the control room",
+        "description": "The control room reads the same ledgers the trading service writes.",
+        "path": [
+          "owner-dashboard",
+          "dashboard-db"
+        ]
+      }
+    ]
+  },
+  "workflows": [
+    {
+      "id": "signal-to-evidence",
+      "title": "One signal, two strategies, and the evidence it adds",
+      "summary": "Follow one token from the scanner to two paper positions that hold it under different exit rules. Choose how the price moves, see which rule did better, and decide what that proves.",
+      "proves": "It shows how a strategy is tested instead of believed: every rejection is recorded, two rules trade the same signal, bad data is ignored instead of booked, and one good trade is not allowed to change a rule.",
+      "scenarioId": "solana.signal-to-evidence",
+      "mode": "simulation",
+      "modeNote": "This is a simulation that runs in your browser on an invented token. The order of the gates, the guards, the shape of the exit ladder and the statistical checks are re-implemented from the project's code and really run. Every threshold is invented, because the real parameters are private, and the earlier paired trades in the evaluation are invented too. No provider is called, no order of any kind is placed, and the minutes that pass are simulated.",
+      "technologies": [
+        "Python",
+        "SQLite",
+        "Jupiter quotes",
+        "DexScreener",
+        "Streamlit"
+      ],
+      "phases": [
+        {
+          "id": "scan",
+          "label": "Scan"
+        },
+        {
+          "id": "entry",
+          "label": "Entry"
+        },
+        {
+          "id": "hold",
+          "label": "Hold and exit"
+        },
+        {
+          "id": "evidence",
+          "label": "Evidence"
+        }
+      ],
+      "steps": [
+        {
+          "id": "scan.discover",
+          "label": "Collect candidates",
+          "kind": "trigger",
+          "nodeId": "scanner",
+          "phase": "scan",
+          "summary": "Three sources are asked for tokens worth a look.",
+          "description": "Each discovery source is called on its own. One failing is logged and ignored, and a source whose quota is used up is skipped while its circuit breaker is open. Duplicates are removed.",
+          "sources": [
+            {
+              "path": "app/scanners/token_scanner.py",
+              "lines": "369-422"
+            },
+            {
+              "path": "app/clients/birdeye_client.py",
+              "lines": "28-63"
+            }
+          ]
+        },
+        {
+          "id": "scan.snapshot",
+          "label": "Fetch market snapshots",
+          "kind": "api",
+          "nodeId": "dexscreener",
+          "phase": "scan",
+          "summary": "Price, liquidity and volume for every candidate, in batches.",
+          "description": "Snapshots are fetched 30 addresses at a time. When a token trades in several pools the deepest is kept, and a snapshot without a price or liquidity is discarded.",
+          "sources": [
+            {
+              "path": "app/clients/dexscreener_client.py",
+              "lines": "112-143"
+            }
+          ]
+        },
+        {
+          "id": "scan.gates",
+          "label": "Apply the gates",
+          "kind": "validation",
+          "nodeId": "scanner",
+          "phase": "scan",
+          "summary": "Eleven checks in a fixed order; the first that fails is recorded.",
+          "description": "In order: major tokens, impersonation, missing data, liquidity, dust volume, observation time, volume spike, momentum, whether it can be sold back, risk score and data confidence. Every token's verdict is stored, rejected or not.",
+          "sources": [
+            {
+              "path": "app/scanners/token_scanner.py",
+              "lines": "128-242"
+            },
+            {
+              "path": "app/scanners/token_scanner.py",
+              "lines": "306-307"
+            }
+          ]
+        },
+        {
+          "id": "signal.record",
+          "label": "Record the signal once",
+          "kind": "database",
+          "nodeId": "database",
+          "phase": "scan",
+          "summary": "A token signalled recently is not signalled again.",
+          "description": "If a signal for this token exists inside the time window it is skipped. Otherwise it is stored with the snapshot it was raised on, so a later trade can point back to it.",
+          "sources": [
+            {
+              "path": "app/scanners/token_scanner.py",
+              "lines": "309-322"
+            }
+          ]
+        },
+        {
+          "id": "entry.quote",
+          "label": "Measure the cost of the trade",
+          "kind": "api",
+          "nodeId": "jupiter",
+          "phase": "entry",
+          "summary": "A buy quote, then a sell quote for exactly what the buy would deliver.",
+          "description": "The round-trip cost is what the two quotes lose between them. It sorts the trade into an execution band, and that band decides which strategies may trade it.",
+          "sources": [
+            {
+              "path": "app/strategies/runner.py",
+              "lines": "97-120"
+            }
+          ]
+        },
+        {
+          "id": "risk.check",
+          "label": "Ask the risk manager",
+          "kind": "validation",
+          "nodeId": "risk-manager",
+          "phase": "entry",
+          "summary": "One approval or refusal for every strategy.",
+          "description": "Price, liquidity, risk score, quote, price impact and size are checked in that order. The first failure is the reason, and it is recorded.",
+          "sources": [
+            {
+              "path": "app/trading/risk_manager.py",
+              "lines": "35-79"
+            }
+          ]
+        },
+        {
+          "id": "strategies.open",
+          "label": "Each strategy opens its own position",
+          "kind": "database",
+          "nodeId": "strategies",
+          "phase": "entry",
+          "summary": "The control and a shadow take the same signal as separate paper trades.",
+          "description": "Guards are scoped to one strategy: already holding, at its position cap, or cooling down. A shadow strategy also refuses a trade whose cost band is observation only. Each refusal is stored with its reason.",
+          "sources": [
+            {
+              "path": "app/strategies/base.py",
+              "lines": "42-57"
+            },
+            {
+              "path": "app/strategies/lowliq_v23.py",
+              "lines": "70-97"
+            }
+          ]
+        },
+        {
+          "id": "pilot.guard",
+          "label": "Check the real-money switches",
+          "kind": "validation",
+          "nodeId": "live-pilot",
+          "phase": "entry",
+          "summary": "Paper is the default. A real order is refused at the first switch.",
+          "description": "A real order needs the risk approval, the dry-run setting off, trading enabled and a wallet key, checked in that order in one function. The defaults refuse it. The simulation never passes these switches.",
+          "sources": [
+            {
+              "path": "app/trading/jupiter_trader.py",
+              "lines": "46-63"
+            },
+            {
+              "path": "config.py",
+              "lines": "270-277"
+            }
+          ]
+        },
+        {
+          "id": "monitor.tick",
+          "label": "Watch the positions",
+          "kind": "worker",
+          "nodeId": "monitor",
+          "phase": "hold",
+          "summary": "Every open position is checked in one request, and bad data is ignored.",
+          "description": "A tick from a different pool than the one locked at entry is skipped. A price that implies a collapse while liquidity is healthy is skipped as a bad read. Liquidity being pulled closes every position at once. The market state behind each check is stored.",
+          "sources": [
+            {
+              "path": "app/strategies/runner.py",
+              "lines": "245-313"
+            },
+            {
+              "path": "app/utils/helpers.py",
+              "lines": "137-159"
+            }
+          ]
+        },
+        {
+          "id": "exit.decide",
+          "label": "Each strategy decides its exit",
+          "kind": "transform",
+          "nodeId": "strategies",
+          "phase": "hold",
+          "summary": "The same price path, two exit rules.",
+          "description": "The exit ladder is a list of rules in a fixed order: partial take, liquidity drawdown, a trail once the position is armed, a stop while it is not, a harvest, a loss cut and a maximum hold. The first rule that matches wins.",
+          "sources": [
+            {
+              "path": "app/strategies/lowliq.py",
+              "lines": "667-761"
+            }
+          ]
+        },
+        {
+          "id": "position.close",
+          "label": "Close each position once",
+          "kind": "database",
+          "nodeId": "database",
+          "phase": "hold",
+          "summary": "A close applies only to a position that is still open.",
+          "description": "The update carries a condition that the row is still open, and the function returns whether this call closed it. A second closer changes nothing and triggers nothing.",
+          "sources": [
+            {
+              "path": "app/database/queries.py",
+              "lines": "673-694"
+            }
+          ]
+        },
+        {
+          "id": "report.compare",
+          "label": "Compare the two on the same signal",
+          "kind": "transform",
+          "nodeId": "research",
+          "phase": "evidence",
+          "summary": "Same token, same entry, same minute: which rule did better after costs?",
+          "description": "A partial exit and its remainder are weighed into one result per trade, so a strategy that sells half is compared fairly with one that does not. Costs are subtracted from both.",
+          "sources": [
+            {
+              "path": "app/strategies/report.py",
+              "lines": "25-67"
+            }
+          ]
+        },
+        {
+          "id": "candidate.evaluate",
+          "label": "Ask whether the evidence is enough",
+          "kind": "validation",
+          "nodeId": "research",
+          "phase": "evidence",
+          "summary": "Six checks stand between a good trade and a changed rule.",
+          "description": "The candidate must have enough paired trades, be better on average, be better in both halves of the period, stay better without its best trades, win a paired bootstrap, and keep at least as many big winners as the control.",
+          "sources": [
+            {
+              "path": "app/backtest/v23_candidate.py",
+              "lines": "110-153"
+            },
+            {
+              "path": "app/backtest/external_validation.py",
+              "lines": "54-73"
+            }
+          ]
+        },
+        {
+          "id": "owner.decide",
+          "label": "The owner decides",
+          "kind": "human",
+          "nodeId": "owner",
+          "phase": "evidence",
+          "summary": "A person chooses what happens to the shadow rule.",
+          "description": "The evaluation is a report. Whether a rule replaces the control is a person's decision, and nothing in the code prevents adopting a rule the report does not pass.",
+          "sources": [
+            {
+              "path": "app/backtest/v23_candidate.py",
+              "lines": "124-153"
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "key": "path",
+          "label": "How the price moves after entry",
+          "type": "select",
+          "options": [
+            "runner",
+            "spike and fade",
+            "slow bleed",
+            "chop"
+          ],
+          "help": "The same path is given to both strategies."
+        },
+        {
+          "key": "liquidityUsd",
+          "label": "Pool liquidity (USD)",
+          "type": "number",
+          "help": "The invented floor is 20,000. Below it the scanner rejects the token."
+        },
+        {
+          "key": "spike",
+          "label": "Volume against the token's own baseline",
+          "type": "number",
+          "help": "The invented floor is 2.5 times."
+        },
+        {
+          "key": "roundTripCostPct",
+          "label": "Cost of a round trip (%)",
+          "type": "number",
+          "help": "Above 3% the shadow strategy only observes. Much higher and the risk manager refuses the trade."
+        }
+      ],
+      "faults": [
+        {
+          "id": "source-down",
+          "label": "One discovery source fails",
+          "stepId": "scan.discover",
+          "classification": "implemented",
+          "description": "A request to one of the three sources raises an error.",
+          "expected": "The error is logged and ignored. The scan runs on the other two sources.",
+          "sources": [
+            {
+              "path": "app/scanners/token_scanner.py",
+              "lines": "399-402"
+            }
+          ]
+        },
+        {
+          "id": "quota-exhausted",
+          "label": "A source's monthly quota is used up",
+          "stepId": "scan.discover",
+          "classification": "implemented",
+          "description": "The provider answers that its quota is gone.",
+          "expected": "Its circuit breaker opens, the source is skipped until the cooldown ends, and the log reports the trip once.",
+          "sources": [
+            {
+              "path": "app/clients/birdeye_client.py",
+              "lines": "28-63"
+            },
+            {
+              "path": "app/scanners/token_scanner.py",
+              "lines": "378-381"
+            }
+          ]
+        },
+        {
+          "id": "no-sell-route",
+          "label": "The token cannot be sold back",
+          "stepId": "scan.gates",
+          "classification": "implemented",
+          "description": "A buy route exists and a sell route does not.",
+          "expected": "The token is rejected at the swap gate before any position is opened, and the verdict is stored.",
+          "sources": [
+            {
+              "path": "app/scanners/token_scanner.py",
+              "lines": "196-199"
+            }
+          ]
+        },
+        {
+          "id": "duplicate-signal",
+          "label": "The same token was signalled minutes ago",
+          "stepId": "signal.record",
+          "classification": "implemented",
+          "description": "The scanner finds the token again on the next cycle.",
+          "expected": "The signal is skipped, so nothing is opened twice.",
+          "sources": [
+            {
+              "path": "app/scanners/token_scanner.py",
+              "lines": "313-315"
+            }
+          ]
+        },
+        {
+          "id": "position-cap",
+          "label": "The control strategy is at its position cap",
+          "stepId": "strategies.open",
+          "classification": "implemented",
+          "description": "The control already holds as many positions as it is allowed.",
+          "expected": "The control refuses and records why. The shadow, whose guard is its own, still opens.",
+          "sources": [
+            {
+              "path": "app/strategies/base.py",
+              "lines": "42-51"
+            }
+          ]
+        },
+        {
+          "id": "bad-tick",
+          "label": "The price feed returns garbage once",
+          "stepId": "monitor.tick",
+          "classification": "implemented",
+          "description": "One tick shows the price near zero while the pool's liquidity is unchanged.",
+          "expected": "The tick is ignored as a bad read. No exit is booked and the position's history stays clean.",
+          "sources": [
+            {
+              "path": "app/utils/helpers.py",
+              "lines": "137-159"
+            },
+            {
+              "path": "app/strategies/runner.py",
+              "lines": "262-272"
+            }
+          ]
+        },
+        {
+          "id": "pool-switch",
+          "label": "A tick comes from a different pool",
+          "stepId": "monitor.tick",
+          "classification": "implemented",
+          "description": "The provider answers with the price of another pool for the same token.",
+          "expected": "The tick is ignored: a position is priced only from the pool that was locked at entry.",
+          "sources": [
+            {
+              "path": "app/strategies/runner.py",
+              "lines": "254-256"
+            }
+          ]
+        },
+        {
+          "id": "rug",
+          "label": "Liquidity is pulled from the pool",
+          "stepId": "monitor.tick",
+          "classification": "implemented",
+          "description": "The pool is drained while both positions are open.",
+          "expected": "Both positions close at once as a rug, whatever their own exit rules say. This is real, so the bad-tick guard does not hide it.",
+          "sources": [
+            {
+              "path": "app/strategies/runner.py",
+              "lines": "302-307"
+            }
+          ]
+        },
+        {
+          "id": "double-close",
+          "label": "Two closers race for the same position",
+          "stepId": "position.close",
+          "classification": "implemented",
+          "description": "The monitor and a manual action try to close the same position in the same moment.",
+          "expected": "The second update matches no row. The position is closed once and reported once.",
+          "sources": [
+            {
+              "path": "app/database/queries.py",
+              "lines": "673-694"
+            }
+          ]
+        },
+        {
+          "id": "snapshot-missing",
+          "label": "The token stops returning a snapshot",
+          "stepId": "monitor.tick",
+          "classification": "limitation",
+          "description": "From minute 9 the provider returns nothing for the held token.",
+          "expected": "The monitor skips the position every cycle. Nothing counts the skips and nothing times out, so the maximum-hold exit never runs and the position stays open.",
+          "sources": [
+            {
+              "path": "app/strategies/runner.py",
+              "lines": "250-253"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "decisions": [
+    {
+      "id": "faithful-replay",
+      "title": "Replay the real exit ladder, not a model of it",
+      "problem": "The backtests used a simplified model of the exits. Measured against what really happened, it agreed about 73% of the time.",
+      "options": [
+        {
+          "name": "Re-run the live ladder in its real order, reading its constants from the live module",
+          "verdict": "chosen",
+          "note": "A change to a live constant changes the replay with it."
+        },
+        {
+          "name": "Keep the simplified simulator and get better price data",
+          "verdict": "rejected",
+          "note": "The comparison showed the model was the limit, not the data."
+        }
+      ],
+      "rationale": "A backtest is only worth as much as its agreement with the system it stands for. Sharing the constants removes the commonest way for the two to drift apart.",
+      "tradeoffs": [
+        "The ladder's logic exists twice; only its constants are shared.",
+        "The liquidity-drawdown exit cannot be replayed, because pool liquidity is not recorded per minute. Those trades are reported separately."
+      ],
+      "evolution": "Have the live strategy and the replay call one shared decision function instead of two implementations.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "app/backtest/replay_engine.py",
+          "lines": "1-14"
+        },
+        {
+          "path": "app/backtest/replay_engine.py",
+          "lines": "30-33"
+        }
+      ]
+    },
+    {
+      "id": "continuous-grid",
+      "title": "Dead tokens stay in the sample",
+      "problem": "Building price paths only from the minutes that had trades dropped the tokens that died right after entry. A smoke test on a losing market read +24% per trade.",
+      "options": [
+        {
+          "name": "A continuous minute grid that carries the last price forward",
+          "verdict": "chosen",
+          "note": "No trade means no price change, which is what a position being held would have seen."
+        },
+        {
+          "name": "Bars only for minutes with trades, filtered by a minimum bar count",
+          "verdict": "rejected",
+          "note": "Filtering on bar count is filtering on survival."
+        }
+      ],
+      "rationale": "The bias was found because the number was too good. The fix is in how the data is loaded, so no later analysis can reintroduce it by accident.",
+      "tradeoffs": [
+        "Paths are larger.",
+        "A carried-forward price hides a token that cannot be traded at all; the cost model has to cover that."
+      ],
+      "evolution": "Record a liquidity figure per minute, so a path can say when a token stopped being tradable.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "app/backtest/pumpswap_paths.py",
+          "lines": "55-67"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "76"
+        }
+      ]
+    },
+    {
+      "id": "retire-keep-sensor",
+      "title": "A strategy that failed is retired, and its recorder is kept",
+      "problem": "Buying tokens at launch lost money on paper: 587 trades, −13.3% each on average, 26% winners, and the same result in quiet hours as in the hours profitable wallets trade.",
+      "options": [
+        {
+          "name": "Retire it as a strategy and keep recording the launches",
+          "verdict": "chosen",
+          "note": "The data is useful for other questions, and the result stays on record."
+        },
+        {
+          "name": "Keep tuning the exits",
+          "verdict": "rejected",
+          "note": "Eight exit variants were tried on recorded paths and all lost."
+        },
+        {
+          "name": "Delete it",
+          "verdict": "rejected",
+          "note": "The same idea would be tried again later with no memory of why it failed."
+        }
+      ],
+      "rationale": "Each explanation for the loss was tested and ruled out in turn: the shape of the exit, the speed of entry, the chain commitment level and the hour of day. No money was risked to learn it.",
+      "tradeoffs": [
+        "A service keeps running for a strategy that does not trade.",
+        "Negative results take as much work as positive ones."
+      ],
+      "evolution": "Use the recorded launches to test whether launch features predict anything at a later stage of a token's life.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "app/recorders/curve_sniper.py",
+          "lines": "1-14"
+        },
+        {
+          "path": "showcase/docs/RESEARCH-JOURNAL.md",
+          "lines": "15-19"
+        }
+      ]
+    },
+    {
+      "id": "key-isolation",
+      "title": "Experiments never share a key with the money path",
+      "problem": "A research sensor polling a provider used up a shared quota, and the layer that reads wallet balances went blind.",
+      "options": [
+        {
+          "name": "A separate provider or key for each purpose",
+          "verdict": "chosen",
+          "note": "An experiment can only exhaust its own budget."
+        },
+        {
+          "name": "One key with a stricter rate limiter",
+          "verdict": "rejected",
+          "note": "It is still one budget, and a new sensor can still spend it."
+        }
+      ],
+      "rationale": "The failure was not a bug in the sensor but a shared dependency. Separating the keys makes the same mistake impossible instead of unlikely.",
+      "tradeoffs": [
+        "More providers and keys to manage.",
+        "Bulk probes use a keyless endpoint with lower limits."
+      ],
+      "evolution": "Track each key's remaining quota and show it in the control room.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "config.py",
+          "lines": "55-57"
+        },
+        {
+          "path": "showcase/docs/ARCHITECTURE.md",
+          "lines": "46"
+        }
+      ]
+    },
+    {
+      "id": "websocket-accelerator",
+      "title": "The WebSocket only wakes the monitor",
+      "problem": "Polling every ten seconds is slow to react to a falling price, and a stream could be faster.",
+      "options": [
+        {
+          "name": "Subscribe to transactions that mention the pool, and use them only as a wake-up",
+          "verdict": "chosen",
+          "note": "If the socket drops, monitoring falls back to polling and nothing breaks."
+        },
+        {
+          "name": "Decode the price from the pool's reserves",
+          "verdict": "rejected",
+          "note": "It differs by exchange and is fragile."
+        },
+        {
+          "name": "Subscribe to the pool's account",
+          "verdict": "rejected",
+          "note": "Tested on an active pool, it delivered no notifications."
+        }
+      ],
+      "rationale": "Every exit decision still goes through one function on its normal timer. The stream makes it run sooner; it never replaces it.",
+      "tradeoffs": [
+        "The price is still fetched after the wake-up, so the gain is a shorter wait, not an instant reaction.",
+        "One more connection to keep alive."
+      ],
+      "evolution": "Measure how many exits were triggered by the stream and what each one saved.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "app/clients/helius_ws.py",
+          "lines": "1-24"
+        }
+      ]
+    },
+    {
+      "id": "paper-default",
+      "title": "Paper is the default, and a real order has to pass every switch",
+      "problem": "The same code that studies strategies can sign a transaction. It must not do so because of a missing setting.",
+      "options": [
+        {
+          "name": "Safe defaults, plus independent switches checked in order in one place",
+          "verdict": "chosen",
+          "note": "Each refusal names the switch that stopped it."
+        },
+        {
+          "name": "One \"live\" flag",
+          "verdict": "rejected",
+          "note": "A single mistake would be enough."
+        }
+      ],
+      "rationale": "The dry-run setting defaults to on and trading defaults to off, and a wallet key is also required. Selling is gated separately from buying, so switching real buying off cannot strand a position.",
+      "tradeoffs": [
+        "More state to reason about when real execution is wanted.",
+        "The control room must show which mode is truly active, which it reads from the service's own heartbeat."
+      ],
+      "evolution": "Add a portfolio-level stop on the paper side too, so paper results reflect the limits a real account would have.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "config.py",
+          "lines": "70-72"
+        },
+        {
+          "path": "config.py",
+          "lines": "270-277"
+        },
+        {
+          "path": "app/trading/jupiter_trader.py",
+          "lines": "46-63"
+        }
+      ]
+    }
+  ],
+  "metrics": [
+    {
+      "id": "dashboard-index",
+      "label": "Control room refresh over 846 thousand launches and 7.2 million price ticks",
+      "before": "68 s",
+      "after": "43 ms",
+      "kind": "measured",
+      "method": "Measured by the author before and after adding the indexes the control room's reads needed. Recorded beside the index definitions and in the public write-up.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "app/recorders/launch_recorder.py",
+          "lines": "114-116"
+        },
+        {
+          "path": "showcase/docs/ARCHITECTURE.md",
+          "lines": "56"
+        }
+      ]
+    },
+    {
+      "id": "sniping-result",
+      "label": "Buying at launch, tested on paper before any money",
+      "value": "−13.3% per trade over 587 trades",
+      "kind": "measured",
+      "method": "Paper trades on live launches over two days, with a 26% win rate and the same result in quiet hours as in active ones. The strategy was retired on this evidence.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "app/recorders/curve_sniper.py",
+          "lines": "1-14"
+        },
+        {
+          "path": "showcase/docs/RESEARCH-JOURNAL.md",
+          "lines": "19"
+        }
+      ]
+    },
+    {
+      "id": "copied-exits",
+      "label": "Copying profitable wallets' exits, on 435 identical entries",
+      "value": "7.5 points per trade worse",
+      "kind": "measured",
+      "method": "Replay of the wallets' own staged exits against the platform's ladder on the entries they shared. Published in the project's research journal.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "app/recorders/kol_radar.py",
+          "lines": "1-8"
+        },
+        {
+          "path": "showcase/docs/RESEARCH-JOURNAL.md",
+          "lines": "25"
+        }
+      ]
+    },
+    {
+      "id": "retired-shadow",
+      "label": "A fast-exit shadow strategy, when it was retired",
+      "value": "Profit factor 0.65 over 36 trades",
+      "kind": "measured",
+      "method": "Live paper trades beside the control on the same signals, with no big winner among them. Recorded where the strategy was switched off, and in the research journal.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "app/strategies/lowliq_v23.py",
+          "lines": "123-126"
+        },
+        {
+          "path": "showcase/docs/RESEARCH-JOURNAL.md",
+          "lines": "35"
+        }
+      ]
+    },
+    {
+      "id": "survivorship",
+      "label": "False profit one backtest reported before a sampling bias was fixed",
+      "value": "+24% per trade",
+      "kind": "measured",
+      "method": "A one-day smoke test on a market that lost money. Tokens that died had dropped out of the sample; replaying on a continuous minute grid removed the effect.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "app/backtest/pumpswap_paths.py",
+          "lines": "55-67"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "76"
+        }
+      ]
+    },
+    {
+      "id": "paper-positions",
+      "label": "Closed paper positions across all strategies",
+      "value": "1,800+",
+      "kind": "count",
+      "method": "As published by the author in the public write-up's evidence table.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "105"
+        }
+      ]
+    },
+    {
+      "id": "tests",
+      "label": "Automated tests",
+      "value": "110 in 23 files",
+      "kind": "count",
+      "method": "Counted in the repository: test functions in files named test_*.py. They cover the guards, the recorders, the data-governance rules and the research tools.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "tests"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    {
+      "id": "snapshot-missing",
+      "title": "A position with no snapshot is never timed out",
+      "current": "When a held token returns no snapshot, the monitor skips it and tries again next cycle. Nothing counts the skips, so time-based exits never run for it.",
+      "proposal": "Count consecutive misses per position and close it at the last known price after a limit, with its own exit reason.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "app/strategies/runner.py",
+          "lines": "250-253"
+        }
+      ]
+    },
+    {
+      "id": "untested-core",
+      "title": "The control strategy's rules are not tested directly",
+      "current": "The 110 tests cover the guards, recorders, data governance and research tools. No test file exercises the replay engine or the real-execution layer, and the control strategy's exit ladder is not tested on its own.",
+      "proposal": "Add table-driven tests for the exit ladder and a replay test that checks recorded trades reproduce their recorded exits.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "tests"
+        }
+      ]
+    },
+    {
+      "id": "replay-gap",
+      "title": "The replay is a second implementation",
+      "current": "The replay shares the live strategy's constants and re-implements its logic. One exit, the liquidity drawdown, cannot be replayed at all because liquidity is not recorded per minute.",
+      "proposal": "Move the exit decision into one function that both the live monitor and the replay call.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "app/backtest/replay_engine.py",
+          "lines": "1-14"
+        },
+        {
+          "path": "app/backtest/replay_engine.py",
+          "lines": "30-33"
+        }
+      ]
+    },
+    {
+      "id": "holdout-evaluator",
+      "title": "The sealed holdout has a lock and no key",
+      "current": "Development code refuses to load the holdout split, and tests assert it. The evaluator that would open it once, at the end, is not in the repository.",
+      "proposal": "Add a single-use holdout evaluation that records when it was run and against which frozen rule.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "app/backtest/external_data.py",
+          "lines": "134-140"
+        },
+        {
+          "path": "tests/test_external_data_governance.py",
+          "lines": "15-31"
+        }
+      ]
+    },
+    {
+      "id": "alerts-local",
+      "title": "Alerts stay on the machine",
+      "current": "An alert is printed to the console and written to a table. Nothing sends it anywhere, so a problem is seen only when the control room is open.",
+      "proposal": "Send the alerts that need a person to an external channel, and add a heartbeat an outside service can watch.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "app/alerts/console_alerts.py",
+          "lines": "31-38"
+        }
+      ]
+    },
+    {
+      "id": "stale-docs",
+      "title": "The repository's own notes describe an earlier version",
+      "current": "The in-repository overview and algorithm notes lag behind the code. The current reasoning lives in long comments beside the rules they explain.",
+      "proposal": "Generate the rule reference from the code's constants and comments, so it cannot fall behind.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "docs/ALGORITHMS.md"
+        },
+        {
+          "path": "app/strategies/lowliq.py",
+          "lines": "1-40"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/projects/solana-research-platform/dashboard.png",
+      "alt": "The control room: open positions, win rate and realised result across closed paper trades, market state, recorder counts, the execution pilot shown as off, and a table of results by exit reason.",
+      "caption": "The control room, as published by the author in the project's public write-up.",
+      "width": 1276,
+      "height": 1182
+    }
+  ],
+  "evidence": [
+    {
+      "label": "Public write-up",
+      "kind": "documentation",
+      "description": "The architecture, the research method and a journal of what was tried, published by the author. Paths on this page that begin with showcase/ are in that repository.",
+      "sources": [
+        {
+          "path": "showcase/README.md"
+        },
+        {
+          "path": "showcase/docs/ARCHITECTURE.md"
+        },
+        {
+          "path": "showcase/docs/RESEARCH-JOURNAL.md"
+        }
+      ]
+    },
+    {
+      "label": "Trading service",
+      "kind": "source",
+      "description": "The scanner and its gates, the shared entry pipeline, the strategy harness, the monitor and its guards.",
+      "sources": [
+        {
+          "path": "app/scanners/token_scanner.py"
+        },
+        {
+          "path": "app/strategies/runner.py"
+        },
+        {
+          "path": "app/strategies/base.py"
+        },
+        {
+          "path": "app/utils/helpers.py"
+        },
+        {
+          "path": "app/database/queries.py"
+        }
+      ]
+    },
+    {
+      "label": "Research tools",
+      "kind": "source",
+      "description": "The faithful replay, the external path loader, the data-governance module and the candidate evaluation.",
+      "sources": [
+        {
+          "path": "app/backtest/replay_engine.py"
+        },
+        {
+          "path": "app/backtest/pumpswap_paths.py"
+        },
+        {
+          "path": "app/backtest/external_data.py"
+        },
+        {
+          "path": "app/backtest/v23_candidate.py"
+        }
+      ]
+    },
+    {
+      "label": "Safety switches",
+      "kind": "source",
+      "description": "The defaults that keep the platform on paper, and the one function that checks them before a real order.",
+      "sources": [
+        {
+          "path": "config.py",
+          "lines": "70-72"
+        },
+        {
+          "path": "config.py",
+          "lines": "270-277"
+        },
+        {
+          "path": "app/trading/jupiter_trader.py",
+          "lines": "46-63"
+        }
+      ]
+    },
+    {
+      "label": "Tests",
+      "kind": "tests",
+      "description": "Guards against bad ticks and pool switches, recorder recovery, the rule that development code cannot open the holdout, and the research tools.",
+      "sources": [
+        {
+          "path": "tests/test_external_data_governance.py"
+        },
+        {
+          "path": "tests/test_v23_candidate.py"
+        },
+        {
+          "path": "tests"
+        }
+      ]
+    },
+    {
+      "label": "Recorded findings",
+      "kind": "measurements",
+      "description": "Results the author wrote down where the decision was made: beside the code that was retired or changed, and in the public research journal.",
+      "sources": [
+        {
+          "path": "app/recorders/curve_sniper.py",
+          "lines": "1-14"
+        },
+        {
+          "path": "app/recorders/kol_radar.py",
+          "lines": "1-8"
+        },
+        {
+          "path": "app/recorders/launch_recorder.py",
+          "lines": "114-116"
+        },
+        {
+          "path": "showcase/docs/RESEARCH-JOURNAL.md"
+        }
+      ]
+    }
+  ]
+}

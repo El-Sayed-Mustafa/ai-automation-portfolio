@@ -1,0 +1,264 @@
+{
+  "name": "Elsayed Mustafa",
+  "role": "AI & Automation Engineer",
+  "headline": "I build systems that turn complex operational work into reliable automation.",
+  "intro": "I design and build backend systems, data pipelines and business automation. This site lets you open the systems themselves: run a workflow, break it, and read how each decision was made.",
+  "about": "I build production-oriented tools that replace manual workflows with reliable software. My work combines Python automation, AI and machine learning, browser automation, APIs, PostgreSQL and Supabase, Google Apps Script, and practical web interfaces.",
+  "approach": [
+    "Start with the business workflow and its failure modes, then design the automation around them.",
+    "Measure models and strategies on unseen data instead of presenting unverified claims.",
+    "Keep credentials server-side, apply least privilege, and make important actions auditable.",
+    "Build resumable pipelines that can recover from API limits, timeouts and partial runs."
+  ],
+  "seeking": "Open to AI Automation Engineer, Python Automation Engineer and Applied AI Engineer roles.",
+  "location": "Cairo, Egypt",
+  "availability": "Open to remote work",
+  "url": "https://el-sayed-mustafa.github.io",
+  "links": {
+    "email": "elsayed.mustafa.ibrahim@gmail.com",
+    "github": "https://github.com/El-Sayed-Mustafa",
+    "linkedin": "https://www.linkedin.com/in/eng-elsayed-mustafa/",
+    "upwork": "https://www.upwork.com/freelancers/elsayedm7",
+    "resume": "/resume"
+  },
+  "capabilities": [
+    {
+      "id": "ai-workflows",
+      "title": "Model-backed workflows with guardrails",
+      "summary": "Putting a model inside a process without trusting it blindly: rules before the call, checks after it, and a person at the decision.",
+      "evidence": [
+        {
+          "text": "Every model answer requested as JSON against a schema, then checked again in code",
+          "provenance": "code",
+          "projectId": "job-triage-pipeline"
+        },
+        {
+          "text": "A second, adversarial pass that keeps the lower of two scores",
+          "provenance": "code",
+          "projectId": "job-triage-pipeline"
+        },
+        {
+          "text": "CV tailoring by bullet id, so the model cannot write experience that does not exist",
+          "provenance": "code",
+          "projectId": "job-triage-pipeline"
+        }
+      ],
+      "icon": "bot",
+      "tone": "violet"
+    },
+    {
+      "id": "business-automation",
+      "title": "Business process automation",
+      "summary": "Turning a manual workflow into a system that validates input, keeps one record of truth and notifies the right person.",
+      "evidence": [
+        {
+          "text": "WhatsApp enquiries become deduplicated leads, bookings and technician notifications",
+          "provenance": "code",
+          "projectId": "pest-control-crm"
+        },
+        {
+          "text": "Follow-ups, contracts, inventory and expenses handled in one operational app",
+          "provenance": "code",
+          "projectId": "pest-control-crm"
+        }
+      ],
+      "icon": "workflow",
+      "tone": "indigo"
+    },
+    {
+      "id": "backend-apis",
+      "title": "Backend and API engineering",
+      "summary": "Server-side rules, authenticated endpoints and a clear contract between a front-end and its data.",
+      "evidence": [
+        {
+          "text": "Edge Function API with HMAC-signed, scoped, expiring tokens and per-scope allow-lists",
+          "provenance": "code",
+          "projectId": "pest-control-crm"
+        },
+        {
+          "text": "Booking conflict rules enforced on the server, not in the form",
+          "provenance": "code",
+          "projectId": "pest-control-crm"
+        },
+        {
+          "text": "A read-only API: every request in a read-only transaction with a statement timeout",
+          "provenance": "code",
+          "projectId": "market-data-platform"
+        }
+      ],
+      "icon": "server",
+      "tone": "blue"
+    },
+    {
+      "id": "databases",
+      "title": "Databases and data migration",
+      "summary": "Modelling operational data in PostgreSQL and moving a live system onto it safely.",
+      "evidence": [
+        {
+          "text": "18 tables behind 30 ordered migrations, with dashboards as SQL functions",
+          "provenance": "code",
+          "projectId": "pest-control-crm"
+        },
+        {
+          "text": "Domain-by-domain cutover from Google Sheets, each gated by a parity check",
+          "provenance": "code",
+          "projectId": "pest-control-crm"
+        },
+        {
+          "text": "A database role that can only select, and a queue claimed with row locks",
+          "provenance": "code",
+          "projectId": "market-data-platform"
+        }
+      ],
+      "icon": "database",
+      "tone": "teal"
+    },
+    {
+      "id": "reliability",
+      "title": "Reliability and failure handling",
+      "summary": "Deciding what happens when a dependency is slow, a message arrives twice or a job fails.",
+      "evidence": [
+        {
+          "text": "A job queue with leases, retries with jitter and dead jobs, checked by breaking it on the running worker",
+          "provenance": "documented",
+          "projectId": "market-data-platform"
+        },
+        {
+          "text": "A circuit breaker that skips a failing price provider and tries it again with a single call",
+          "provenance": "code",
+          "projectId": "market-data-platform"
+        },
+        {
+          "text": "Outbox with retry, linear backoff and a failure state after 8 attempts",
+          "provenance": "code",
+          "projectId": "pest-control-crm"
+        },
+        {
+          "text": "Reads fall back to a second path; writes are never replayed, to rule out duplicate bookings",
+          "provenance": "code",
+          "projectId": "pest-control-crm"
+        },
+        {
+          "text": "Tables used as queues, so a run that stops halfway resumes by itself",
+          "provenance": "code",
+          "projectId": "job-triage-pipeline"
+        }
+      ],
+      "icon": "shield",
+      "tone": "green"
+    },
+    {
+      "id": "measurement",
+      "title": "Measurement before belief",
+      "summary": "Testing an idea before anything depends on it: replay on recorded data, checks that catch a lucky sample, and failed ideas kept on record.",
+      "evidence": [
+        {
+          "text": "Strategies run side by side on the same signals, so rules are compared on identical entries",
+          "provenance": "code",
+          "projectId": "solana-research-platform"
+        },
+        {
+          "text": "A sampling bias that made a losing market look profitable, found and fixed in the data loader",
+          "provenance": "documented",
+          "projectId": "solana-research-platform"
+        },
+        {
+          "text": "Development code that cannot open the sealed holdout data",
+          "provenance": "code",
+          "projectId": "solana-research-platform"
+        },
+        {
+          "text": "Synchronous and asynchronous endpoints benchmarked before choosing between them",
+          "provenance": "documented",
+          "projectId": "market-data-platform"
+        }
+      ],
+      "icon": "gauge",
+      "tone": "amber"
+    },
+    {
+      "id": "integrations",
+      "title": "Integrations",
+      "summary": "Connecting a system to the services a business already uses.",
+      "evidence": [
+        {
+          "text": "Green API (WhatsApp), Gmail, Google Contacts and Google Drive",
+          "provenance": "code",
+          "projectId": "pest-control-crm"
+        },
+        {
+          "text": "Gemini, Telegram Bot API and eleven job-board sources",
+          "provenance": "code",
+          "projectId": "job-triage-pipeline"
+        }
+      ],
+      "icon": "plug",
+      "tone": "rose"
+    }
+  ],
+  "experience": [
+    {
+      "title": "AI & Automation Engineer",
+      "organisation": "BlueBug",
+      "period": "February 2026 to present",
+      "summary": "Internal products that combine automation, backend engineering, data systems and applied machine learning."
+    },
+    {
+      "title": "AI Automation Developer",
+      "organisation": "Upwork and freelance clients",
+      "period": "June 2024 to present",
+      "summary": "Client-facing CRM systems, data pipelines, dashboards, bots and e-commerce operations tools."
+    }
+  ],
+  "education": [
+    {
+      "title": "B.Sc. in Computer and Information Science",
+      "institution": "Ain Shams University, Scientific Computing Department",
+      "period": "2020 to 2024"
+    }
+  ],
+  "certifications": [
+    {
+      "name": "Data Analyst in Power BI",
+      "issuer": "DataCamp",
+      "url": "https://www.datacamp.com/completed/statement-of-accomplishment/track/6b6773cefd60cf6e4480beaaba4a3750875ebf70"
+    },
+    {
+      "name": "Associate Data Analyst in SQL",
+      "issuer": "DataCamp",
+      "url": "https://www.datacamp.com/certificate/DAA0019295316175"
+    },
+    {
+      "name": "Advanced SQL Querying",
+      "issuer": "Maven Analytics",
+      "url": "https://certificates.mavenanalytics.io/75ee8eba-7a1f-4666-b90f-df4ff6c9ed42"
+    },
+    {
+      "name": "Data Analysis with Excel Power Tools",
+      "issuer": "DataCamp",
+      "url": "https://www.datacamp.com/completed/statement-of-accomplishment/track/c4c003751534242f6ac69aec1a5234c3d7d54f47"
+    }
+  ],
+  "catalogue": [
+    {
+      "title": "Wholesale and E-commerce Operations Platform",
+      "organisation": "Freelance client",
+      "summary": "A multi-company platform for receiving, serial-level inventory, sales, transfers and marketplace pricing, with business rules enforced in database functions.",
+      "stack": [
+        "Google Apps Script",
+        "Supabase",
+        "PostgreSQL",
+        "Python"
+      ],
+      "categories": [
+        "business-apps",
+        "backend"
+      ],
+      "url": "https://github.com/El-Sayed-Mustafa/wholesale-ops-platform",
+      "linkLabel": "Design write-up on GitHub",
+      "sourceOnRequest": true,
+      "icon": "boxes",
+      "tone": "indigo"
+    }
+  ]
+}

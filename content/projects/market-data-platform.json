@@ -1,0 +1,2370 @@
+{
+  "id": "market-data-platform",
+  "title": "Market Data and Alerting Platform",
+  "tagline": "A self-hosted platform that prices 170 US stocks every five minutes and scans them for alerts, built on a job queue in PostgreSQL whose failure handling was checked by breaking it on purpose.",
+  "summary": "A personal platform being rebuilt from scheduled scripts into an API, a worker and PostgreSQL under Docker Compose. A scheduler queues each five-minute poll exactly once; workers claim jobs under a lease, fall back to a second price provider behind a circuit breaker, and record alerts that cannot fire twice. It runs in shadow beside the system it replaces, and each failure path was drilled on the running worker before the switch.",
+  "categories": [
+    "backend",
+    "data-engineering",
+    "automation"
+  ],
+  "engagement": "personal",
+  "engagementNote": "Personal project in a private repository. It has one user, reads public market data and places no orders; it stores no account or holdings data.",
+  "icon": "pulse",
+  "tone": "blue",
+  "highlights": [
+    {
+      "text": "Each five-minute poll is queued exactly once",
+      "provenance": "code"
+    },
+    {
+      "text": "Jobs are claimed under a lease and retried with backoff",
+      "provenance": "code"
+    },
+    {
+      "text": "A second provider covers what the first one missed",
+      "provenance": "code"
+    },
+    {
+      "text": "A circuit breaker skips a provider that keeps failing",
+      "provenance": "code"
+    },
+    {
+      "text": "An alert fires once per stock per session",
+      "provenance": "code"
+    },
+    {
+      "text": "A heartbeat reports dead jobs to an outside monitor",
+      "provenance": "code"
+    },
+    {
+      "text": "An API that cannot write",
+      "provenance": "code"
+    }
+  ],
+  "statusLabel": "Running in shadow",
+  "roleLabel": "Owner and engineer",
+  "status": {
+    "text": "Running in shadow beside the system it replaces. The switch is approved and not yet made.",
+    "provenance": "documented",
+    "sources": [
+      {
+        "path": "docs/ROADMAP.md",
+        "lines": "9-12"
+      },
+      {
+        "path": "docs/CUTOVER.md",
+        "lines": "3-4"
+      }
+    ]
+  },
+  "repository": {
+    "name": "El-Sayed-Mustafa/stocks-platform",
+    "url": "https://github.com/El-Sayed-Mustafa/stocks-platform",
+    "branch": "main",
+    "visibility": "private",
+    "linkSources": false
+  },
+  "problem": {
+    "text": "The first version was a set of Python scripts in one loop, each step waiting for the one before. A daily sync once held a five-minute price poll back by 46 seconds, and when the price provider hung for half an hour every poll waited for it to time out.",
+    "provenance": "documented",
+    "sources": [
+      {
+        "path": "docs/adr/0001-modular-monolith.md",
+        "lines": "8-13"
+      },
+      {
+        "path": "app/circuit.py",
+        "lines": "8-9"
+      }
+    ]
+  },
+  "context": [
+    {
+      "text": "It prices the 170 largest US-listed stocks every five minutes during the US session, and tracks dividend announcements for Egypt, Dubai, Abu Dhabi and the US.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "README.md",
+          "lines": "3-4"
+        }
+      ]
+    },
+    {
+      "text": "One user and one machine: the API and the database listen on the loopback address only.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "compose.yaml",
+          "lines": "20"
+        },
+        {
+          "path": "compose.yaml",
+          "lines": "105"
+        }
+      ]
+    },
+    {
+      "text": "The new worker has polled beside the old poller since 6 October 2026, and three full sessions were compared slot by slot.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/ROADMAP.md",
+          "lines": "12"
+        },
+        {
+          "path": "docs/reports/2026-10-07-shadow-session.md",
+          "lines": "4-11"
+        },
+        {
+          "path": "docs/reports/2026-10-09-shadow-session.md",
+          "lines": "4-37"
+        }
+      ]
+    },
+    {
+      "text": "The alerting that is live today is operational: a heartbeat to an external monitoring service that e-mails the owner. Telegram alerts for market signals are written and switched off.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/ROADMAP.md",
+          "lines": "154-162"
+        },
+        {
+          "path": "app/config.py",
+          "lines": "37"
+        }
+      ]
+    }
+  ],
+  "role": {
+    "text": "Owner and engineer of the platform.",
+    "provenance": "owner",
+    "sources": []
+  },
+  "challenges": [
+    {
+      "text": "A hung provider must not use up the slot. Each provider gets a 15-second budget per poll, and a provider that keeps failing is skipped for a while.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "app/jobs/prices.py",
+          "lines": "14-15"
+        },
+        {
+          "path": "app/jobs/prices.py",
+          "lines": "27-28"
+        }
+      ]
+    },
+    {
+      "text": "The scheduler looks for work every five seconds and may run twice, yet each job has to be queued once.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "app/jobs/schedule.py",
+          "lines": "3-6"
+        }
+      ]
+    },
+    {
+      "text": "A worker can die holding a job. Nothing records that it stopped, so the job needs a lease that runs out by itself.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "app/jobs/queue.py",
+          "lines": "3-6"
+        }
+      ]
+    },
+    {
+      "text": "A late price is a wrong price: a poll that could not run inside its slot must be dropped, not run late.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "app/jobs/schedule.py",
+          "lines": "17"
+        }
+      ]
+    },
+    {
+      "text": "Replacing a working system without a gap meant running both and comparing their output before switching.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/CUTOVER.md",
+          "lines": "1-14"
+        }
+      ]
+    }
+  ],
+  "solution": [
+    {
+      "text": "A job queue in PostgreSQL. A worker claims the oldest due job with FOR UPDATE SKIP LOCKED and a lease; a failure is retried with backoff and jitter; the third failure buries the job.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "app/jobs/queue.py",
+          "lines": "41-63"
+        },
+        {
+          "path": "app/jobs/queue.py",
+          "lines": "80-100"
+        }
+      ]
+    },
+    {
+      "text": "The scheduler works out which occurrences are due and queues each under a deterministic key, so a second tick or a second scheduler queues nothing twice, and a worker that starts late catches up.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "app/jobs/schedule.py",
+          "lines": "1-7"
+        },
+        {
+          "path": "app/jobs/schedule.py",
+          "lines": "45-60"
+        }
+      ]
+    },
+    {
+      "text": "Two price providers. The fallback is asked only for the stocks the primary did not price, and a poll fails only when no price came back at all.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "app/jobs/prices.py",
+          "lines": "23-69"
+        }
+      ]
+    },
+    {
+      "text": "A circuit breaker skips the primary provider after three failed polls in a row and lets one trial call through after five minutes.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "app/circuit.py",
+          "lines": "15-56"
+        },
+        {
+          "path": "app/jobs/prices.py",
+          "lines": "15"
+        }
+      ]
+    },
+    {
+      "text": "A rule fires once per stock per session: the alert's primary key turns a repeat into a no-op.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "app/jobs/scan.py",
+          "lines": "136-144"
+        }
+      ]
+    },
+    {
+      "text": "Every minute the worker checks itself and reports to an external monitor: a dead job, a silent poll, an old backup, a full disk or an unhealthy API each produce a named problem.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "app/monitor.py",
+          "lines": "30-34"
+        },
+        {
+          "path": "app/monitor.py",
+          "lines": "70-80"
+        }
+      ]
+    },
+    {
+      "text": "The API cannot write. Each request runs in a read-only transaction with a five-second statement timeout, under a database role that can only select.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "app/api/deps.py",
+          "lines": "7-16"
+        },
+        {
+          "path": "app/dbroles.py",
+          "lines": "18-24"
+        }
+      ]
+    }
+  ],
+  "stack": [
+    {
+      "name": "Python 3.14",
+      "role": "The worker, the scheduler, the jobs and the API",
+      "provenance": "code"
+    },
+    {
+      "name": "PostgreSQL 18",
+      "role": "Market data, alerts, and the job queue itself",
+      "provenance": "code"
+    },
+    {
+      "name": "FastAPI and Uvicorn",
+      "role": "The read-only API behind the dashboards",
+      "provenance": "code"
+    },
+    {
+      "name": "SQLAlchemy 2, psycopg 3, Alembic",
+      "role": "Database access and four schema migrations",
+      "provenance": "code"
+    },
+    {
+      "name": "Docker Compose",
+      "role": "Runs the API, the worker, the database and a one-shot migration",
+      "provenance": "code"
+    },
+    {
+      "name": "Alpaca and Tiingo market data",
+      "role": "Primary and fallback price providers",
+      "provenance": "code"
+    },
+    {
+      "name": "pytest, ruff, GitHub Actions",
+      "role": "Tests against a real PostgreSQL on every push",
+      "provenance": "code"
+    },
+    {
+      "name": "healthchecks.io",
+      "role": "The external check the heartbeat reports to",
+      "provenance": "documented"
+    }
+  ],
+  "architecture": {
+    "summary": "One codebase runs as two processes beside PostgreSQL. The worker holds a scheduler thread and job threads that meet only in the jobs table; the API reads the same database and can never write. Everything a job writes is an upsert, because a job may run more than once.",
+    "layers": [
+      {
+        "id": "people",
+        "label": "People"
+      },
+      {
+        "id": "serve",
+        "label": "API and dashboard"
+      },
+      {
+        "id": "data",
+        "label": "Data"
+      },
+      {
+        "id": "schedule",
+        "label": "Scheduling and queue"
+      },
+      {
+        "id": "work",
+        "label": "Worker"
+      },
+      {
+        "id": "external",
+        "label": "External services"
+      },
+      {
+        "id": "legacy",
+        "label": "Being replaced"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "owner",
+        "label": "Owner",
+        "layer": "people",
+        "kind": "actor",
+        "technology": "One person, on a laptop and a phone",
+        "responsibility": "Reads the dashboards, receives the monitoring e-mails and decides what to do with a dead job.",
+        "inputs": [
+          "Down and up e-mails from the monitoring service",
+          "The dashboards"
+        ],
+        "outputs": [
+          "A requeue command for a dead job",
+          "Edits to the scanner's rule file"
+        ],
+        "details": [
+          "Nothing in the five-minute flow waits for a person.",
+          "Requeueing is a command, not an API call: the API has no write endpoints."
+        ],
+        "failureModes": [
+          "A requeue reads as \"run again\", which is wrong for a job tied to a time slot that has passed."
+        ],
+        "reliability": [
+          "The runbook says what requeue does to an expired job, after a drill showed the confusion."
+        ],
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "docs/RUNBOOK.md",
+            "lines": "241"
+          },
+          {
+            "path": "docs/reports/2026-10-09-failure-drills.md",
+            "lines": "80-81"
+          }
+        ],
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": "scheduler",
+        "label": "Scheduler tick",
+        "layer": "schedule",
+        "kind": "worker",
+        "technology": "A thread in the worker, every 5 s",
+        "responsibility": "Works out which job occurrences are due and queues each one once. Returns jobs whose lease ran out to the queue.",
+        "inputs": [
+          "The clock",
+          "Session hours from the market calendar"
+        ],
+        "outputs": [
+          "Rows in the jobs table",
+          "Reclaimed and expired jobs"
+        ],
+        "details": [
+          "Occurrences carry deterministic keys such as poll_quotes:<slot>, so ticking twice queues nothing twice.",
+          "A poll starts 5 seconds into its slot and expires 4 minutes in.",
+          "Daily occurrences stay due until done, so a worker that was off at the scheduled time catches up once."
+        ],
+        "failureModes": [
+          "Two schedulers running at once.",
+          "A worker that starts after the scheduled time."
+        ],
+        "reliability": [
+          "The unique key makes a duplicate tick harmless.",
+          "The functions that decide what is due are pure, and are tested on daylight-saving days, early closes and late starts."
+        ],
+        "whyThisTechnology": {
+          "text": "Queueing due jobs was chosen over cron, a timer service and a scheduling library so that schedules, the scanner and the calendar share one source and a duplicate scheduler cannot double-run a job.",
+          "provenance": "documented",
+          "sources": [
+            {
+              "path": "docs/adr/0006-scheduling-by-enqueueing-due-jobs.md",
+              "lines": "54-57"
+            }
+          ]
+        },
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "app/jobs/schedule.py",
+            "lines": "1-7"
+          },
+          {
+            "path": "app/jobs/schedule.py",
+            "lines": "16-17"
+          },
+          {
+            "path": "app/worker.py",
+            "lines": "34"
+          }
+        ],
+        "position": {
+          "x": 310,
+          "y": 0
+        }
+      },
+      {
+        "id": "queue",
+        "label": "Job queue",
+        "layer": "schedule",
+        "kind": "queue",
+        "technology": "Two PostgreSQL tables: jobs and job_runs",
+        "responsibility": "Holds every job and every attempt: enqueue, claim, complete, fail, reclaim and requeue.",
+        "inputs": [
+          "Job occurrences from the scheduler",
+          "Follow-up jobs queued by other jobs",
+          "A requeue command"
+        ],
+        "outputs": [
+          "One job at a time to each worker thread",
+          "A history of attempts"
+        ],
+        "details": [
+          "Claiming uses FOR UPDATE SKIP LOCKED: a row another worker is taking is passed over, not waited for.",
+          "Retry delay doubles from 30 seconds, half of it random, capped at one hour.",
+          "A job is dead after three attempts, or at once when the error says a retry cannot help.",
+          "Requeue grants exactly one more attempt and keeps the earlier runs."
+        ],
+        "failureModes": [
+          "A worker dies holding a job.",
+          "A job runs longer than its lease.",
+          "The database is unreachable."
+        ],
+        "reliability": [
+          "A lease of 180 seconds on the realtime queue; the next tick returns an expired job to the queue and marks the run lost.",
+          "Completion is guarded by \"still running and still mine\", so a late finish from the first worker changes nothing.",
+          "Claiming and finishing are short transactions: none stays open while a job waits on an API."
+        ],
+        "whyThisTechnology": {
+          "text": "PostgreSQL was already there, the load is under 500 jobs a day, and the queue had to cost nothing to run. Redis with a queue library was considered and left for when the load needs it.",
+          "provenance": "documented",
+          "sources": [
+            {
+              "path": "docs/adr/0002-postgres-job-queue-before-redis.md",
+              "lines": "6-39"
+            }
+          ]
+        },
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "app/jobs/queue.py",
+            "lines": "1-128"
+          },
+          {
+            "path": "app/db/models.py",
+            "lines": "274-314"
+          }
+        ],
+        "position": {
+          "x": 310,
+          "y": 112
+        }
+      },
+      {
+        "id": "worker",
+        "label": "Worker threads",
+        "layer": "work",
+        "kind": "worker",
+        "technology": "Python threads: 2 realtime, 1 batch",
+        "responsibility": "Claims a job, runs its function, records the outcome, repeats.",
+        "inputs": [
+          "A claimed job"
+        ],
+        "outputs": [
+          "Saved market data",
+          "A completed, retried or dead job"
+        ],
+        "details": [
+          "Fifteen kinds of job are registered.",
+          "Unknown errors are retried; an error marked as not retryable buries the job at once.",
+          "A stop signal lets the job in hand finish first."
+        ],
+        "failureModes": [
+          "The queue itself cannot be reached.",
+          "A thread ends.",
+          "The process is killed."
+        ],
+        "reliability": [
+          "An error from the queue is logged and retried after 5 seconds instead of ending the thread.",
+          "If a thread ends the process exits, so Docker restarts it.",
+          "The container's health check reads the age of a file the scheduler touches."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "app/jobs/worker.py",
+            "lines": "15-56"
+          },
+          {
+            "path": "app/worker.py",
+            "lines": "33"
+          }
+        ],
+        "position": {
+          "x": 620,
+          "y": 56
+        }
+      },
+      {
+        "id": "breaker",
+        "label": "Circuit breaker",
+        "layer": "work",
+        "kind": "backend",
+        "technology": "About 56 lines of Python, no library",
+        "responsibility": "Stops calling the primary price provider after it fails repeatedly, and tries it again with one call after a pause.",
+        "inputs": [
+          "Success or failure of each call to the primary provider"
+        ],
+        "outputs": [
+          "Allow or skip, for each poll"
+        ],
+        "details": [
+          "Opens after 3 failures in a row and stays open for 300 seconds.",
+          "When half-open, exactly one caller gets the trial; the others are refused until it reports.",
+          "A trial that never reports is replaced after another pause."
+        ],
+        "failureModes": [
+          "The worker restarts while the circuit is open.",
+          "The first three polls of an outage each wait for the connection to time out."
+        ],
+        "reliability": [
+          "State is held behind a lock, because the worker's threads share one breaker.",
+          "Tested on a fake clock for every state change."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "app/circuit.py",
+            "lines": "1-56"
+          },
+          {
+            "path": "tests/test_circuit.py",
+            "lines": "19-62"
+          }
+        ],
+        "position": {
+          "x": 620,
+          "y": 168
+        }
+      },
+      {
+        "id": "scanner",
+        "label": "Scanner",
+        "layer": "work",
+        "kind": "backend",
+        "technology": "Pure Python calculations and six rules",
+        "responsibility": "Computes each stock's metrics after every poll and records the rules that fire.",
+        "inputs": [
+          "Latest quotes",
+          "Daily and five-minute bars",
+          "The rule file"
+        ],
+        "outputs": [
+          "Rows in the alerts table",
+          "One snapshot row for the dashboard"
+        ],
+        "details": [
+          "Rules: move, gap, relative volume, 52-week range, RSI and a moving-average cross.",
+          "RSI and the moving average fire on crossing, not while staying past the line.",
+          "Scans after the close update the dashboard and raise no alerts."
+        ],
+        "failureModes": [
+          "The same rule is true on the next poll.",
+          "The stored daily close is older than it should be."
+        ],
+        "reliability": [
+          "The alert key is session, symbol and rule, inserted with ON CONFLICT DO NOTHING.",
+          "An older scan can never overwrite a newer snapshot."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "app/scanner.py",
+            "lines": "17-24"
+          },
+          {
+            "path": "app/scanner.py",
+            "lines": "160-189"
+          },
+          {
+            "path": "app/jobs/scan.py",
+            "lines": "126-156"
+          }
+        ],
+        "position": {
+          "x": 620,
+          "y": 280
+        }
+      },
+      {
+        "id": "heartbeat",
+        "label": "Heartbeat monitor",
+        "layer": "work",
+        "kind": "worker",
+        "technology": "A check every 60 s inside the worker",
+        "responsibility": "Checks the worker's own health and reports it to an external monitor.",
+        "inputs": [
+          "Thread state",
+          "Dead jobs",
+          "The last saved poll",
+          "Backup age, free disk, API health"
+        ],
+        "outputs": [
+          "A plain ping when all is well",
+          "A fail ping listing each problem"
+        ],
+        "details": [
+          "A dead job is named, with its error, for 24 hours.",
+          "No poll for 10 minutes during the session is a problem.",
+          "If the worker stops entirely the pings stop, and the external monitor alerts by itself."
+        ],
+        "failureModes": [
+          "The ping cannot be sent.",
+          "A dead job drops out of the report after 24 hours."
+        ],
+        "reliability": [
+          "It never raises: a failed ping is logged and the worker carries on.",
+          "A separate daily job checks live provider answers against expected shapes and dies without retry when one breaks."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "app/monitor.py",
+            "lines": "30-34"
+          },
+          {
+            "path": "app/monitor.py",
+            "lines": "70-80"
+          },
+          {
+            "path": "app/worker.py",
+            "lines": "35"
+          }
+        ],
+        "position": {
+          "x": 620,
+          "y": 392
+        }
+      },
+      {
+        "id": "postgres",
+        "label": "PostgreSQL",
+        "layer": "data",
+        "kind": "database",
+        "technology": "PostgreSQL 18, four Alembic revisions",
+        "responsibility": "The single store for market data, alerts and the job queue.",
+        "inputs": [
+          "Upserts from jobs",
+          "Read-only queries from the API"
+        ],
+        "outputs": [
+          "Rows"
+        ],
+        "details": [
+          "Check constraints reject a non-positive price and bars whose high is below their low.",
+          "Writes go through an upsert that updates only when a value changed.",
+          "A daily backup is restored into an empty server to prove it works."
+        ],
+        "failureModes": [
+          "The machine is lost.",
+          "A restore loses the five-minute quotes since the last backup."
+        ],
+        "reliability": [
+          "A verified backup with a timed restore drill.",
+          "The API logs in under a role that can only select."
+        ],
+        "whyThisTechnology": {
+          "text": "SQLite allowed one writer: a reader waited 339 ms during a write and a second writer failed after 5.5 seconds. The worker, the API and the backup all need the database at once.",
+          "provenance": "documented",
+          "sources": [
+            {
+              "path": "docs/adr/0005-postgresql-over-sqlite.md",
+              "lines": "6-32"
+            }
+          ]
+        },
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "app/db/models.py",
+            "lines": "25-314"
+          },
+          {
+            "path": "app/db/upsert.py",
+            "lines": "5-16"
+          },
+          {
+            "path": "migrations/versions"
+          }
+        ],
+        "position": {
+          "x": 930,
+          "y": 224
+        }
+      },
+      {
+        "id": "legacy-poller",
+        "label": "Legacy poller",
+        "layer": "legacy",
+        "kind": "legacy",
+        "technology": "Python script, SQLite, a scheduled task",
+        "status": "legacy",
+        "statusNote": "Still the system that owns the dashboard files until the switch is made.",
+        "responsibility": "The original scripts: poll, sync, scan and export in one loop.",
+        "inputs": [
+          "The same market data providers"
+        ],
+        "outputs": [
+          "The dashboard's data files",
+          "A SQLite database"
+        ],
+        "details": [
+          "It keeps running while the new worker polls beside it.",
+          "After the switch its database stays read-only for two weeks as the way back."
+        ],
+        "failureModes": [
+          "One slow step delays every step after it."
+        ],
+        "reliability": [
+          "Kept as the rollback, not as a second writer."
+        ],
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "docs/CUTOVER.md",
+            "lines": "6-14"
+          },
+          {
+            "path": "docs/adr/0001-modular-monolith.md",
+            "lines": "8-13"
+          }
+        ],
+        "position": {
+          "x": 930,
+          "y": 0
+        }
+      },
+      {
+        "id": "api",
+        "label": "Read-only API",
+        "layer": "serve",
+        "kind": "backend",
+        "technology": "FastAPI, plain synchronous endpoints",
+        "responsibility": "Serves stocks, history, alerts and dividends to the dashboards.",
+        "inputs": [
+          "HTTP GET requests"
+        ],
+        "outputs": [
+          "JSON with an ETag"
+        ],
+        "details": [
+          "Gzip, ETag and 304 answers.",
+          "Keyset pagination for alerts.",
+          "One error shape for every failure."
+        ],
+        "failureModes": [
+          "A slow query holds a thread.",
+          "No login: the trust boundary is the network."
+        ],
+        "reliability": [
+          "Each request is a read-only transaction with a five-second statement timeout.",
+          "It listens on the loopback address only."
+        ],
+        "whyThisTechnology": {
+          "text": "Synchronous endpoints were chosen after measuring them against asynchronous ones on the same query. For one reader the two were equal; writing the JSON directly halved the response time, and the worker's database code could be reused.",
+          "provenance": "documented",
+          "sources": [
+            {
+              "path": "docs/adr/0007-sync-api-endpoints.md",
+              "lines": "16-48"
+            }
+          ]
+        },
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "app/api/deps.py",
+            "lines": "7-16"
+          },
+          {
+            "path": "app/api/main.py",
+            "lines": "28-41"
+          }
+        ],
+        "position": {
+          "x": 310,
+          "y": 448
+        }
+      },
+      {
+        "id": "dashboard",
+        "label": "Dashboards",
+        "layer": "serve",
+        "kind": "frontend",
+        "technology": "Static pages, English and Arabic",
+        "responsibility": "Shows prices, alerts, history and dividends.",
+        "inputs": [
+          "The API's JSON, every 60 seconds"
+        ],
+        "outputs": [
+          "A page on a laptop or a phone"
+        ],
+        "details": [
+          "Sends If-None-Match, so an unchanged answer costs a 304.",
+          "Two languages."
+        ],
+        "failureModes": [
+          "The API is down."
+        ],
+        "reliability": [
+          "The heartbeat reports an unhealthy API after two misses in a row."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "dashboard/prices.html",
+            "lines": "857"
+          },
+          {
+            "path": "app/api/responses.py",
+            "lines": "23-28"
+          }
+        ],
+        "position": {
+          "x": 0,
+          "y": 448
+        }
+      },
+      {
+        "id": "alpaca",
+        "label": "Alpaca",
+        "layer": "external",
+        "kind": "external",
+        "technology": "Market data API: snapshots, bars, calendar",
+        "responsibility": "The primary source of prices, five-minute bars and the trading calendar.",
+        "inputs": [
+          "Up to 100 symbols per request"
+        ],
+        "outputs": [
+          "Snapshots and bars"
+        ],
+        "details": [
+          "A fresh client per job, after pooled connections once hung for about nine minutes.",
+          "Recent consolidated bars are only served once they are 15 minutes old on the plan in use."
+        ],
+        "failureModes": [
+          "Connections hang.",
+          "A refusal that will repeat, such as a 403."
+        ],
+        "reliability": [
+          "A 15-second budget per poll.",
+          "The circuit breaker.",
+          "A refusal buries the job at once instead of retrying three times for nothing."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "app/providers.py",
+            "lines": "30-34"
+          },
+          {
+            "path": "app/providers.py",
+            "lines": "132-148"
+          }
+        ],
+        "position": {
+          "x": 1240,
+          "y": 56
+        }
+      },
+      {
+        "id": "tiingo",
+        "label": "Tiingo",
+        "layer": "external",
+        "kind": "external",
+        "technology": "Market data API: quotes",
+        "responsibility": "The fallback source of quotes.",
+        "inputs": [
+          "The symbols the primary provider did not price"
+        ],
+        "outputs": [
+          "Quotes"
+        ],
+        "details": [
+          "Asked only for what is missing.",
+          "An answer for a symbol that was not asked for is ignored."
+        ],
+        "failureModes": [
+          "It fails as well, so the slot has no prices."
+        ],
+        "reliability": [
+          "Its own 15-second budget.",
+          "If both fail the job is retried by the queue."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "app/jobs/prices.py",
+            "lines": "55-65"
+          }
+        ],
+        "position": {
+          "x": 1240,
+          "y": 168
+        }
+      },
+      {
+        "id": "reference-sources",
+        "label": "Reference data sources",
+        "layer": "external",
+        "kind": "external",
+        "technology": "Nasdaq listings and calendar, Yahoo Finance",
+        "responsibility": "Supply the stock universe, fundamentals, exchange rates and the US dividend calendar.",
+        "inputs": [
+          "Daily and monthly batch jobs"
+        ],
+        "outputs": [
+          "Listings, fundamentals, dividend announcements"
+        ],
+        "details": [
+          "Fundamentals stop after five failures in a row and the job fails below 90% coverage, so the queue retries the rest.",
+          "A monthly universe refresh is refused when it would change more than a fifth of the list."
+        ],
+        "failureModes": [
+          "These sources are unofficial and can change without notice."
+        ],
+        "reliability": [
+          "A daily job checks samples of each provider's answers against expected shapes.",
+          "Guards refuse an implausible universe file instead of loading it."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "app/jobs/universe.py",
+            "lines": "28-29"
+          },
+          {
+            "path": "app/jobs/daily.py",
+            "lines": "25"
+          },
+          {
+            "path": "app/contracts.py",
+            "lines": "247-257"
+          }
+        ],
+        "position": {
+          "x": 1240,
+          "y": 280
+        }
+      },
+      {
+        "id": "monitoring",
+        "label": "Monitoring service",
+        "layer": "external",
+        "kind": "external",
+        "technology": "healthchecks.io",
+        "responsibility": "Receives the heartbeat and e-mails the owner when it fails or stops.",
+        "inputs": [
+          "A ping every minute"
+        ],
+        "outputs": [
+          "Down and up e-mails"
+        ],
+        "details": [
+          "A fail ping carries the list of problems.",
+          "Silence for five minutes is itself an alert."
+        ],
+        "failureModes": [
+          "It is a third party."
+        ],
+        "reliability": [
+          "It covers the case the worker cannot report: the machine, Docker or the worker being down."
+        ],
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "docs/ROADMAP.md",
+            "lines": "154-160"
+          },
+          {
+            "path": "docs/reports/2026-10-09-failure-drills.md",
+            "lines": "13-22"
+          }
+        ],
+        "position": {
+          "x": 1240,
+          "y": 392
+        }
+      },
+      {
+        "id": "telegram",
+        "label": "Telegram",
+        "layer": "external",
+        "kind": "external",
+        "technology": "Bot API",
+        "status": "disabled",
+        "statusNote": "Written and tested with a fake, and switched off. No chat is configured in the running system.",
+        "responsibility": "Would deliver the session's unsent alerts as one message.",
+        "inputs": [
+          "Unsent alert rows"
+        ],
+        "outputs": [
+          "One message, then the rows are marked sent"
+        ],
+        "details": [
+          "Rows are locked from the read to the commit, so two send jobs cannot send the same alert.",
+          "The error message never contains the request address, which carries the bot token."
+        ],
+        "failureModes": [
+          "Telegram is unreachable."
+        ],
+        "reliability": [
+          "A failure rolls the transaction back, so the alerts stay unsent for the retry or the next scan."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "app/jobs/scan.py",
+            "lines": "159-209"
+          },
+          {
+            "path": "app/config.py",
+            "lines": "37"
+          }
+        ],
+        "position": {
+          "x": 1240,
+          "y": 504
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "scheduler-reads-calendar",
+        "from": "scheduler",
+        "to": "postgres",
+        "protocol": "SQL read",
+        "data": "Session hours for the day"
+      },
+      {
+        "id": "tick-queue",
+        "from": "scheduler",
+        "to": "queue",
+        "protocol": "INSERT ... ON CONFLICT (key) DO NOTHING",
+        "data": "Job occurrences that are due"
+      },
+      {
+        "id": "queue-db",
+        "from": "queue",
+        "to": "postgres",
+        "protocol": "SQL on jobs and job_runs",
+        "data": "Job rows, attempts and leases"
+      },
+      {
+        "id": "worker-queue",
+        "from": "worker",
+        "to": "queue",
+        "protocol": "SELECT ... FOR UPDATE SKIP LOCKED",
+        "data": "One claimed job",
+        "kind": "async"
+      },
+      {
+        "id": "worker-breaker",
+        "from": "worker",
+        "to": "breaker",
+        "protocol": "Function call",
+        "data": "May the primary provider be called?"
+      },
+      {
+        "id": "breaker-alpaca",
+        "from": "breaker",
+        "to": "alpaca",
+        "protocol": "HTTPS GET, 15 s budget",
+        "data": "Snapshots for every tracked stock"
+      },
+      {
+        "id": "worker-tiingo",
+        "from": "worker",
+        "to": "tiingo",
+        "protocol": "HTTPS GET, 15 s budget",
+        "data": "Quotes for the stocks the primary missed",
+        "kind": "fallback"
+      },
+      {
+        "id": "worker-db",
+        "from": "worker",
+        "to": "postgres",
+        "protocol": "Upserts in one transaction",
+        "data": "Quotes, the poll record and the scan job"
+      },
+      {
+        "id": "worker-scanner",
+        "from": "worker",
+        "to": "scanner",
+        "protocol": "A queued job",
+        "data": "A scan request for the slot",
+        "kind": "async"
+      },
+      {
+        "id": "scanner-db",
+        "from": "scanner",
+        "to": "postgres",
+        "protocol": "INSERT ... ON CONFLICT DO NOTHING",
+        "data": "Alerts and the dashboard snapshot"
+      },
+      {
+        "id": "scanner-telegram",
+        "from": "scanner",
+        "to": "telegram",
+        "protocol": "HTTPS POST sendMessage",
+        "data": "The session's unsent alerts",
+        "kind": "disabled"
+      },
+      {
+        "id": "worker-reference",
+        "from": "worker",
+        "to": "reference-sources",
+        "protocol": "HTTPS and library calls",
+        "data": "Universe, fundamentals and dividend calendar",
+        "kind": "async"
+      },
+      {
+        "id": "heartbeat-db",
+        "from": "heartbeat",
+        "to": "postgres",
+        "protocol": "SQL read",
+        "data": "Dead jobs and the last saved poll"
+      },
+      {
+        "id": "heartbeat-monitoring",
+        "from": "heartbeat",
+        "to": "monitoring",
+        "protocol": "HTTPS POST every 60 s",
+        "data": "Ok, or the list of problems",
+        "kind": "async"
+      },
+      {
+        "id": "monitoring-owner",
+        "from": "monitoring",
+        "to": "owner",
+        "protocol": "E-mail",
+        "data": "Down and up notices",
+        "kind": "async"
+      },
+      {
+        "id": "owner-queue",
+        "from": "owner",
+        "to": "queue",
+        "protocol": "Command line: --requeue KEY",
+        "data": "One more attempt for a dead job"
+      },
+      {
+        "id": "api-db",
+        "from": "api",
+        "to": "postgres",
+        "protocol": "Read-only SQL, 5 s statement timeout",
+        "data": "Stocks, history, alerts and dividends"
+      },
+      {
+        "id": "dashboard-api",
+        "from": "dashboard",
+        "to": "api",
+        "protocol": "HTTP GET with ETag, every 60 s",
+        "data": "The latest scan snapshot"
+      },
+      {
+        "id": "owner-dashboard",
+        "from": "owner",
+        "to": "dashboard",
+        "protocol": "Browser",
+        "data": "Prices, alerts and dividends"
+      },
+      {
+        "id": "legacy-alpaca",
+        "from": "legacy-poller",
+        "to": "alpaca",
+        "protocol": "HTTPS GET",
+        "data": "The same prices, fetched by the old scripts",
+        "kind": "fallback"
+      },
+      {
+        "id": "legacy-dashboard",
+        "from": "legacy-poller",
+        "to": "dashboard",
+        "protocol": "Files on disk",
+        "data": "The dashboard data files it still owns",
+        "kind": "fallback"
+      }
+    ],
+    "flows": [
+      {
+        "id": "slot-priced",
+        "label": "A slot is priced",
+        "description": "The tick queues the poll once, a worker claims it, the breaker allows the primary provider, and the prices are saved with the scan job in one transaction.",
+        "path": [
+          "tick-queue",
+          "worker-queue",
+          "worker-breaker",
+          "breaker-alpaca",
+          "worker-db"
+        ]
+      },
+      {
+        "id": "provider-down",
+        "label": "The primary provider is down",
+        "description": "The worker claims the poll, the breaker refuses the primary provider, and the fallback prices the slot.",
+        "path": [
+          "worker-queue",
+          "worker-breaker",
+          "worker-tiingo",
+          "worker-db"
+        ]
+      },
+      {
+        "id": "alert-recorded",
+        "label": "An alert reaches the dashboard",
+        "description": "The saved prices queue a scan, the scanner records the alert once, and the dashboard reads it through the API.",
+        "path": [
+          "worker-db",
+          "worker-scanner",
+          "scanner-db",
+          "api-db",
+          "dashboard-api"
+        ]
+      },
+      {
+        "id": "dead-job",
+        "label": "A dead job reaches a person",
+        "description": "The heartbeat finds the dead job, reports it, the monitoring service e-mails the owner, and the owner requeues it.",
+        "path": [
+          "heartbeat-db",
+          "heartbeat-monitoring",
+          "monitoring-owner",
+          "owner-queue"
+        ]
+      },
+      {
+        "id": "dashboard-read",
+        "label": "The owner opens the dashboard",
+        "description": "The page asks the API, which reads the database in a read-only transaction.",
+        "path": [
+          "owner-dashboard",
+          "dashboard-api",
+          "api-db"
+        ]
+      }
+    ]
+  },
+  "workflows": [
+    {
+      "id": "slot-to-alert",
+      "title": "One five-minute slot, from the scheduler to an alert",
+      "summary": "Follow one poll through the queue. Kill the worker, take a provider down or both, and see what the queue, the circuit breaker and the heartbeat each do about it.",
+      "proves": "It shows a job queue that keeps working when a worker dies or a provider goes down: jobs are queued once, claimed under a lease, retried with backoff, and reported to a person when they die.",
+      "scenarioId": "stocks.slot-to-alert",
+      "mode": "simulation",
+      "modeNote": "This runs in your browser on six invented tickers; the real platform tracks 170 stocks. The queue, the circuit breaker, the fallback and the scanner rules are re-implemented from the platform's code and really run. No provider is called and no message is sent. Timings are simulated, and the random part of a retry delay is fixed at its midpoint so a run can be replayed.",
+      "technologies": [
+        "Python",
+        "PostgreSQL",
+        "FastAPI",
+        "Docker Compose",
+        "Alpaca and Tiingo market data"
+      ],
+      "phases": [
+        {
+          "id": "schedule",
+          "label": "Schedule and claim"
+        },
+        {
+          "id": "prices",
+          "label": "Prices"
+        },
+        {
+          "id": "recovery",
+          "label": "When a job dies"
+        },
+        {
+          "id": "scan",
+          "label": "Scan and alert"
+        }
+      ],
+      "steps": [
+        {
+          "id": "tick.enqueue",
+          "label": "Queue the slot's poll",
+          "kind": "queue",
+          "nodeId": "scheduler",
+          "phase": "schedule",
+          "summary": "The scheduler queues this slot's poll exactly once.",
+          "description": "Every five seconds the scheduler works out which occurrences are due. The poll for a slot has a deterministic key, runs five seconds into the slot and expires four minutes in. It is inserted with ON CONFLICT (key) DO NOTHING, so a second tick or a second scheduler queues nothing.",
+          "sources": [
+            {
+              "path": "app/jobs/schedule.py",
+              "lines": "45-56"
+            },
+            {
+              "path": "app/jobs/queue.py",
+              "lines": "28-36"
+            }
+          ]
+        },
+        {
+          "id": "job.claim",
+          "label": "Claim the job",
+          "kind": "worker",
+          "nodeId": "worker",
+          "phase": "schedule",
+          "summary": "A worker takes the job for three minutes.",
+          "description": "A worker thread takes the oldest due job with FOR UPDATE SKIP LOCKED, raises its attempt count and writes a lease 180 seconds ahead. One row per attempt goes into job_runs. If the worker vanishes, the next tick after the lease ends marks the run lost and puts the job back.",
+          "sources": [
+            {
+              "path": "app/jobs/queue.py",
+              "lines": "41-63"
+            },
+            {
+              "path": "app/jobs/queue.py",
+              "lines": "103-116"
+            },
+            {
+              "path": "app/worker.py",
+              "lines": "33"
+            }
+          ]
+        },
+        {
+          "id": "breaker.gate",
+          "label": "Ask the circuit breaker",
+          "kind": "validation",
+          "nodeId": "breaker",
+          "phase": "prices",
+          "summary": "A provider that keeps failing is skipped instead of waited for.",
+          "description": "Closed: calls go through and failures in a row are counted. Open, after three failures: calls are skipped for 300 seconds. Half-open, after the pause: one trial call is allowed, and its result closes the circuit or opens it for another pause.",
+          "sources": [
+            {
+              "path": "app/circuit.py",
+              "lines": "23-51"
+            },
+            {
+              "path": "app/jobs/prices.py",
+              "lines": "35-36"
+            }
+          ]
+        },
+        {
+          "id": "alpaca.snapshots",
+          "label": "Call the primary provider",
+          "kind": "api",
+          "nodeId": "alpaca",
+          "phase": "prices",
+          "summary": "Prices for every tracked stock, inside a 15-second budget.",
+          "description": "One request per 100 symbols, inside a budget of 15 seconds for the whole provider. An exception counts as a failure for the breaker and is recorded with the poll; it does not fail the job. A snapshot without a trade price is dropped.",
+          "sources": [
+            {
+              "path": "app/jobs/prices.py",
+              "lines": "37-53"
+            },
+            {
+              "path": "app/providers.py",
+              "lines": "132-148"
+            }
+          ]
+        },
+        {
+          "id": "tiingo.fallback",
+          "label": "Ask the fallback for what is missing",
+          "kind": "api",
+          "nodeId": "tiingo",
+          "phase": "prices",
+          "summary": "The second provider covers only the stocks the first did not price.",
+          "description": "The symbols without a price are sent to the second provider, inside its own 15-second budget. Only symbols that were asked for are accepted from the answer.",
+          "sources": [
+            {
+              "path": "app/jobs/prices.py",
+              "lines": "54-65"
+            }
+          ]
+        },
+        {
+          "id": "quotes.save",
+          "label": "Save the prices and queue the scan",
+          "kind": "database",
+          "nodeId": "postgres",
+          "phase": "prices",
+          "summary": "Prices, the poll record and the scan job are saved together.",
+          "description": "If no price came back at all the job raises and nothing is written. Otherwise one transaction upserts the quotes, upserts the poll record with each provider's count and errors, and queues the scan. The scan exists if and only if the prices do.",
+          "sources": [
+            {
+              "path": "app/jobs/prices.py",
+              "lines": "68-77"
+            }
+          ]
+        },
+        {
+          "id": "job.outcome",
+          "label": "Complete, retry or bury the job",
+          "kind": "queue",
+          "nodeId": "queue",
+          "phase": "prices",
+          "summary": "A failed job waits and runs again; the third failure buries it.",
+          "description": "Success marks the run ok and the job done, guarded by \"still running and still mine\". A failure puts the job back with a delay that doubles from 30 seconds, half of it random. After three attempts, or at once for an error that cannot succeed on a retry, the job is dead.",
+          "sources": [
+            {
+              "path": "app/jobs/worker.py",
+              "lines": "43-55"
+            },
+            {
+              "path": "app/jobs/queue.py",
+              "lines": "66-100"
+            }
+          ]
+        },
+        {
+          "id": "heartbeat.report",
+          "label": "Report the dead job",
+          "kind": "notification",
+          "nodeId": "heartbeat",
+          "phase": "recovery",
+          "summary": "The worker tells an external monitor which job died and why.",
+          "description": "Every 60 seconds the worker checks itself. A job that died in the last 24 hours becomes a problem line naming the job and its error, sent as a fail ping. The monitoring service e-mails the owner.",
+          "sources": [
+            {
+              "path": "app/monitor.py",
+              "lines": "70-80"
+            },
+            {
+              "path": "app/worker.py",
+              "lines": "35"
+            },
+            {
+              "path": "docs/reports/2026-10-09-failure-drills.md",
+              "lines": "25-34"
+            }
+          ]
+        },
+        {
+          "id": "operator.requeue",
+          "label": "The owner decides",
+          "kind": "human",
+          "nodeId": "owner",
+          "phase": "recovery",
+          "summary": "A person chooses whether to give the dead job one more attempt.",
+          "description": "Requeue is a command. It sets the job back to queued and raises its attempt limit by exactly one. It does not touch the job's expiry, so a job tied to a time slot that has passed is expired by the next tick instead of running late.",
+          "sources": [
+            {
+              "path": "app/worker.py",
+              "lines": "101-106"
+            },
+            {
+              "path": "app/jobs/queue.py",
+              "lines": "122-128"
+            },
+            {
+              "path": "docs/reports/2026-10-09-failure-drills.md",
+              "lines": "69-72"
+            }
+          ]
+        },
+        {
+          "id": "scan.compute",
+          "label": "Scan the new prices",
+          "kind": "transform",
+          "nodeId": "scanner",
+          "phase": "scan",
+          "summary": "Each stock's metrics are computed and checked against six rules.",
+          "description": "The scan job reads the latest quotes and bars, computes change, gap, relative volume, 52-week range, RSI and the 50-day average for every stock, and returns the rules that fire.",
+          "sources": [
+            {
+              "path": "app/jobs/scan.py",
+              "lines": "126-133"
+            },
+            {
+              "path": "app/scanner.py",
+              "lines": "160-189"
+            }
+          ]
+        },
+        {
+          "id": "alerts.insert",
+          "label": "Record each alert once",
+          "kind": "database",
+          "nodeId": "postgres",
+          "phase": "scan",
+          "summary": "A rule fires once per stock per session.",
+          "description": "Each firing rule is inserted with ON CONFLICT DO NOTHING on the key of session, symbol and rule. A rule that is still true on the next poll writes nothing.",
+          "sources": [
+            {
+              "path": "app/jobs/scan.py",
+              "lines": "136-144"
+            }
+          ]
+        },
+        {
+          "id": "notify.decide",
+          "label": "Decide whether to send",
+          "kind": "validation",
+          "nodeId": "scanner",
+          "phase": "scan",
+          "summary": "Sending to Telegram is switched off in the running system.",
+          "description": "If the session has unsent alerts and sending is switched on, a send job is queued in the scan's transaction. The setting is off by default, and in the running system the older poller is still the only sender.",
+          "sources": [
+            {
+              "path": "app/jobs/scan.py",
+              "lines": "145-150"
+            },
+            {
+              "path": "app/config.py",
+              "lines": "34-37"
+            }
+          ]
+        },
+        {
+          "id": "snapshot.publish",
+          "label": "Publish the snapshot",
+          "kind": "database",
+          "nodeId": "postgres",
+          "phase": "scan",
+          "summary": "The dashboard's data is saved as one row.",
+          "description": "The scan saves one snapshot row, which is what the API serves to the dashboard. An older scan can never overwrite a newer one.",
+          "sources": [
+            {
+              "path": "app/jobs/scan.py",
+              "lines": "151-154"
+            }
+          ]
+        },
+        {
+          "id": "telegram.send",
+          "label": "Send the alerts",
+          "kind": "notification",
+          "nodeId": "telegram",
+          "phase": "scan",
+          "summary": "Written, tested with a fake, and switched off.",
+          "description": "The send job locks the session's unsent alerts, sends them as one message and marks them sent in the same transaction. If the send fails the transaction rolls back and the alerts stay unsent. This step does not run in the real system today.",
+          "sources": [
+            {
+              "path": "app/jobs/scan.py",
+              "lines": "159-209"
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "key": "breaker",
+          "label": "Circuit breaker at the start of the slot",
+          "type": "select",
+          "options": [
+            "closed",
+            "closed, two failures counted",
+            "open",
+            "half-open"
+          ],
+          "help": "Combine it with \"The primary provider is unreachable\" to watch it open, stay open or fail its trial."
+        },
+        {
+          "key": "changePct",
+          "label": "Watched stock: change since yesterday's close (%)",
+          "type": "number",
+          "help": "The move rule fires at 3%."
+        },
+        {
+          "key": "relativeVolume",
+          "label": "Watched stock: volume against its usual volume",
+          "type": "number",
+          "help": "The volume rule fires at 2 times, after 30 minutes of session."
+        },
+        {
+          "key": "minutesIntoSession",
+          "label": "Minutes since the market opened",
+          "type": "number",
+          "help": "From 5 to 385. It sets which slot is polled."
+        }
+      ],
+      "faults": [
+        {
+          "id": "duplicate-tick",
+          "label": "The scheduler ticks twice for the same slot",
+          "stepId": "tick.enqueue",
+          "classification": "implemented",
+          "description": "A second tick, or a second scheduler, offers the same job again.",
+          "expected": "The key already exists, so the second insert does nothing. One poll is queued.",
+          "sources": [
+            {
+              "path": "app/jobs/queue.py",
+              "lines": "28-36"
+            },
+            {
+              "path": "app/jobs/schedule.py",
+              "lines": "3-4"
+            }
+          ]
+        },
+        {
+          "id": "worker-killed",
+          "label": "The worker is killed while holding the job",
+          "stepId": "job.claim",
+          "classification": "implemented",
+          "description": "The process dies half a second into the job, as in the project's kill test.",
+          "expected": "Nothing happens until the 180-second lease runs out. The next tick marks the run lost and requeues the job, and another worker runs it to completion.",
+          "sources": [
+            {
+              "path": "app/jobs/queue.py",
+              "lines": "103-116"
+            },
+            {
+              "path": "docs/reports/2026-10-07-shadow-session.md",
+              "lines": "54-56"
+            }
+          ]
+        },
+        {
+          "id": "alpaca-down",
+          "label": "The primary provider is unreachable",
+          "stepId": "alpaca.snapshots",
+          "classification": "implemented",
+          "group": "providers",
+          "description": "Connections to the primary provider time out, as in the project's outage drill.",
+          "expected": "The failure is recorded and counted by the breaker, and the fallback prices every stock. The third failure in a row opens the circuit.",
+          "sources": [
+            {
+              "path": "app/jobs/prices.py",
+              "lines": "38-46"
+            },
+            {
+              "path": "app/circuit.py",
+              "lines": "47-51"
+            },
+            {
+              "path": "docs/reports/2026-10-09-failure-drills.md",
+              "lines": "53-65"
+            }
+          ]
+        },
+        {
+          "id": "alpaca-partial",
+          "label": "The primary provider misses two stocks",
+          "stepId": "alpaca.snapshots",
+          "classification": "implemented",
+          "group": "providers",
+          "description": "The answer comes back without a usable price for two of the stocks.",
+          "expected": "The fallback is asked for those two only, and the poll records how many prices came from each provider.",
+          "sources": [
+            {
+              "path": "app/jobs/prices.py",
+              "lines": "54-65"
+            }
+          ]
+        },
+        {
+          "id": "both-down",
+          "label": "Both providers are unreachable",
+          "stepId": "job.outcome",
+          "classification": "implemented",
+          "group": "providers",
+          "description": "No provider answers, so the slot has no prices at all.",
+          "expected": "The job fails and is retried twice with a growing delay. The third failure buries it, the heartbeat reports it, and a person decides what to do.",
+          "sources": [
+            {
+              "path": "app/jobs/prices.py",
+              "lines": "68-69"
+            },
+            {
+              "path": "app/jobs/queue.py",
+              "lines": "87-100"
+            },
+            {
+              "path": "app/monitor.py",
+              "lines": "75-77"
+            }
+          ]
+        },
+        {
+          "id": "repeat-alert",
+          "label": "The same rule already fired for this stock today",
+          "stepId": "alerts.insert",
+          "classification": "implemented",
+          "description": "An earlier poll in the same session recorded this alert.",
+          "expected": "The insert is a no-op. The first alert stands and no second one is written.",
+          "sources": [
+            {
+              "path": "app/jobs/scan.py",
+              "lines": "139-144"
+            }
+          ]
+        },
+        {
+          "id": "stale-close",
+          "label": "Last night's daily sync died",
+          "stepId": "scan.compute",
+          "classification": "limitation",
+          "description": "One stock's stored previous close is days old.",
+          "expected": "The scanner compares today's price with the old close and raises a move alert for an ordinary price. It does not check how old the close is. This happened once during the shadow run.",
+          "sources": [
+            {
+              "path": "docs/reports/2026-10-07-shadow-session.md",
+              "lines": "57-60"
+            },
+            {
+              "path": "app/scanner.py",
+              "lines": "123-124"
+            }
+          ]
+        },
+        {
+          "id": "telegram-on",
+          "label": "Telegram sending is switched on",
+          "stepId": "telegram.send",
+          "classification": "implemented",
+          "group": "telegram",
+          "description": "The setting that is off in the running system is turned on for this run.",
+          "expected": "A send job is queued. It locks the unsent alerts, sends one message and marks them sent.",
+          "sources": [
+            {
+              "path": "app/jobs/scan.py",
+              "lines": "178-209"
+            },
+            {
+              "path": "app/config.py",
+              "lines": "37"
+            }
+          ]
+        },
+        {
+          "id": "telegram-down",
+          "label": "Sending is on and Telegram is unreachable",
+          "stepId": "telegram.send",
+          "classification": "implemented",
+          "group": "telegram",
+          "description": "The send fails every time. This path is covered by the project's tests with a fake and has not been drilled on the running worker, where sending is off.",
+          "expected": "Each failure rolls back, so the alerts stay unsent. The send job is retried and dies after the third attempt; the alert itself is still recorded.",
+          "sources": [
+            {
+              "path": "app/jobs/scan.py",
+              "lines": "169-175"
+            },
+            {
+              "path": "app/jobs/scan.py",
+              "lines": "181-183"
+            },
+            {
+              "path": "docs/reports/2026-10-09-failure-drills.md",
+              "lines": "83-85"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "decisions": [
+    {
+      "id": "postgres-queue",
+      "title": "The job queue is a PostgreSQL table, not Redis",
+      "problem": "Jobs had to be retried and recorded, at under 500 jobs a day, with nothing new to run or pay for.",
+      "options": [
+        {
+          "name": "A jobs table claimed with FOR UPDATE SKIP LOCKED",
+          "verdict": "chosen",
+          "note": "The database was already there, and a job's history is a query away."
+        },
+        {
+          "name": "Threads inside one process, no queue",
+          "verdict": "rejected",
+          "note": "Nothing survives a restart and nothing records what ran."
+        },
+        {
+          "name": "Redis with a queue library",
+          "verdict": "rejected",
+          "note": "Another service to run and back up, for a load that does not need it yet."
+        }
+      ],
+      "rationale": "At this load the simplest thing that gives retries, leases and a history is a table. The queue's rules are short enough to own and to test against a real database.",
+      "tradeoffs": [
+        "The queue code is the project's own to maintain.",
+        "Delivery is at least once, so every job has to be safe to repeat."
+      ],
+      "evolution": "Move to a dedicated queue if the number of jobs or workers outgrows polling a table once a second.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/adr/0002-postgres-job-queue-before-redis.md",
+          "lines": "6-45"
+        }
+      ]
+    },
+    {
+      "id": "enqueue-due-jobs",
+      "title": "Scheduling means queueing what is due, under a key",
+      "problem": "The old loop ran everything in sequence, and a duplicated or late scheduler could run a job twice or not at all.",
+      "options": [
+        {
+          "name": "A tick that queues each due occurrence once, by key",
+          "verdict": "chosen",
+          "note": "Schedules and the scanner read the same calendar, and a second scheduler is harmless."
+        },
+        {
+          "name": "The operating system's scheduler or cron",
+          "verdict": "rejected",
+          "note": "It knows nothing about market holidays or early closes, and a missed run is simply missed."
+        },
+        {
+          "name": "A scheduling library inside the process",
+          "verdict": "rejected",
+          "note": "It would schedule in memory, beside a queue that already persists."
+        }
+      ],
+      "rationale": "The functions that decide what is due take a time and session hours and return occurrences, so they are tested with any clock. Polls expire rather than run late; daily jobs stay due until done.",
+      "tradeoffs": [
+        "About a hundred lines of scheduling logic to maintain.",
+        "Jobs run at least once, so every write is an upsert."
+      ],
+      "evolution": "Renew a job's lease while it runs, so a slow job is not handed to a second worker.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/adr/0006-scheduling-by-enqueueing-due-jobs.md",
+          "lines": "54-60"
+        },
+        {
+          "path": "app/jobs/schedule.py",
+          "lines": "1-7"
+        }
+      ]
+    },
+    {
+      "id": "modular-monolith",
+      "title": "One codebase, two processes",
+      "problem": "A single loop meant a slow step delayed every step after it, and the dashboard could only read files from the same machine.",
+      "options": [
+        {
+          "name": "An API and a worker from one codebase, with PostgreSQL, under Docker Compose",
+          "verdict": "chosen",
+          "note": "Polls are isolated from slow jobs, and the whole system starts with one command."
+        },
+        {
+          "name": "Keep the scripts and add more of them",
+          "verdict": "rejected",
+          "note": "The sequencing problem stays."
+        },
+        {
+          "name": "Separate services with an orchestrator",
+          "verdict": "rejected",
+          "note": "Operational weight a one-user system on one machine cannot justify."
+        }
+      ],
+      "rationale": "The split that mattered was between work on a schedule and requests from a reader. Everything else shares code and a database.",
+      "tradeoffs": [
+        "One worker process: a job that uses a lot of CPU can slow the scheduler.",
+        "Availability is that of one machine."
+      ],
+      "evolution": "Move the stack to a small always-on host once the single machine becomes the limit.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/adr/0001-modular-monolith.md",
+          "lines": "8-49"
+        }
+      ]
+    },
+    {
+      "id": "postgres-over-sqlite",
+      "title": "PostgreSQL instead of SQLite",
+      "problem": "The worker, the API and the backup all need the database at the same time.",
+      "options": [
+        {
+          "name": "PostgreSQL with versioned migrations",
+          "verdict": "chosen",
+          "note": "Several writers, row locks for the queue, and a role that can only read."
+        },
+        {
+          "name": "Stay on SQLite",
+          "verdict": "rejected",
+          "note": "Measured on this workload: a reader waited 339 ms during a write and a second writer failed after 5.5 seconds."
+        }
+      ],
+      "rationale": "The queue depends on row-level locking, and the read-only API depends on a role with no write permission. SQLite offers neither.",
+      "tradeoffs": [
+        "One more service to run and back up.",
+        "Two sources of truth until the switch from the old system is made."
+      ],
+      "evolution": "Prune old quotes and job history, which nothing deletes today.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/adr/0005-postgresql-over-sqlite.md",
+          "lines": "6-76"
+        }
+      ]
+    },
+    {
+      "id": "sync-endpoints",
+      "title": "Synchronous API endpoints, chosen by measurement",
+      "problem": "The API could be written with asynchronous endpoints or reuse the worker's synchronous database code.",
+      "options": [
+        {
+          "name": "Plain synchronous endpoints, with large answers written as JSON directly",
+          "verdict": "chosen",
+          "note": "Measured on the same query: equal to asynchronous ones for one reader, and twice as fast once the JSON is written directly."
+        },
+        {
+          "name": "Asynchronous endpoints and a second database driver",
+          "verdict": "rejected",
+          "note": "A second way to talk to the database. It was faster only with ten or more readers at once, and this system has one."
+        }
+      ],
+      "rationale": "Both were benchmarked before choosing. The measurement, not a preference, picked the simpler one.",
+      "tradeoffs": [
+        "Two ways of building a response.",
+        "A slow query holds a thread, which the five-second statement timeout bounds."
+      ],
+      "evolution": "Measure again if the number of concurrent readers grows beyond one person's devices.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/adr/0007-sync-api-endpoints.md",
+          "lines": "16-66"
+        }
+      ]
+    },
+    {
+      "id": "logic-outside-the-model",
+      "title": "Calculations stay in code, never in a language model",
+      "problem": "Dividend announcements arrive as text, and a model is the obvious tool for reading them. A model that also computed yields or decided alerts could be wrong without anyone noticing.",
+      "options": [
+        {
+          "name": "Code computes and validates; a model only reads text and proposes",
+          "verdict": "chosen",
+          "note": "Every figure the platform shows can be traced to a calculation."
+        },
+        {
+          "name": "Let the model extract and compute in one step",
+          "verdict": "rejected",
+          "note": "A plausible wrong number would look the same as a right one."
+        }
+      ],
+      "rationale": "The extraction work has a schema for the model's answer, a check that each quoted passage really appears in the source, an evaluation harness and a spending limit. No model has been called yet: the limit defaults to zero, which refuses every call.",
+      "tradeoffs": [
+        "Every model output needs a schema, a validation and an evaluation before it is trusted.",
+        "The harness exists before the feature does."
+      ],
+      "evolution": "Choose a model by measuring candidates against the labelled cases, then route low-confidence answers to a person.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/adr/0003-deterministic-logic-outside-the-llm.md",
+          "lines": "6-40"
+        },
+        {
+          "path": "docs/AI_EVALS.md",
+          "lines": "5-6"
+        },
+        {
+          "path": "app/config.py",
+          "lines": "55-57"
+        },
+        {
+          "path": "app/agent/spend.py",
+          "lines": "84-89"
+        }
+      ]
+    }
+  ],
+  "metrics": [
+    {
+      "id": "worst-poll-delay",
+      "label": "Slowest poll in a session, old poller against new worker",
+      "before": "263.0 s",
+      "after": "9.2 s",
+      "kind": "measured",
+      "method": "Seconds from the start of a five-minute slot to its prices being saved, on the same session of 7 October 2026 with both systems running side by side. Generated by the project's report script from its job tables and the old poller's log.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/reports/2026-10-07-shadow-session.md",
+          "lines": "5-11"
+        }
+      ]
+    },
+    {
+      "id": "breaker-effect",
+      "label": "Slot to saved prices in an outage, before and after the circuit opened",
+      "before": "11.6 s",
+      "after": "5.8 s",
+      "kind": "measured",
+      "method": "From the outage drill of 9 October 2026 on the running worker: the primary provider's address was made unreachable for 24 minutes. The first three polls each waited for the connection to time out; from the fourth the circuit was open.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/reports/2026-10-09-failure-drills.md",
+          "lines": "58-63"
+        },
+        {
+          "path": "docs/reports/2026-10-09-failure-drills.md",
+          "lines": "78-79"
+        }
+      ]
+    },
+    {
+      "id": "slots-polled",
+      "label": "Slots polled in each shadow session",
+      "value": "78 of 78",
+      "kind": "measured",
+      "method": "Counted by the project's report script for each of three full sessions, 7 to 9 October 2026, including the one with the outage drill.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/reports/2026-10-07-shadow-session.md",
+          "lines": "5-6"
+        },
+        {
+          "path": "docs/reports/2026-10-08-shadow-session.md",
+          "lines": "4-6"
+        },
+        {
+          "path": "docs/reports/2026-10-09-shadow-session.md",
+          "lines": "4-6"
+        }
+      ]
+    },
+    {
+      "id": "outage-gap",
+      "label": "Quotes missed during a 24-minute provider outage",
+      "value": "None",
+      "kind": "measured",
+      "method": "Outage drill of 9 October 2026: every slot was polled and all 170 stocks were priced by the fallback. Four bar syncs, which have no second provider, died and were filled in after recovery.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/reports/2026-10-09-failure-drills.md",
+          "lines": "58-72"
+        }
+      ]
+    },
+    {
+      "id": "dead-job-alert",
+      "label": "Time from a job dying to the alert naming it",
+      "value": "24 s",
+      "kind": "measured",
+      "method": "Dead-job drill of 9 October 2026: a job with invalid input failed three times and died; the next heartbeat sent a fail ping with the job's key and error.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/reports/2026-10-09-failure-drills.md",
+          "lines": "25-32"
+        }
+      ]
+    },
+    {
+      "id": "restore",
+      "label": "Restore of the latest backup onto an empty server",
+      "value": "10.8 s",
+      "kind": "measured",
+      "method": "Timed drill of 9 October 2026: 15 tables and 655,862 rows restored into a new PostgreSQL container with no network, and every count compared with the backup's manifest.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/reports/2026-10-09-failure-drills.md",
+          "lines": "36-49"
+        }
+      ]
+    },
+    {
+      "id": "tests",
+      "label": "Automated tests",
+      "value": "208 in 30 files",
+      "kind": "count",
+      "method": "Counted in the repository: test functions in files named test_*.py. The queue tests run against a real PostgreSQL, in continuous integration on every push.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "tests"
+        },
+        {
+          "path": ".github/workflows/ci.yml",
+          "lines": "6-48"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    {
+      "id": "no-lease-renewal",
+      "title": "A lease is never renewed",
+      "current": "A job's lease is written when it is claimed and not again. A job that runs longer than its lease is handed to a second worker and runs twice; that is safe only because every write is an upsert.",
+      "proposal": "Renew the lease from the worker while the job runs, and treat a failed completion as an error instead of logging success.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "app/jobs/queue.py",
+          "lines": "3-6"
+        },
+        {
+          "path": "docs/adr/0006-scheduling-by-enqueueing-due-jobs.md",
+          "lines": "58-59"
+        }
+      ]
+    },
+    {
+      "id": "breaker-in-memory",
+      "title": "The circuit breaker covers one provider and forgets on restart",
+      "current": "The breaker lives in the worker's memory and wraps only the primary provider's price snapshots. A restart during an outage resets it, and the first three polls of an outage each wait for the connection to time out.",
+      "proposal": "Store the breaker's state in the database, and give the bar and calendar calls a breaker of their own.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/ROADMAP.md",
+          "lines": "135-136"
+        },
+        {
+          "path": "docs/reports/2026-10-09-failure-drills.md",
+          "lines": "78-79"
+        }
+      ]
+    },
+    {
+      "id": "no-backfill",
+      "title": "A missed five-minute quote is not recovered",
+      "current": "If a slot is not priced inside its four-minute window the poll expires. Bars are fetched again later; the slot's quote is not.",
+      "proposal": "Rebuild a missed quote from the five-minute bar once the bar is available, and mark it as rebuilt.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/RUNBOOK.md",
+          "lines": "42-43"
+        },
+        {
+          "path": "app/jobs/schedule.py",
+          "lines": "17"
+        }
+      ]
+    },
+    {
+      "id": "telegram-not-live",
+      "title": "Market alerts are not delivered anywhere but the dashboard",
+      "current": "Sending alerts to Telegram is written and tested with a fake, and switched off: no chat is configured. Its failure path has never been drilled on the running worker.",
+      "proposal": "Switch sending on after the cutover and run the same outage drill against it.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/CUTOVER.md",
+          "lines": "13"
+        },
+        {
+          "path": "docs/reports/2026-10-09-failure-drills.md",
+          "lines": "83-85"
+        }
+      ]
+    },
+    {
+      "id": "stale-close",
+      "title": "The scanner trusts the stored daily close",
+      "current": "The scanner does not check how old the previous close is. When a daily sync died, scans compared prices with a close two days old and raised 15 alerts that only the new worker had.",
+      "proposal": "Have the scan refuse to raise move and gap alerts when the newest daily bar is older than the previous session.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/reports/2026-10-07-shadow-session.md",
+          "lines": "57-60"
+        }
+      ]
+    },
+    {
+      "id": "one-machine",
+      "title": "It runs on one machine, and the switch is not made yet",
+      "current": "The platform's availability is that of one laptop under Docker Desktop. The old poller is still the system that owns the dashboard files until the approved cutover is carried out.",
+      "proposal": "Complete the cutover, then move the stack to an always-on host with the same Compose file.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/adr/0004-self-host-first-tailscale.md",
+          "lines": "33-36"
+        },
+        {
+          "path": "docs/CUTOVER.md",
+          "lines": "3-4"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/projects/market-data-platform/prices-dark.png",
+      "alt": "The price dashboard: advancing and declining counts, the session's alerts and a table of stocks with price, change, volume and RSI.",
+      "caption": "The price dashboard, from the project's own documentation. Everything on it is public market data.",
+      "width": 1440,
+      "height": 940
+    }
+  ],
+  "evidence": [
+    {
+      "label": "Queue, scheduler and worker",
+      "kind": "source",
+      "description": "The job queue's rules, the scheduler that decides what is due and the loop that runs jobs.",
+      "sources": [
+        {
+          "path": "app/jobs/queue.py"
+        },
+        {
+          "path": "app/jobs/schedule.py"
+        },
+        {
+          "path": "app/jobs/worker.py"
+        },
+        {
+          "path": "app/worker.py"
+        }
+      ]
+    },
+    {
+      "label": "Providers, breaker and scanner",
+      "kind": "source",
+      "description": "The poll with its fallback, the circuit breaker, the provider client and the scanner's rules.",
+      "sources": [
+        {
+          "path": "app/jobs/prices.py"
+        },
+        {
+          "path": "app/circuit.py"
+        },
+        {
+          "path": "app/providers.py"
+        },
+        {
+          "path": "app/scanner.py"
+        },
+        {
+          "path": "app/jobs/scan.py"
+        }
+      ]
+    },
+    {
+      "label": "Architecture decision records",
+      "kind": "documentation",
+      "description": "Eight records, each with the problem, the options, the decision and its consequences. One is still a proposal.",
+      "sources": [
+        {
+          "path": "docs/adr"
+        }
+      ]
+    },
+    {
+      "label": "Shadow sessions and failure drills",
+      "kind": "measurements",
+      "description": "Reports generated from the job tables for three sessions run beside the old system, and the write-up of four drills on the running worker.",
+      "sources": [
+        {
+          "path": "docs/reports/2026-10-07-shadow-session.md"
+        },
+        {
+          "path": "docs/reports/2026-10-08-shadow-session.md"
+        },
+        {
+          "path": "docs/reports/2026-10-09-shadow-session.md"
+        },
+        {
+          "path": "docs/reports/2026-10-09-failure-drills.md"
+        },
+        {
+          "path": "docs/reports/2026-10-09-dr-drill.md"
+        }
+      ]
+    },
+    {
+      "label": "Tests and continuous integration",
+      "kind": "tests",
+      "description": "Queue tests on a real PostgreSQL, breaker tests on a fake clock, fault injection against recorded provider answers, and the workflow that runs them on every push.",
+      "sources": [
+        {
+          "path": "tests/test_queue.py"
+        },
+        {
+          "path": "tests/test_circuit.py"
+        },
+        {
+          "path": "tests/test_price_jobs.py"
+        },
+        {
+          "path": "tests/test_contracts.py"
+        },
+        {
+          "path": ".github/workflows/ci.yml"
+        }
+      ]
+    },
+    {
+      "label": "Schema and migrations",
+      "kind": "schema",
+      "description": "The table definitions with their constraints, and four ordered migrations.",
+      "sources": [
+        {
+          "path": "app/db/models.py"
+        },
+        {
+          "path": "migrations/versions"
+        }
+      ]
+    }
+  ]
+}

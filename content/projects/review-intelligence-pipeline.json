@@ -1,0 +1,2299 @@
+{
+  "id": "review-intelligence-pipeline",
+  "title": "Marketplace Review Intelligence Pipeline",
+  "tagline": "A pipeline that keeps a review database in step with a large marketplace, says why every difference exists, and sends a fleet of machines to close the ones worth closing.",
+  "summary": "Built at BlueBug. Reviews on a marketplace listing appear, disappear and move between product variations, so a database that was right last month drifts. Each morning this pipeline compares what is held with what the marketplace counts for about ten thousand products, gives every difference a reason, and queues only the work worth doing. Windows machines take that work from a shared queue in Postgres, collect what is missing cheapest view first, open doubtful reviews one by one, and change stored data only through database functions that can be undone.",
+  "categories": [
+    "data-engineering",
+    "automation",
+    "backend"
+  ],
+  "engagement": "employer",
+  "engagementNote": "Built at BlueBug, the author's employer, for several client brands. This page names no client, account or sheet, and follows the author's public write-up in not naming the marketplace. The source is private and was read for this page. Every limit, count and id in the demo is invented for this page.",
+  "icon": "refresh",
+  "tone": "cyan",
+  "highlights": [
+    {
+      "text": "Detection reads the database only; it never opens a browser",
+      "provenance": "code"
+    },
+    {
+      "text": "Every difference gets a reason and one of five actions",
+      "provenance": "code"
+    },
+    {
+      "text": "A shared queue in Postgres: a crashed machine loses only what it had not finished",
+      "provenance": "code"
+    },
+    {
+      "text": "Pages are the budget: cheapest view first, stop when the gap closes",
+      "provenance": "code"
+    },
+    {
+      "text": "\"Not found\" is a removal only after a live review opens in the same session",
+      "provenance": "code"
+    },
+    {
+      "text": "Stored reviews change only through logged, undoable database functions",
+      "provenance": "code"
+    },
+    {
+      "text": "About 10,000 products and 800,000 reviews under daily reconciliation",
+      "provenance": "documented"
+    },
+    {
+      "text": "874 test functions in 66 files, against a fake of the database API",
+      "provenance": "code"
+    }
+  ],
+  "statusLabel": "In daily use",
+  "status": {
+    "text": "In daily use. A scheduled job builds the report and the queue each morning, and machines work the queue under a supervising agent. The repository's last commit is dated 11 October 2026. There is no CI and no staging environment: tests are run by hand and database migrations are applied by hand.",
+    "provenance": "code",
+    "sources": [
+      {
+        "path": "deploy/daily_run.bat",
+        "lines": "56-169"
+      },
+      {
+        "path": ".project-brain/deployment.md"
+      }
+    ]
+  },
+  "roleLabel": "Engineer at BlueBug",
+  "repository": {
+    "name": "Private repository held by BlueBug",
+    "visibility": "private",
+    "linkSources": false,
+    "writeUpUrl": "https://github.com/El-Sayed-Mustafa/review-pipeline-showcase"
+  },
+  "problem": {
+    "text": "A raw comparison of counts is usually not a data error. \"We hold 6,308 and the listing shows 161\" most often means the wrong two numbers are being compared, because the reviews now sit under a sibling variation. The pipeline has to answer one question per product, every day: does what is held match what is live, and if not, why?",
+    "provenance": "documented",
+    "sources": [
+      {
+        "path": "showcase/README.md",
+        "lines": "24-37"
+      }
+    ]
+  },
+  "context": [
+    {
+      "text": "The system is described in a public write-up, sanitised by its author: no client names, credentials, sheet identifiers or account details. This page keeps to the same line.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "18-20"
+        }
+      ]
+    },
+    {
+      "text": "About 10,000 products across several client brands, about 800,000 reviews and about 1.1 million tracking snapshots are under reconciliation.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "152-158"
+        }
+      ]
+    },
+    {
+      "text": "Only critical reviews, one to three stars, are tracked. The product, tracking and variation tables are written by other systems and are read-only here, except for one flag.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": ".project-brain/architecture.md"
+        },
+        {
+          "path": ".project-brain/data-model.md"
+        }
+      ]
+    },
+    {
+      "text": "Everything runs on Windows machines: a daily scheduled job on one, a supervising agent on each machine that collects, and a small control panel on an office machine.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": ".project-brain/architecture.md"
+        }
+      ]
+    },
+    {
+      "text": "Machines, the panel and the queue never talk to each other. They coordinate through rows in Postgres.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": ".project-brain/architecture.md"
+        },
+        {
+          "path": "work_queue.py",
+          "lines": "179-198"
+        }
+      ]
+    },
+    {
+      "text": "The marketplace shows a filtered review list a fixed number of pages deep and stops. Nearly every design choice in the collecting half follows from that.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "scrape_planning.py",
+          "lines": "1-18"
+        },
+        {
+          "path": "showcase/docs/ARCHITECTURE.md",
+          "lines": "101-107"
+        }
+      ]
+    },
+    {
+      "text": "The repository began on 10 August 2026 and has 271 commits. It holds about 27,900 lines of Python outside its tests and 21 SQL migrations.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": ".project-brain/feature-history.md"
+        }
+      ]
+    }
+  ],
+  "role": {
+    "text": "Engineer on the project at BlueBug. The repository's history lists the author on 270 of its 271 commits.",
+    "provenance": "inferred",
+    "sources": []
+  },
+  "challenges": [
+    {
+      "text": "The largest group of differences, tens of thousands of \"extra\" reviews, was not a database error. The reviews were live; they had moved to a sibling variation while the count compared against was the parent's alone.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "81-89"
+        }
+      ]
+    },
+    {
+      "text": "A merged listing reports one shared pool of reviews against every variation in it, so adding up per-variation counts multiplies the same reviews.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "91-95"
+        }
+      ]
+    },
+    {
+      "text": "A session that has lost access and a product that no longer exists show the same \"not found\" page. Read naively, a lost session marks live products dead and live reviews removed.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "asin_details.py",
+          "lines": "88-98"
+        },
+        {
+          "path": "review_verifier.py",
+          "lines": "422-436"
+        }
+      ]
+    },
+    {
+      "text": "A page that loads without a review count is not a listing with zero reviews. Read as zero, it would be marked complete with reviews still missing.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "reviews_scrapper.py",
+          "lines": "1720-1732"
+        }
+      ]
+    },
+    {
+      "text": "Machines were once handed their work by hand, one sheet tab each, with no lock. A crashed machine lost its place and nobody could see progress across the fleet.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": ".project-brain/decisions/0002-shared-work-queue.md"
+        }
+      ]
+    },
+    {
+      "text": "The review table drives client billing and has several writers. A script that updated it directly could race another writer, stop half way, or leave no trace.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": ".project-brain/decisions/0004-guarded-sql-cleanup-functions.md"
+        }
+      ]
+    },
+    {
+      "text": "A detection rule that agrees with the database it was derived from has not been tested. One merge rule that looked sound was right about one time in five when checked live.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "128-132"
+        }
+      ]
+    }
+  ],
+  "solution": [
+    {
+      "text": "Detection and collection are separate programs. The checker loads the latest measurement and the held reviews, compares them per product and per star, and writes a report. It opens no browser.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "OptimumChecker.py",
+          "lines": "1163-1200"
+        },
+        {
+          "path": "OptimumChecker.py",
+          "lines": "1508-1523"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "41-54"
+        }
+      ]
+    },
+    {
+      "text": "Every difference is given every reason that applies, most blocking first. The first is what the product is filed under; the rest are kept, so a filter on any rule finds every product it touches.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "OptimumChecker.py",
+          "lines": "497-565"
+        }
+      ]
+    },
+    {
+      "text": "Fourteen reasons map to five actions: scrape, track first, investigate, decide, leave it.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "OptimumChecker.py",
+          "lines": "574-636"
+        }
+      ]
+    },
+    {
+      "text": "A builder turns the \"scrape\" rows into batches in a shared queue, cheapest work first. Products a person commented on in the report are left out.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "build_work_queue.py",
+          "lines": "122-141"
+        },
+        {
+          "path": "build_work_queue.py",
+          "lines": "243-275"
+        },
+        {
+          "path": "build_work_queue.py",
+          "lines": "78-90"
+        }
+      ]
+    },
+    {
+      "text": "A machine claims a batch with one guarded update and reads the claim back by its run id. A heartbeat keeps it; silence frees it, and whatever the first machine finished stays finished.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "work_queue.py",
+          "lines": "179-198"
+        },
+        {
+          "path": "work_queue.py",
+          "lines": "250-281"
+        }
+      ]
+    },
+    {
+      "text": "The collector spends pages in increasing order of cost and stops as soon as the gap closes. Under the page limit one walk sees everything, so every kind of slicing is skipped.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "reviews_scrapper.py",
+          "lines": "1772-1828"
+        },
+        {
+          "path": "scrape_planning.py",
+          "lines": "50-99"
+        }
+      ]
+    },
+    {
+      "text": "Where a walk saw the whole pool, family members whose reviews appeared in it are not visited, and \"done\" is decided by review id, not by arithmetic on counts.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "scrape_planning.py",
+          "lines": "164-216"
+        }
+      ]
+    },
+    {
+      "text": "Held reviews in doubt are opened one by one and given a verdict. A missing page counts as a removal only after a review known to be live opens in the same session.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "review_verifier.py",
+          "lines": "111-126"
+        },
+        {
+          "path": "review_verifier.py",
+          "lines": "422-436"
+        }
+      ]
+    },
+    {
+      "text": "Scripts only propose changes to stored reviews. Database functions lock each row, check it still holds the value it was checked with, apply, log old and new, and can undo a whole run by its id.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "migrations/20260925_review_change_log.sql",
+          "lines": "112-239"
+        },
+        {
+          "path": "review_changes.py",
+          "lines": "96-125"
+        }
+      ]
+    },
+    {
+      "text": "A separate harness samples the checker's findings and checks them against the marketplace itself, signing in once. It reports each rule as confirmed, contradicted or unreadable.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "verify_rules.py",
+          "lines": "45"
+        },
+        {
+          "path": "verify_rules.py",
+          "lines": "58-75"
+        },
+        {
+          "path": "verify_rules.py",
+          "lines": "482-491"
+        }
+      ]
+    }
+  ],
+  "stack": [
+    {
+      "name": "Python",
+      "role": "The whole pipeline: checker, builders, collector, verifier, agent and panel.",
+      "provenance": "code"
+    },
+    {
+      "name": "Playwright",
+      "role": "Drives the browser that reads review pages behind a signed-in session.",
+      "provenance": "code"
+    },
+    {
+      "name": "PostgreSQL on Supabase",
+      "role": "The review store, the work queue, session leases, run logs and the change log.",
+      "provenance": "code"
+    },
+    {
+      "name": "pandas",
+      "role": "The comparison at the heart of the checker: counts per product and per star.",
+      "provenance": "code"
+    },
+    {
+      "name": "PL/pgSQL",
+      "role": "The guarded functions that change, archive and restore reviews.",
+      "provenance": "code"
+    },
+    {
+      "name": "Google Sheets API",
+      "role": "The report people work from each day.",
+      "provenance": "code"
+    },
+    {
+      "name": "Windows Task Scheduler",
+      "role": "Starts the daily job and keeps each machine's agent alive.",
+      "provenance": "code"
+    }
+  ],
+  "beforeAfter": {
+    "title": "Handing out work",
+    "note": "From the project's own decision records, written from its code and history.",
+    "before": [
+      {
+        "text": "Each machine was given a sheet tab by hand, unrelated to the checker's results.",
+        "provenance": "code",
+        "sources": [
+          {
+            "path": ".project-brain/decisions/0002-shared-work-queue.md"
+          }
+        ]
+      },
+      {
+        "text": "Sessions were picked from a sheet with local round-robin state and no lock, so two machines could take the same one.",
+        "provenance": "code",
+        "sources": [
+          {
+            "path": ".project-brain/decisions/0001-supabase-account-queue.md"
+          }
+        ]
+      },
+      {
+        "text": "A crashed machine lost its place, and there was no view of progress across machines.",
+        "provenance": "code",
+        "sources": [
+          {
+            "path": ".project-brain/decisions/0002-shared-work-queue.md"
+          }
+        ]
+      }
+    ],
+    "after": [
+      {
+        "text": "One queue every machine draws from, built from the morning's report.",
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "build_work_queue.py",
+            "lines": "261-275"
+          }
+        ]
+      },
+      {
+        "text": "Batches and sessions are claimed with a guarded update, a heartbeat and a takeover after silence.",
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "work_queue.py",
+            "lines": "179-198"
+          },
+          {
+            "path": "profiles_store.py",
+            "lines": "362-389"
+          }
+        ]
+      },
+      {
+        "text": "A machine that dies mid-batch keeps what it finished; only the rest returns to the queue.",
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "work_queue.py",
+            "lines": "194-198"
+          }
+        ]
+      }
+    ]
+  },
+  "architecture": {
+    "summary": "Two halves that share nothing but a database. Detection reads the store and writes a report and a queue; collection reads the marketplace and writes reviews and verdicts. People steer through a report and a small panel, and every change to stored reviews goes through one logged door.",
+    "layers": [
+      {
+        "id": "people",
+        "label": "People and schedule"
+      },
+      {
+        "id": "control",
+        "label": "Fleet control"
+      },
+      {
+        "id": "collect",
+        "label": "Collection"
+      },
+      {
+        "id": "store",
+        "label": "Postgres store"
+      },
+      {
+        "id": "detect",
+        "label": "Detection"
+      },
+      {
+        "id": "outside",
+        "label": "Outside"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "ops",
+        "label": "Operations team",
+        "layer": "people",
+        "kind": "actor",
+        "technology": "People working the report",
+        "responsibility": "Read the daily report, write notes beside rows, start and stop machines, and decide which cleanup runs are written.",
+        "provenance": "documented",
+        "outputs": [
+          "Run and Stop",
+          "Notes in the report",
+          "Cleanup runs"
+        ],
+        "sources": [
+          {
+            "path": ".project-brain/system-overview.md"
+          }
+        ]
+      },
+      {
+        "id": "schedule",
+        "label": "Daily schedule",
+        "layer": "people",
+        "kind": "worker",
+        "technology": "Windows Task Scheduler, one machine",
+        "responsibility": "Starts the morning job: update the code, rebuild the family map, run the checker, then every queue builder.",
+        "provenance": "code",
+        "details": [
+          "Ten steps in order. A failed step is logged and the next one runs."
+        ],
+        "failureModes": [
+          "The machine is off or signed out at the hour: no run that day, and nothing reports it."
+        ],
+        "sources": [
+          {
+            "path": "deploy/daily_run.bat",
+            "lines": "56-169"
+          },
+          {
+            "path": ".project-brain/flows/daily-5am-job.md"
+          }
+        ]
+      },
+      {
+        "id": "panel",
+        "label": "Control panel",
+        "layer": "control",
+        "kind": "frontend",
+        "technology": "Python, a local web page",
+        "responsibility": "Shows every machine and the queue, and sets the state each machine should be in. It never reads the marketplace itself.",
+        "provenance": "code",
+        "details": [
+          "Reachable only from the machine it runs on.",
+          "It changes one row; the machine's agent does the rest."
+        ],
+        "sources": [
+          {
+            "path": "control_panel.py",
+            "lines": "41"
+          },
+          {
+            "path": "control_panel.py",
+            "lines": "481-509"
+          }
+        ]
+      },
+      {
+        "id": "agent",
+        "label": "Machine agent",
+        "layer": "control",
+        "kind": "worker",
+        "technology": "Python, one per machine",
+        "responsibility": "Polls its own row, starts or stops the collector, updates the code before each start, and reports state, exit code and the tail of the log.",
+        "provenance": "code",
+        "details": [
+          "Reads the collector's exit code to decide: retry later, retry soon, or stay stopped until a person presses Run.",
+          "Three crashes in a row and it stops itself."
+        ],
+        "reliability": [
+          "A failed update keeps the code already there and carries on."
+        ],
+        "sources": [
+          {
+            "path": "machine_agent.py",
+            "lines": "54"
+          },
+          {
+            "path": "machine_agent.py",
+            "lines": "123-156"
+          },
+          {
+            "path": "machine_agent.py",
+            "lines": "230-248"
+          },
+          {
+            "path": "machine_agent.py",
+            "lines": "409-444"
+          }
+        ]
+      },
+      {
+        "id": "collector",
+        "label": "Review collector",
+        "layer": "collect",
+        "kind": "worker",
+        "technology": "Python and Playwright",
+        "responsibility": "Takes a batch, then for each product climbs a ladder of views, cheapest first, until the gap closes or the views run out.",
+        "provenance": "code",
+        "inputs": [
+          "A claimed batch",
+          "The family's stored review ids"
+        ],
+        "outputs": [
+          "New reviews",
+          "A result per product"
+        ],
+        "details": [
+          "One page of the newest reviews first. Then the whole critical list. Past the page limit: a list per star, the helpful ordering, family members, keywords."
+        ],
+        "failureModes": [
+          "A page with no readable count: the product goes back unworked, never marked complete."
+        ],
+        "sources": [
+          {
+            "path": "reviews_scrapper.py",
+            "lines": "1772-1880"
+          },
+          {
+            "path": "reviews_scrapper.py",
+            "lines": "1720-1732"
+          }
+        ]
+      },
+      {
+        "id": "planner",
+        "label": "Page-budget rules",
+        "layer": "collect",
+        "kind": "backend",
+        "technology": "Python, pure functions",
+        "responsibility": "Decides where pages are spent: which product first, which family members still need a visit, and when a product is done.",
+        "provenance": "code",
+        "details": [
+          "No browser, no network, no database: only arithmetic, so it is tested on its own."
+        ],
+        "whyThisTechnology": {
+          "text": "Pages, not time, are the scarce resource. Keeping these rules pure lets them be reasoned about and tested without a browser.",
+          "provenance": "code",
+          "sources": [
+            {
+              "path": "scrape_planning.py",
+              "lines": "1-23"
+            }
+          ]
+        },
+        "sources": [
+          {
+            "path": "scrape_planning.py",
+            "lines": "20-23"
+          },
+          {
+            "path": "scrape_planning.py",
+            "lines": "50-99"
+          },
+          {
+            "path": "scrape_planning.py",
+            "lines": "164-216"
+          }
+        ]
+      },
+      {
+        "id": "verifier",
+        "label": "Review verifier",
+        "layer": "collect",
+        "kind": "worker",
+        "technology": "Python and Playwright",
+        "responsibility": "For a product that holds more than is shown: walks the listing, then opens each held review it did not see and gives it a verdict.",
+        "provenance": "code",
+        "outputs": [
+          "A verdict per review",
+          "A recorded variation where one was found"
+        ],
+        "details": [
+          "Verdicts: on this product, family member, other product, star changed, gone, not listed, unknown."
+        ],
+        "failureModes": [
+          "The control review does not open: the check stops and nothing is called gone."
+        ],
+        "sources": [
+          {
+            "path": "review_verifier.py",
+            "lines": "111-126"
+          },
+          {
+            "path": "review_verifier.py",
+            "lines": "422-436"
+          },
+          {
+            "path": "review_verifier.py",
+            "lines": "501-531"
+          }
+        ]
+      },
+      {
+        "id": "sessions",
+        "label": "Shared session layer",
+        "layer": "collect",
+        "kind": "backend",
+        "technology": "Python and Playwright",
+        "responsibility": "The one way every tool reaches the marketplace: a signed-in session leased from a shared pool, one holder at a time.",
+        "provenance": "code",
+        "details": [
+          "A session is claimed like a batch: guarded update, heartbeat, takeover after silence.",
+          "A known-live control product tells a dead product from a session that has lost access."
+        ],
+        "sources": [
+          {
+            "path": "profiles_store.py",
+            "lines": "362-389"
+          },
+          {
+            "path": "profiles_store.py",
+            "lines": "553-586"
+          },
+          {
+            "path": "asin_details.py",
+            "lines": "191-253"
+          },
+          {
+            "path": "showcase/README.md",
+            "lines": "120-126"
+          }
+        ]
+      },
+      {
+        "id": "reviews",
+        "label": "Review store",
+        "layer": "store",
+        "kind": "database",
+        "technology": "PostgreSQL on Supabase",
+        "responsibility": "Products, reviews, tracking snapshots and variations. Reviews are filed under the tracked product, whichever variation they were bought as.",
+        "provenance": "code",
+        "details": [
+          "Written by several systems. This pipeline adds reviews and otherwise changes them only through the guarded functions."
+        ],
+        "reliability": [
+          "A read that returns fewer rows than the count asked for first is retried, then refused."
+        ],
+        "sources": [
+          {
+            "path": "db.py",
+            "lines": "213-263"
+          },
+          {
+            "path": "db.py",
+            "lines": "305-319"
+          },
+          {
+            "path": "showcase/docs/ARCHITECTURE.md",
+            "lines": "6-54"
+          }
+        ]
+      },
+      {
+        "id": "queue",
+        "label": "Work queue and leases",
+        "layer": "store",
+        "kind": "queue",
+        "technology": "PostgreSQL tables",
+        "responsibility": "Batches and their products, the machines' desired and reported state, and the session leases.",
+        "provenance": "code",
+        "details": [
+          "A product can be in a day's cycle once.",
+          "A running batch must have an owner: the table refuses a row without one."
+        ],
+        "sources": [
+          {
+            "path": "migrations/20260916_scraping_work_queue.sql",
+            "lines": "56-59"
+          },
+          {
+            "path": "migrations/20260916_scraping_work_queue.sql",
+            "lines": "75"
+          },
+          {
+            "path": "work_queue.py",
+            "lines": "179-198"
+          },
+          {
+            "path": "migrations/20260915_scraping_schema.sql",
+            "lines": "61-64"
+          }
+        ]
+      },
+      {
+        "id": "changelog",
+        "label": "Checks and change log",
+        "layer": "store",
+        "kind": "database",
+        "technology": "PostgreSQL tables and PL/pgSQL",
+        "responsibility": "Every verdict, every proposed and applied change, and the functions that are the only way to change a stored review.",
+        "provenance": "code",
+        "details": [
+          "A trigger also logs changes made by other writers, old value and new."
+        ],
+        "reliability": [
+          "Each change runs in its own block, so one failure rolls back alone."
+        ],
+        "sources": [
+          {
+            "path": "migrations/20260925_review_change_log.sql",
+            "lines": "39-109"
+          },
+          {
+            "path": "migrations/20260925_review_change_log.sql",
+            "lines": "112-239"
+          },
+          {
+            "path": "migrations/20260929_archive_other_product_reviews.sql",
+            "lines": "55-167"
+          }
+        ]
+      },
+      {
+        "id": "checker",
+        "label": "Gap checker",
+        "layer": "detect",
+        "kind": "backend",
+        "technology": "Python and pandas",
+        "responsibility": "Compares the latest measurement with what is held, per product and per star, and writes a reason, an action and a difficulty for every row.",
+        "provenance": "code",
+        "inputs": [
+          "Latest tracking snapshot",
+          "Held reviews",
+          "Family counts",
+          "Verdicts"
+        ],
+        "outputs": [
+          "The daily report",
+          "A results file the builders read"
+        ],
+        "details": [
+          "Reads the database only.",
+          "Notes a person typed are read back before the report is rewritten and attached again."
+        ],
+        "sources": [
+          {
+            "path": "OptimumChecker.py",
+            "lines": "497-565"
+          },
+          {
+            "path": "OptimumChecker.py",
+            "lines": "574-636"
+          },
+          {
+            "path": "OptimumChecker.py",
+            "lines": "2000-2061"
+          }
+        ]
+      },
+      {
+        "id": "builders",
+        "label": "Queue builders",
+        "layer": "detect",
+        "kind": "worker",
+        "technology": "Python",
+        "responsibility": "Turn the report into batches: products to collect, cheapest first, and products whose held reviews should be checked, ahead of them.",
+        "provenance": "code",
+        "details": [
+          "A second run on the same day adds only what is new.",
+          "Unclaimed batches of an earlier day are cancelled; claimed ones are left alone."
+        ],
+        "sources": [
+          {
+            "path": "build_work_queue.py",
+            "lines": "243-275"
+          },
+          {
+            "path": "build_work_queue.py",
+            "lines": "307-345"
+          },
+          {
+            "path": "build_verify_batches.py",
+            "lines": "1-21"
+          },
+          {
+            "path": "build_verify_batches.py",
+            "lines": "41-43"
+          }
+        ]
+      },
+      {
+        "id": "cleanup",
+        "label": "Cleanup tools",
+        "layer": "detect",
+        "kind": "backend",
+        "technology": "Python",
+        "responsibility": "Propose changes to stored reviews, preview them, and ask the database to apply or undo a run. They never write a review themselves.",
+        "provenance": "code",
+        "details": [
+          "Check, apply and undo, each for one run id."
+        ],
+        "sources": [
+          {
+            "path": "review_changes.py",
+            "lines": "96-125"
+          },
+          {
+            "path": ".project-brain/decisions/0004-guarded-sql-cleanup-functions.md"
+          }
+        ]
+      },
+      {
+        "id": "marketplace",
+        "label": "Marketplace",
+        "layer": "outside",
+        "kind": "external",
+        "technology": "Review pages and review permalinks",
+        "responsibility": "The source of truth for what is live: review lists a fixed number of pages deep, and one page per review.",
+        "provenance": "documented",
+        "failureModes": [
+          "Limits or refuses a session.",
+          "Shows the same page for a missing product and a lost session."
+        ],
+        "sources": [
+          {
+            "path": "showcase/docs/ARCHITECTURE.md",
+            "lines": "101-107"
+          },
+          {
+            "path": "showcase/README.md",
+            "lines": "120-126"
+          }
+        ]
+      },
+      {
+        "id": "sheets",
+        "label": "Report sheets",
+        "layer": "outside",
+        "kind": "external",
+        "technology": "Google Sheets",
+        "responsibility": "Where people read the report and write beside it.",
+        "provenance": "code",
+        "details": [
+          "Rewritten in full each day. The notes column is the one thing that survives."
+        ],
+        "sources": [
+          {
+            "path": "OptimumChecker.py",
+            "lines": "2000-2061"
+          },
+          {
+            "path": "showcase/docs/ARCHITECTURE.md",
+            "lines": "146-152"
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "id": "ops-panel",
+        "from": "ops",
+        "to": "panel",
+        "protocol": "A page on the office machine",
+        "data": "Run or Stop, for which machines",
+        "kind": "sync"
+      },
+      {
+        "id": "ops-sheets",
+        "from": "ops",
+        "to": "sheets",
+        "protocol": "Reading and typing in a sheet",
+        "data": "The report, and notes beside rows",
+        "kind": "sync"
+      },
+      {
+        "id": "ops-cleanup",
+        "from": "ops",
+        "to": "cleanup",
+        "protocol": "A command, with a run id",
+        "data": "Preview, write or undo a run",
+        "kind": "sync"
+      },
+      {
+        "id": "schedule-checker",
+        "from": "schedule",
+        "to": "checker",
+        "protocol": "A scheduled batch file",
+        "data": "The morning run",
+        "kind": "async"
+      },
+      {
+        "id": "schedule-builders",
+        "from": "schedule",
+        "to": "builders",
+        "protocol": "The same batch file, later steps",
+        "data": "Build today's batches",
+        "kind": "async"
+      },
+      {
+        "id": "panel-queue",
+        "from": "panel",
+        "to": "queue",
+        "protocol": "One row update",
+        "data": "The state each machine should be in",
+        "kind": "sync"
+      },
+      {
+        "id": "agent-queue",
+        "from": "agent",
+        "to": "queue",
+        "protocol": "Polling its own row",
+        "data": "Desired state in; state, exit code and log tail out",
+        "kind": "async"
+      },
+      {
+        "id": "agent-collector",
+        "from": "agent",
+        "to": "collector",
+        "protocol": "Starts and stops a process",
+        "data": "Which marketplace, which kinds of batch",
+        "kind": "sync"
+      },
+      {
+        "id": "collector-queue",
+        "from": "collector",
+        "to": "queue",
+        "protocol": "Guarded update, read back by run id",
+        "data": "A batch claimed; a result per product",
+        "kind": "sync"
+      },
+      {
+        "id": "collector-planner",
+        "from": "collector",
+        "to": "planner",
+        "protocol": "Function calls",
+        "data": "Counts in; order, members to visit and what is left out",
+        "kind": "sync"
+      },
+      {
+        "id": "collector-verifier",
+        "from": "collector",
+        "to": "verifier",
+        "protocol": "Function call, for a checking batch",
+        "data": "A product whose held reviews are in doubt",
+        "kind": "sync"
+      },
+      {
+        "id": "collector-sessions",
+        "from": "collector",
+        "to": "sessions",
+        "protocol": "Function call",
+        "data": "A signed-in browser page",
+        "kind": "sync"
+      },
+      {
+        "id": "collector-reviews",
+        "from": "collector",
+        "to": "reviews",
+        "protocol": "Lookup by id, upsert, read back",
+        "data": "The family's stored ids in; new reviews out",
+        "kind": "sync"
+      },
+      {
+        "id": "verifier-sessions",
+        "from": "verifier",
+        "to": "sessions",
+        "protocol": "Function call",
+        "data": "Review pages and permalinks to open",
+        "kind": "sync"
+      },
+      {
+        "id": "verifier-changelog",
+        "from": "verifier",
+        "to": "changelog",
+        "protocol": "Inserts, and one guarded function",
+        "data": "A verdict per review; a recorded variation",
+        "kind": "sync"
+      },
+      {
+        "id": "sessions-queue",
+        "from": "sessions",
+        "to": "queue",
+        "protocol": "Guarded update and heartbeat",
+        "data": "A session leased to one run",
+        "kind": "sync"
+      },
+      {
+        "id": "sessions-marketplace",
+        "from": "sessions",
+        "to": "marketplace",
+        "protocol": "A signed-in browser",
+        "data": "Review lists, permalinks, the control product",
+        "kind": "sync"
+      },
+      {
+        "id": "checker-reviews",
+        "from": "checker",
+        "to": "reviews",
+        "protocol": "Paged reads",
+        "data": "Products, held reviews, latest snapshots, variations",
+        "kind": "sync"
+      },
+      {
+        "id": "checker-changelog",
+        "from": "checker",
+        "to": "changelog",
+        "protocol": "Paged reads",
+        "data": "Latest verdict per review",
+        "kind": "sync"
+      },
+      {
+        "id": "checker-sheets",
+        "from": "checker",
+        "to": "sheets",
+        "protocol": "Sheets API, full rewrite",
+        "data": "The report, with people's notes re-attached",
+        "kind": "sync"
+      },
+      {
+        "id": "builders-checker",
+        "from": "builders",
+        "to": "checker",
+        "protocol": "A results file",
+        "data": "Rows, reasons, difficulty and yield",
+        "kind": "sync"
+      },
+      {
+        "id": "builders-queue",
+        "from": "builders",
+        "to": "queue",
+        "protocol": "Inserts, and a cancel of older batches",
+        "data": "Today's batches",
+        "kind": "sync"
+      },
+      {
+        "id": "cleanup-changelog",
+        "from": "cleanup",
+        "to": "changelog",
+        "protocol": "Function call by run id",
+        "data": "Proposed changes; apply or undo",
+        "kind": "sync"
+      },
+      {
+        "id": "changelog-reviews",
+        "from": "changelog",
+        "to": "reviews",
+        "protocol": "Row lock, check, update, read back",
+        "data": "One review changed, archived or restored",
+        "kind": "sync"
+      }
+    ],
+    "flows": [
+      {
+        "id": "morning-report",
+        "label": "The morning report is built",
+        "description": "The schedule starts the checker, which reads both sides from the database and rewrites the report. The builders then turn it into today's queue.",
+        "path": [
+          "schedule-checker",
+          "checker-reviews",
+          "checker-changelog",
+          "checker-sheets",
+          "schedule-builders",
+          "builders-checker",
+          "builders-queue"
+        ]
+      },
+      {
+        "id": "machine-takes-batch",
+        "label": "A machine takes a batch",
+        "description": "Someone presses Run. The panel changes a row, the machine's agent sees it and starts the collector, and the collector claims a batch and a session.",
+        "path": [
+          "ops-panel",
+          "panel-queue",
+          "agent-queue",
+          "agent-collector",
+          "collector-queue",
+          "collector-sessions",
+          "sessions-queue"
+        ]
+      },
+      {
+        "id": "gap-collected",
+        "label": "A gap is collected",
+        "description": "The collector loads what is held, asks the rules where to spend pages, reads the marketplace through a session, and stores what is new.",
+        "path": [
+          "collector-reviews",
+          "collector-planner",
+          "collector-sessions",
+          "sessions-marketplace",
+          "collector-queue"
+        ]
+      },
+      {
+        "id": "review-checked",
+        "label": "A doubtful review is checked",
+        "description": "For a product that holds more than is shown, the verifier walks the listing, opens what it did not see, and records a verdict that the next report reads.",
+        "path": [
+          "collector-verifier",
+          "verifier-sessions",
+          "sessions-marketplace",
+          "verifier-changelog",
+          "checker-changelog"
+        ]
+      },
+      {
+        "id": "cleanup-written",
+        "label": "A cleanup run is written",
+        "description": "A person previews a run and writes it. The tool only asks; the database locks each row, checks it again, changes it and logs it.",
+        "path": [
+          "ops-cleanup",
+          "cleanup-changelog",
+          "changelog-reviews"
+        ]
+      }
+    ]
+  },
+  "workflows": [
+    {
+      "id": "gap-to-clean",
+      "title": "One morning: from five differences to a clean database",
+      "summary": "Five listings and five different answers. The report gives each a reason, the queue orders the work, one machine checks six reviews held too many and collects two gaps, and a person decides one cleanup.",
+      "proves": "A difference in counts becomes a reason, a reason becomes ordered work, and no claim is made that the evidence does not support.",
+      "scenarioId": "reviews.gap-to-clean",
+      "mode": "simulation",
+      "modeNote": "A simulation in your browser. The rules are re-implemented from the pipeline's Python and SQL; nothing here reaches a marketplace, a database or a machine. The five listings, every review and every id are invented, and so is every limit: page size and depth, batch size, heartbeat and takeover times, retry counts and thresholds are the demo's own, not the pipeline's.",
+      "technologies": [
+        "Python",
+        "Playwright",
+        "PostgreSQL",
+        "pandas",
+        "PL/pgSQL"
+      ],
+      "phases": [
+        {
+          "id": "detect",
+          "label": "Detect"
+        },
+        {
+          "id": "queue",
+          "label": "Queue"
+        },
+        {
+          "id": "check",
+          "label": "Check what is held"
+        },
+        {
+          "id": "collect",
+          "label": "Collect what is missing"
+        },
+        {
+          "id": "cleanup",
+          "label": "Clean up"
+        }
+      ],
+      "steps": [
+        {
+          "id": "report.load",
+          "label": "Read both sides",
+          "kind": "database",
+          "nodeId": "checker",
+          "phase": "detect",
+          "summary": "The latest measurement of each listing and the reviews held for it are read from the database.",
+          "description": "The checker keeps the newest tracking row per product and counts held reviews per star, leaving out removed reviews, other marketplaces, and reviews whose latest check found them gone, on another product or listed nowhere.",
+          "sources": [
+            {
+              "path": "OptimumChecker.py",
+              "lines": "1508-1523"
+            },
+            {
+              "path": "OptimumChecker.py",
+              "lines": "1163-1200"
+            },
+            {
+              "path": "OptimumChecker.py",
+              "lines": "806-850"
+            }
+          ]
+        },
+        {
+          "id": "report.diagnose",
+          "label": "Give every difference a reason",
+          "kind": "validation",
+          "nodeId": "checker",
+          "phase": "detect",
+          "summary": "Each listing gets a reason, an action and a difficulty.",
+          "description": "all_gap_reasons returns every reason that applies, most blocking first. The first is the one the row is filed under; all of them are written to a second column. Difficulty comes from the collector's own estimate of pages and reachable reviews.",
+          "sources": [
+            {
+              "path": "OptimumChecker.py",
+              "lines": "497-565"
+            },
+            {
+              "path": "OptimumChecker.py",
+              "lines": "574-636"
+            },
+            {
+              "path": "OptimumChecker.py",
+              "lines": "227-235"
+            },
+            {
+              "path": "scrape_planning.py",
+              "lines": "50-99"
+            }
+          ]
+        },
+        {
+          "id": "queue.build",
+          "label": "Build the queue",
+          "kind": "queue",
+          "nodeId": "builders",
+          "phase": "queue",
+          "summary": "Listings to collect and to check are written as batches, cheapest work first.",
+          "description": "select_rows keeps live rows whose action is to scrape, leaves out rows a person commented on and rows already in today's cycle, and order_rows sorts them. Checking batches get a priority ahead of every collecting batch. Unclaimed batches of earlier cycles are cancelled.",
+          "sources": [
+            {
+              "path": "build_work_queue.py",
+              "lines": "122-141"
+            },
+            {
+              "path": "build_work_queue.py",
+              "lines": "243-275"
+            },
+            {
+              "path": "build_work_queue.py",
+              "lines": "307-345"
+            },
+            {
+              "path": "build_verify_batches.py",
+              "lines": "1-21"
+            }
+          ]
+        },
+        {
+          "id": "check.claim",
+          "label": "A machine claims the checking batch",
+          "kind": "queue",
+          "nodeId": "queue",
+          "phase": "check",
+          "summary": "One machine takes the batch; no other can.",
+          "description": "A single UPDATE sets the batch running only where it is still queued or its heartbeat is older than the cutoff. The machine then selects the row by id and its own run id to learn whether it won. A heartbeat thread keeps the claim.",
+          "sources": [
+            {
+              "path": "work_queue.py",
+              "lines": "179-198"
+            },
+            {
+              "path": "work_queue.py",
+              "lines": "250-281"
+            },
+            {
+              "path": "profiles_store.py",
+              "lines": "362-389"
+            }
+          ]
+        },
+        {
+          "id": "check.walk",
+          "label": "Walk the listing",
+          "kind": "api",
+          "nodeId": "verifier",
+          "phase": "check",
+          "summary": "Every review the listing shows is read; held reviews among them need no further look.",
+          "description": "The verifier walks the listing's review views. A held review seen there is on this product. Only those not seen go on to be opened.",
+          "sources": [
+            {
+              "path": "review_verifier.py",
+              "lines": "365-368"
+            }
+          ]
+        },
+        {
+          "id": "check.permalinks",
+          "label": "Open what was not seen",
+          "kind": "api",
+          "nodeId": "verifier",
+          "phase": "check",
+          "summary": "Each remaining review's own page is opened and given a verdict.",
+          "description": "classify turns one opened page into a verdict. On a page-not-found, a review known to be live is opened first; only if it opens is the target opened again and marked confirmed. A family member's variation is recorded through the guarded change function.",
+          "sources": [
+            {
+              "path": "review_verifier.py",
+              "lines": "111-126"
+            },
+            {
+              "path": "review_verifier.py",
+              "lines": "422-436"
+            },
+            {
+              "path": "review_verifier.py",
+              "lines": "501-531"
+            }
+          ]
+        },
+        {
+          "id": "collect.claim",
+          "label": "Claim the collecting batch",
+          "kind": "queue",
+          "nodeId": "queue",
+          "phase": "collect",
+          "summary": "The same machine takes the next free batch.",
+          "description": "The same guarded update and read-back. The batch's products come in the order the builder gave them.",
+          "sources": [
+            {
+              "path": "work_queue.py",
+              "lines": "119-142"
+            },
+            {
+              "path": "work_queue.py",
+              "lines": "179-198"
+            }
+          ]
+        },
+        {
+          "id": "stored.load",
+          "label": "Load what is already held",
+          "kind": "database",
+          "nodeId": "reviews",
+          "phase": "collect",
+          "summary": "The stored reviews of the listing and all its variations are loaded.",
+          "description": "get_db_reviews asks for an exact count first and reads rows where the product or its variation matches. A short read is retried and then raises, so held reviews are never uploaded again as new.",
+          "sources": [
+            {
+              "path": "db.py",
+              "lines": "213-263"
+            }
+          ]
+        },
+        {
+          "id": "collect.recent",
+          "label": "One page, newest first",
+          "kind": "api",
+          "nodeId": "collector",
+          "phase": "collect",
+          "summary": "The cheapest pass: a single page of the most recent reviews.",
+          "description": "Strategy 0. When the gap is only reviews posted since the last run, it closes for the price of one page and nothing deeper runs. A page with no readable count sends the product back unworked.",
+          "sources": [
+            {
+              "path": "reviews_scrapper.py",
+              "lines": "1772-1806"
+            },
+            {
+              "path": "reviews_scrapper.py",
+              "lines": "1720-1732"
+            }
+          ]
+        },
+        {
+          "id": "collect.walk",
+          "label": "Walk every critical review",
+          "kind": "api",
+          "nodeId": "collector",
+          "phase": "collect",
+          "summary": "If the gap is still open, the whole list is walked.",
+          "description": "Strategy 1. Under the page limit this walk shows every review there is, so the star, helpful and keyword passes are skipped. pool_walk_complete requires that every page was walked and that most counted reviews were actually parsed.",
+          "sources": [
+            {
+              "path": "reviews_scrapper.py",
+              "lines": "1808-1828"
+            },
+            {
+              "path": "scrape_planning.py",
+              "lines": "164-169"
+            }
+          ]
+        },
+        {
+          "id": "collect.members",
+          "label": "Decide about family members",
+          "kind": "transform",
+          "nodeId": "planner",
+          "phase": "collect",
+          "summary": "Members whose reviews already appeared are skipped; visits stop when the gap closes.",
+          "description": "members_to_visit skips members seen in a complete pool walk, orders the rest by evidence that they have reviews, and caps visits to members with no evidence. Without a complete walk nothing is skipped.",
+          "sources": [
+            {
+              "path": "scrape_planning.py",
+              "lines": "175-202"
+            }
+          ]
+        },
+        {
+          "id": "reviews.store",
+          "label": "Store, and decide if it is done",
+          "kind": "database",
+          "nodeId": "reviews",
+          "phase": "collect",
+          "summary": "New reviews are written and confirmed; the listing is done when every counted review is in the database.",
+          "description": "persist_new_reviews looks the ids up across the table, writes only the rest and reads them back. With the whole pool seen, remaining_after_full_walk decides completion by review id.",
+          "sources": [
+            {
+              "path": "db.py",
+              "lines": "305-319"
+            },
+            {
+              "path": "scrape_planning.py",
+              "lines": "205-216"
+            },
+            {
+              "path": "reviews_scrapper.py",
+              "lines": "1167-1200"
+            }
+          ]
+        },
+        {
+          "id": "large.ladder",
+          "label": "Climb the ladder on the large listing",
+          "kind": "api",
+          "nodeId": "collector",
+          "phase": "collect",
+          "summary": "Past the page limit the collector tries one view after another and reports what none reaches.",
+          "description": "Strategies 0, 1, 2 and 2.5: the recent page, the critical walk, a walk per star, the helpful ordering. Each stops the climb if the gap closes. A batch whose machine falls silent is taken over by the next claim, and only products still running are reset.",
+          "sources": [
+            {
+              "path": "reviews_scrapper.py",
+              "lines": "1830-1880"
+            },
+            {
+              "path": "work_queue.py",
+              "lines": "194-198"
+            }
+          ]
+        },
+        {
+          "id": "cleanup.decide",
+          "label": "A person previews the cleanup",
+          "kind": "human",
+          "nodeId": "cleanup",
+          "phase": "cleanup",
+          "summary": "A review attached to a product nobody tracks is listed for archiving. Nothing is written until someone says so.",
+          "description": "The archive tool builds its list from reviews whose latest verdict is other_product and previews it unless told to write.",
+          "sources": [
+            {
+              "path": "migrations/20260929_archive_other_product_reviews.sql",
+              "lines": "1-14"
+            },
+            {
+              "path": "review_changes.py",
+              "lines": "96-125"
+            }
+          ]
+        },
+        {
+          "id": "cleanup.write",
+          "label": "The database writes it",
+          "kind": "database",
+          "nodeId": "changelog",
+          "phase": "cleanup",
+          "summary": "The database locks the row, checks it again, archives it and logs the whole row for undo.",
+          "description": "archive_reviews locks the review, refuses it if it is filed elsewhere now or if the product is one of the tracked ones, copies it to the archive, logs the full row in the change table and deletes it. undo_archive_reviews restores a run.",
+          "sources": [
+            {
+              "path": "migrations/20260929_archive_other_product_reviews.sql",
+              "lines": "55-167"
+            },
+            {
+              "path": "migrations/20260929_archive_other_product_reviews.sql",
+              "lines": "260-323"
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "key": "newReviews",
+          "label": "New reviews on the ordinary listing",
+          "type": "number",
+          "help": "Critical reviews posted since the last run. From 0 to 12."
+        },
+        {
+          "key": "olderMissing",
+          "label": "Older reviews an earlier run passed over",
+          "type": "number",
+          "help": "From 0 to 3. Only a full walk reaches them."
+        },
+        {
+          "key": "members",
+          "label": "Variations in its family",
+          "type": "number",
+          "help": "From 1 to 4, the listing itself included."
+        },
+        {
+          "key": "note",
+          "label": "A note beside the large listing",
+          "type": "text",
+          "maxLength": 60,
+          "help": "Anything typed here keeps that listing out of the queue."
+        }
+      ],
+      "faults": [
+        {
+          "id": "daily-job-missed",
+          "label": "The daily job does not run",
+          "stepId": "report.load",
+          "classification": "limitation",
+          "description": "The machine that runs the scheduled job is off at the hour.",
+          "expected": "No report and no queue for the day. Nothing in the system notices; the machines keep working what is left of yesterday's queue.",
+          "sources": [
+            {
+              "path": ".project-brain/flows/daily-5am-job.md"
+            },
+            {
+              "path": "deploy/daily_run.bat",
+              "lines": "56-169"
+            }
+          ]
+        },
+        {
+          "id": "built-twice",
+          "label": "The queue is built twice",
+          "stepId": "queue.build",
+          "classification": "implemented",
+          "description": "The builder is started a second time on the same day.",
+          "expected": "It reads what the cycle already holds and adds nothing. The table also refuses a duplicate.",
+          "sources": [
+            {
+              "path": "build_work_queue.py",
+              "lines": "307-315"
+            },
+            {
+              "path": "migrations/20260916_scraping_work_queue.sql",
+              "lines": "75"
+            }
+          ]
+        },
+        {
+          "id": "control-does-not-open",
+          "label": "The session has lost access",
+          "stepId": "check.permalinks",
+          "classification": "implemented",
+          "description": "A held review's page is not found, and neither is a review the walk just showed.",
+          "expected": "The check stops. Unopened reviews are unknown, and none is called gone.",
+          "sources": [
+            {
+              "path": "review_verifier.py",
+              "lines": "422-436"
+            }
+          ]
+        },
+        {
+          "id": "stored-read-short",
+          "label": "The stored reviews come back short",
+          "stepId": "stored.load",
+          "classification": "implemented",
+          "description": "The database returns fewer rows than the count it gave first.",
+          "expected": "The read is retried. Nothing is uploaded on a short read.",
+          "sources": [
+            {
+              "path": "db.py",
+              "lines": "213-263"
+            }
+          ]
+        },
+        {
+          "id": "count-unreadable",
+          "label": "The review count cannot be read",
+          "stepId": "collect.recent",
+          "classification": "implemented",
+          "description": "The page loads without a count.",
+          "expected": "The listing is left for another run. It is never read as zero reviews.",
+          "group": "ordinary",
+          "sources": [
+            {
+              "path": "reviews_scrapper.py",
+              "lines": "1720-1732"
+            }
+          ]
+        },
+        {
+          "id": "pages-parse-nothing",
+          "label": "Pages load, nothing is parsed",
+          "stepId": "collect.walk",
+          "classification": "implemented",
+          "description": "The walk reads its pages and extracts no review from them.",
+          "expected": "The walk is not counted as complete: no member is skipped on its evidence and the listing is not called done. Needs a gap the first page does not close.",
+          "group": "ordinary",
+          "sources": [
+            {
+              "path": "scrape_planning.py",
+              "lines": "164-169"
+            }
+          ]
+        },
+        {
+          "id": "machine-dies",
+          "label": "The machine dies mid-batch",
+          "stepId": "large.ladder",
+          "classification": "implemented",
+          "description": "The machine stops part way through the large listing.",
+          "expected": "After enough silence another machine takes the batch. Finished listings stay finished; the one in progress starts again, and nothing is stored twice.",
+          "sources": [
+            {
+              "path": "work_queue.py",
+              "lines": "179-198"
+            },
+            {
+              "path": "db.py",
+              "lines": "305-319"
+            }
+          ]
+        },
+        {
+          "id": "refiled-since-check",
+          "label": "The review was refiled after the check",
+          "stepId": "cleanup.write",
+          "classification": "implemented",
+          "description": "Between the check and the write, another writer moved the review to a different listing.",
+          "expected": "The function leaves the row alone and says why.",
+          "sources": [
+            {
+              "path": "migrations/20260929_archive_other_product_reviews.sql",
+              "lines": "77-87"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "decisions": [
+    {
+      "id": "two-layers",
+      "title": "Detection never opens a browser",
+      "problem": "Finding out what is wrong and going to fix it were once the same expensive act: sign in, read pages, compare.",
+      "options": [
+        {
+          "name": "One tool that signs in and compares as it goes",
+          "verdict": "rejected",
+          "note": "Every question costs pages, and the answer depends on what the session happened to see."
+        },
+        {
+          "name": "A checker that reads the database only, and collectors that only fetch",
+          "verdict": "chosen",
+          "note": "The report can run every morning for free, and collecting spends pages only where the report says it is worth it."
+        }
+      ],
+      "rationale": "The checker compares the latest measurement with what is held and never touches the marketplace. Collection takes its work list from that result.",
+      "tradeoffs": [
+        "The report is only as fresh as the latest measurement, which another system takes.",
+        "A stale snapshot reads as a gap until it is measured again."
+      ],
+      "evolution": "The report grew from one reason per row to every reason that applies, after it became clear how much a single reason hid.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "OptimumChecker.py",
+          "lines": "497-515"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "41-54"
+        }
+      ]
+    },
+    {
+      "id": "queue-in-postgres",
+      "title": "A work queue in the database that is already there",
+      "problem": "Work was handed out by hand, a sheet tab per machine, with no lock and no shared view of progress.",
+      "options": [
+        {
+          "name": "A sheet tab per machine",
+          "verdict": "rejected",
+          "note": "Visible to the team, but manual, unlocked, and a crash lost the machine's place."
+        },
+        {
+          "name": "A message broker",
+          "verdict": "rejected",
+          "note": "Real queue semantics, and new infrastructure to host and secure."
+        },
+        {
+          "name": "Tables in the same Postgres",
+          "verdict": "chosen",
+          "note": "One store, results that can be queried, and no new service."
+        }
+      ],
+      "rationale": "A guarded update is atomic, the batch table refuses a running row without an owner, and a summary view shows where the day stands.",
+      "tradeoffs": [
+        "Machines poll; there is no push.",
+        "The API returns nothing for a successful guarded update, so every claim has to be read back.",
+        "Priorities between kinds of batch are set by hand, and one kind can starve another."
+      ],
+      "evolution": "The same queue later carried three more kinds of work: checking held reviews, counting families, and keyword searches.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": ".project-brain/decisions/0002-shared-work-queue.md"
+        },
+        {
+          "path": "work_queue.py",
+          "lines": "179-198"
+        },
+        {
+          "path": "migrations/20260916_scraping_work_queue.sql",
+          "lines": "56-59"
+        }
+      ]
+    },
+    {
+      "id": "pages-are-the-budget",
+      "title": "Pages, not time, are what is spent",
+      "problem": "A signed-in session can read only so much before it is limited, and most products need very little of it.",
+      "options": [
+        {
+          "name": "Work the list in sheet order, visiting every family member every time",
+          "verdict": "rejected",
+          "note": "Hours of member walks for a handful of reviews."
+        },
+        {
+          "name": "Rank by expected reviews per page, cheapest view first, stop when the gap closes",
+          "verdict": "chosen",
+          "note": "One page closes a gap that is only new reviews; slicing runs only past the page limit."
+        }
+      ],
+      "rationale": "The estimate that orders the queue is the same one that labels difficulty in the report, and it lives in pure functions that are tested without a browser.",
+      "tradeoffs": [
+        "The estimate is a model. A listing it calls reachable can still have reviews in no view.",
+        "A product whose last run found nothing waits at the back until its count grows."
+      ],
+      "evolution": "The public write-up describes an earlier single formula for difficulty and reach. The code now uses the page estimate for difficulty and a separate measure for what is out of reach.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "scrape_planning.py",
+          "lines": "1-18"
+        },
+        {
+          "path": "scrape_planning.py",
+          "lines": "50-99"
+        },
+        {
+          "path": "OptimumChecker.py",
+          "lines": "227-235"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "97-111"
+        }
+      ]
+    },
+    {
+      "id": "family-as-hint",
+      "title": "A family's reviews explain an extra; they never correct it silently",
+      "problem": "A parent listing often holds more reviews than the marketplace counts for it, because they belong to its variations.",
+      "options": [
+        {
+          "name": "Subtract the family's reviews and report the remainder",
+          "verdict": "rejected",
+          "note": "A tidy number that hides whether the roll-up is stale or counts one shared pool several times."
+        },
+        {
+          "name": "Report the extra with the family as a graded, possible explanation",
+          "verdict": "chosen",
+          "note": "The row says why it is probably fine and what would prove it."
+        }
+      ],
+      "rationale": "A roll-up from tracking is used only as a label, graded for how far apart its snapshots are. Only a family counted member by member on one day replaces the marketplace's number.",
+      "tradeoffs": [
+        "More rows say \"decide\" or \"leave it\" than a silent correction would show.",
+        "Counting a family costs pages."
+      ],
+      "evolution": "Counting families member by member, then opening only the reviews still unexplained, shrank the question from every extra to a short list.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "OptimumChecker.py",
+          "lines": "540-549"
+        },
+        {
+          "path": "OptimumChecker.py",
+          "lines": "1564-1619"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "81-89"
+        },
+        {
+          "path": "showcase/docs/ARCHITECTURE.md",
+          "lines": "109-129"
+        }
+      ]
+    },
+    {
+      "id": "guarded-changes",
+      "title": "Stored reviews change only through database functions",
+      "problem": "The review table drives billing and has several writers. Fixes were needed at scale: wrong dates, reviews on the wrong product, removed reviews.",
+      "options": [
+        {
+          "name": "Update rows from Python through the API",
+          "verdict": "rejected",
+          "note": "Quick, but not atomic: it can race, stop half way and leave no trace."
+        },
+        {
+          "name": "Audit columns on the review table",
+          "verdict": "rejected",
+          "note": "Close to the data, and ruled out: the table takes no new columns."
+        },
+        {
+          "name": "Propose in a change table; apply and undo in SQL",
+          "verdict": "chosen",
+          "note": "Each row is locked, checked, changed and read back; a run can be previewed, piloted and undone by its id."
+        }
+      ],
+      "rationale": "The function refuses a row that no longer holds the value it was checked with, and a trigger logs changes other writers make.",
+      "tradeoffs": [
+        "The logic lives in two languages.",
+        "Migrations are applied by hand and have no down scripts.",
+        "Two triggers on the table live only in the database, not in the repository."
+      ],
+      "evolution": "The same pattern was reused for moving removed reviews back and for archiving reviews attached to products nobody tracks.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": ".project-brain/decisions/0004-guarded-sql-cleanup-functions.md"
+        },
+        {
+          "path": "migrations/20260925_review_change_log.sql",
+          "lines": "112-239"
+        },
+        {
+          "path": "migrations/20260929_archive_other_product_reviews.sql",
+          "lines": "55-167"
+        }
+      ]
+    },
+    {
+      "id": "verify-against-the-source",
+      "title": "Rules are tested against the marketplace, not against their own inputs",
+      "problem": "Every detection rule is derived from the database, so agreeing with the database proves nothing.",
+      "options": [
+        {
+          "name": "Trust rules that pass their unit tests",
+          "verdict": "rejected",
+          "note": "The tests check the arithmetic, not whether the claim is true of the world."
+        },
+        {
+          "name": "Sample each rule's findings and check them live",
+          "verdict": "chosen",
+          "note": "Read a suspect's real variation list, a dead product's real page, a review's own permalink."
+        }
+      ],
+      "rationale": "The harness signs in once and reuses the session, reads a control first where \"not found\" would be ambiguous, and exits non-zero if any sample contradicts its rule.",
+      "tradeoffs": [
+        "It takes the first few findings of each rule, not a random sample.",
+        "It rebuilds the report without the family map, so it tests the rules, not the whole daily run."
+      ],
+      "evolution": "It caught a merge rule that was right about one time in five; the rule was tightened until confirmed cases held.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "verify_rules.py",
+          "lines": "45"
+        },
+        {
+          "path": "verify_rules.py",
+          "lines": "58-75"
+        },
+        {
+          "path": "verify_rules.py",
+          "lines": "482-491"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "128-132"
+        }
+      ]
+    }
+  ],
+  "metrics": [
+    {
+      "id": "reviews-reconciled",
+      "label": "Reviews under daily reconciliation",
+      "value": "about 800,000",
+      "kind": "count",
+      "method": "Stated in the author's public write-up, together with about 1.1 million tracking snapshots. The database was not queried for this page.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "152-158"
+        }
+      ]
+    },
+    {
+      "id": "products",
+      "label": "Products monitored",
+      "value": "about 10,000",
+      "kind": "count",
+      "method": "Stated in the author's public write-up, across several client brands. The database was not queried for this page.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "152-158"
+        }
+      ]
+    },
+    {
+      "id": "merge-rule",
+      "label": "Of one rule's findings held up when checked live",
+      "value": "about 1 in 5",
+      "kind": "measured",
+      "method": "Stated in the author's public write-up: a merge rule that looked sound against the database was checked on a sample against the marketplace, then tightened. The sample size is not given.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "128-132"
+        }
+      ]
+    },
+    {
+      "id": "tests",
+      "label": "Test functions, in 66 files",
+      "value": "874",
+      "kind": "count",
+      "method": "Counted in the repository on 11 October 2026: files matching tests/test_*.py that git tracks, and lines in them that begin a test function. They were not run for this page.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "tests"
+        }
+      ]
+    },
+    {
+      "id": "python",
+      "label": "Lines of Python outside the tests",
+      "value": "about 27,900",
+      "kind": "count",
+      "method": "Counted in the repository on 11 October 2026 over the Python files git tracks outside tests/. The public write-up, written in August, says about 12,000.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": ".project-brain/feature-history.md"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    {
+      "id": "no-ci",
+      "title": "No CI, and migrations by hand",
+      "current": "Tests are run by hand before a push. SQL migrations are pasted into the database's editor, are safe to run twice, and have no down scripts.",
+      "proposal": "Run the unit tests and the SQL tests on every push, and apply migrations from a tracked, ordered list.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": ".project-brain/deployment.md"
+        },
+        {
+          "path": ".project-brain/data-model.md"
+        }
+      ]
+    },
+    {
+      "id": "windows-only",
+      "title": "Windows machines with someone signed in",
+      "current": "The collector, the agent and the daily job depend on Windows and on a logged-on desktop session. A machine that is off at the hour means no report that day, and nothing reports the absence.",
+      "proposal": "Record each morning's run in the database and have the panel show a day without one.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": ".project-brain/flows/daily-5am-job.md"
+        },
+        {
+          "path": ".project-brain/system-overview.md"
+        }
+      ]
+    },
+    {
+      "id": "item-writes-unguarded",
+      "title": "A machine that lost its batch can still write results",
+      "current": "Claiming and releasing a batch are guarded by run id, but the writes that record a product's result are not, and nothing stops a machine's work when its heartbeat finds the batch gone.",
+      "proposal": "Guard result writes by run id, and stop the collector when the heartbeat reports the batch lost.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "work_queue.py",
+          "lines": "241-247"
+        },
+        {
+          "path": "work_queue.py",
+          "lines": "250-281"
+        }
+      ]
+    },
+    {
+      "id": "page-limit",
+      "title": "Some reviews are in no view",
+      "current": "The marketplace shows each filtered list only so deep. On a large listing, reviews past the end of every list cannot be read; they are reported as out of reach and tried again by keyword.",
+      "proposal": "None that the pipeline controls. The limit is the marketplace's.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "scrape_planning.py",
+          "lines": "83-97"
+        },
+        {
+          "path": ".project-brain/flows/family-count-and-keywords.md"
+        }
+      ]
+    },
+    {
+      "id": "polling",
+      "title": "Polling, and hand-set priorities",
+      "current": "Machines poll the queue and their own row. Priorities between kinds of batch are constants, and a busy kind can hold back another.",
+      "proposal": "Give each kind a share of each machine's day instead of a fixed order.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": ".project-brain/decisions/0002-shared-work-queue.md"
+        },
+        {
+          "path": "machine_agent.py",
+          "lines": "54"
+        }
+      ]
+    },
+    {
+      "id": "blind-or-dead",
+      "title": "\"Still blind\" and \"dead\" return the same value",
+      "current": "The product-detail tool probes a control product and retries with another session, but after its retries it reports a product as dead either way. Without a control configured, every missing page is recorded dead.",
+      "proposal": "Return a third outcome for \"could not tell\", and refuse to write \"dead\" without a control.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "asin_details.py",
+          "lines": "191-253"
+        }
+      ]
+    },
+    {
+      "id": "docs-drift",
+      "title": "The documentation trails the code",
+      "current": "The repository's README still lists eight reasons and a formula the code has retired; the daily job's own header counts fewer steps than it runs. The public write-up predates the queue, the fleet and the change log.",
+      "proposal": "Generate the table of reasons from the code, as the report's own legend already is.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "OptimumChecker.py",
+          "lines": "192-201"
+        },
+        {
+          "path": "OptimumChecker.py",
+          "lines": "574-636"
+        },
+        {
+          "path": "deploy/daily_run.bat",
+          "lines": "56-169"
+        }
+      ]
+    },
+    {
+      "id": "sample-not-random",
+      "title": "The live check takes the first findings, not a random sample",
+      "current": "The rule harness checks the first few findings of each rule, largest groups first. That finds gross errors and says little about the long tail.",
+      "proposal": "Draw a seeded random sample per rule and record it, so a result can be reproduced.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "verify_rules.py",
+          "lines": "142"
+        },
+        {
+          "path": "verify_rules.py",
+          "lines": "198"
+        }
+      ]
+    }
+  ],
+  "screenshots": [],
+  "screenshotsNote": "No screenshot is shown: every screen of this system shows client products and reviews. The picture on this project's card is its own architecture, drawn from the data on this page.",
+  "evidence": [
+    {
+      "label": "Public write-up",
+      "kind": "documentation",
+      "description": "The author's sanitised description of the system: the problem, the two layers, the engineering highlights and the scale. References on this page that begin with showcase/ are files in it.",
+      "sources": [
+        {
+          "path": "showcase/README.md"
+        },
+        {
+          "path": "showcase/docs/ARCHITECTURE.md"
+        }
+      ]
+    },
+    {
+      "label": "Detection rules",
+      "kind": "source",
+      "description": "The reasons, their order, the actions they map to and the difficulty labels.",
+      "sources": [
+        {
+          "path": "OptimumChecker.py",
+          "lines": "497-565"
+        },
+        {
+          "path": "OptimumChecker.py",
+          "lines": "574-636"
+        },
+        {
+          "path": "OptimumChecker.py",
+          "lines": "227-235"
+        }
+      ]
+    },
+    {
+      "label": "Page-budget rules",
+      "kind": "source",
+      "description": "Pure functions for queue order, family members and completion, with the measurements behind them in comments.",
+      "sources": [
+        {
+          "path": "scrape_planning.py",
+          "lines": "1-257"
+        }
+      ]
+    },
+    {
+      "label": "Queue and leases",
+      "kind": "source",
+      "description": "The guarded claim, the heartbeat, the takeover and the release.",
+      "sources": [
+        {
+          "path": "work_queue.py",
+          "lines": "179-335"
+        },
+        {
+          "path": "profiles_store.py",
+          "lines": "362-389"
+        }
+      ]
+    },
+    {
+      "label": "Change log and guarded functions",
+      "kind": "schema",
+      "description": "The trigger that logs every change, the function that applies and undoes proposed changes, and the archive functions.",
+      "sources": [
+        {
+          "path": "migrations/20260925_review_change_log.sql",
+          "lines": "39-239"
+        },
+        {
+          "path": "migrations/20260929_archive_other_product_reviews.sql",
+          "lines": "55-323"
+        },
+        {
+          "path": "migrations/20260916_scraping_work_queue.sql",
+          "lines": "37-116"
+        }
+      ]
+    },
+    {
+      "label": "Tests",
+      "kind": "tests",
+      "description": "66 test files with 874 test functions, run against fakes that mimic the database API, including its habit of returning nothing for a guarded update. Three more tests are SQL scripts for the change log, the move and the archive.",
+      "sources": [
+        {
+          "path": "tests/test_work_queue.py",
+          "lines": "33-131"
+        },
+        {
+          "path": "tests/test_scrape_planning.py"
+        },
+        {
+          "path": "tests/sql"
+        }
+      ]
+    },
+    {
+      "label": "The project's own records",
+      "kind": "documentation",
+      "description": "Architecture, data model, flows and four decision records, kept in the repository and written from its code and history.",
+      "sources": [
+        {
+          "path": ".project-brain/architecture.md"
+        },
+        {
+          "path": ".project-brain/data-model.md"
+        },
+        {
+          "path": ".project-brain/decisions/0002-shared-work-queue.md"
+        },
+        {
+          "path": ".project-brain/decisions/0004-guarded-sql-cleanup-functions.md"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1258 @@
+@import "tailwindcss";
+
+/*
+ * Design system
+ * -------------
+ * One set of tokens drives both themes. The light theme is the default and
+ * lives on :root; the dark theme is on [data-theme="dark"]. An inline script in
+ * the root layout sets data-theme before first paint.
+ *
+ * Surfaces step in lightness so hierarchy does not depend on borders:
+ *   bg         the page, a very light cool neutral
+ *   surface    cards that sit on the page
+ *   surface-2  bars and insets inside a card
+ *   surface-3  hover and selected states
+ *
+ * Lines come in three weights: line separates, line-strong outlines a
+ * labelled control such as a button, and line-control outlines a text field,
+ * whose edge is the only thing that shows where to type (3:1 against the
+ * surface behind it).
+ *
+ * Colour has three jobs, kept apart:
+ *   accent     interactive and selected (blue)
+ *   primary    the one main action in a group (ink)
+ *   status     success, warn, danger, hold: what happened to a step
+ *   tone       a family of colours used only to tell things apart: a
+ *              project, a layer of a diagram, a kind of tag. Each has three
+ *              values: the tone itself, dark enough for small text; a vivid
+ *              one for icons, large figures and solid tiles; and a soft one
+ *              for the background behind them
+ */
+:root {
+  --bg: #f8faff;
+  --surface: #ffffff;
+  --surface-2: #f3f6fc;
+  --surface-3: #e7edf8;
+  --line: #e5eaf4;
+  --line-strong: #c3cde2;
+  --line-control: #76819b;
+  --fg: #101b35;
+  --muted: #47546f;
+  --subtle: #5a6682;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  /* The accent for small text that may sit on any tinted card, where the accent itself falls just short of 4.5:1. */
+  --accent-strong: #1d4ed8;
+  --accent-fg: #ffffff;
+  --accent-soft: #eaf1ff;
+  --primary: #101b35;
+  --primary-hover: #1b2a4d;
+  --primary-fg: #ffffff;
+  --success: #0f7a47;
+  --success-soft: #e4f6ec;
+  --warn: #a04a05;
+  --warn-soft: #fdf1dd;
+  --danger: #b4231f;
+  --danger-soft: #fdecea;
+  --hold: #6d3fd6;
+  --hold-soft: #f0ebfd;
+  --tone-indigo: #4338ca;
+  --tone-indigo-vivid: #4f46e5;
+  --tone-indigo-soft: #ebebff;
+  --tone-blue: #1d4ed8;
+  --tone-blue-vivid: #2563eb;
+  --tone-blue-soft: #e3edff;
+  --tone-teal: #0f6f67;
+  --tone-teal-vivid: #0c8f84;
+  --tone-teal-soft: #d9f5ef;
+  --tone-green: #15703a;
+  --tone-green-vivid: #12984a;
+  --tone-green-soft: #ddf7e6;
+  --tone-violet: #6d28d9;
+  --tone-violet-vivid: #7c3aed;
+  --tone-violet-soft: #efe8ff;
+  --tone-amber: #a8480a;
+  --tone-amber-vivid: #e0590b;
+  --tone-amber-soft: #fff0dc;
+  --tone-rose: #be123c;
+  --tone-rose-vivid: #e11d48;
+  --tone-rose-soft: #ffe6ec;
+  --tone-slate: #475569;
+  --tone-slate-vivid: #64748b;
+  --tone-slate-soft: #edf1f7;
+  --tone-cyan: #0b6580;
+  --tone-cyan-vivid: #0891b2;
+  --tone-cyan-soft: #dcf5fb;
+  --shadow-sm: 0 1px 2px rgb(16 27 53 / 0.05);
+  --shadow-md: 0 1px 2px rgb(16 27 53 / 0.04), 0 6px 20px rgb(16 27 53 / 0.05);
+  --shadow-lg: 0 2px 6px rgb(16 27 53 / 0.06), 0 20px 48px rgb(16 27 53 / 0.14);
+  --glow: #e9f0ff;
+  --header-h: 4rem;
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --bg: #0a0f1e;
+  --surface: #111a2e;
+  --surface-2: #17223a;
+  --surface-3: #21304f;
+  --line: #1f2c49;
+  --line-strong: #33446b;
+  --line-control: #6c7ba0;
+  --fg: #edf1fb;
+  --muted: #b3bdd4;
+  --subtle: #8e9ab6;
+  --accent: #8db1ff;
+  --accent-hover: #abc5ff;
+  --accent-strong: #abc5ff;
+  --accent-fg: #0a0f1e;
+  --accent-soft: #172a52;
+  --primary: #eaf0ff;
+  --primary-hover: #ffffff;
+  --primary-fg: #0f1830;
+  --success: #5fd596;
+  --success-soft: #0f2a1f;
+  --warn: #f2b556;
+  --warn-soft: #2f2410;
+  --danger: #f58a82;
+  --danger-soft: #331a1b;
+  --hold: #c0a8ff;
+  --hold-soft: #241f45;
+  --tone-indigo: #a9b0ff;
+  --tone-indigo-vivid: #818cf8;
+  --tone-indigo-soft: #1c2150;
+  --tone-blue: #8db1ff;
+  --tone-blue-vivid: #60a5fa;
+  --tone-blue-soft: #14284f;
+  --tone-teal: #5fdccb;
+  --tone-teal-vivid: #2dd4bf;
+  --tone-teal-soft: #0e2e2c;
+  --tone-green: #6fdc9f;
+  --tone-green-vivid: #4ade80;
+  --tone-green-soft: #0f2a1f;
+  --tone-violet: #c6b3ff;
+  --tone-violet-vivid: #a78bfa;
+  --tone-violet-soft: #271f4b;
+  --tone-amber: #f5c065;
+  --tone-amber-vivid: #fb923c;
+  --tone-amber-soft: #33270f;
+  --tone-rose: #f7a3cd;
+  --tone-rose-vivid: #fb7185;
+  --tone-rose-soft: #3a162d;
+  --tone-slate: #c3cbde;
+  --tone-slate-vivid: #94a3b8;
+  --tone-slate-soft: #1c2740;
+  --tone-cyan: #7fd8f0;
+  --tone-cyan-vivid: #22d3ee;
+  --tone-cyan-soft: #0d2b3a;
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.5);
+  --shadow-md: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.35);
+  --shadow-lg: 0 2px 8px rgb(0 0 0 / 0.5), 0 28px 70px rgb(0 0 0 / 0.6);
+  --glow: #142042;
+  color-scheme: dark;
+}
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-line-control: var(--line-control);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-primary: var(--primary);
+  --color-primary-fg: var(--primary-fg);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-hold: var(--hold);
+  --color-hold-soft: var(--hold-soft);
+  --color-tone: var(--tone);
+  --color-tone-vivid: var(--tone-vivid);
+  --color-tone-soft: var(--tone-soft);
+  --font-display: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --radius-control: 0.625rem;
+  --radius-panel: 1rem;
+  --container-page: 108rem;
+  --container-wide: 112rem;
+  --container-measure: 44rem;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    /* A faint wash behind the first screen, then the flat page colour. */
+    background:
+      radial-gradient(60rem 28rem at 85% -8rem, var(--glow), transparent 70%),
+      var(--bg);
+    background-repeat: no-repeat;
+    color: var(--fg);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.021em;
+    line-height: 1.15;
+    text-wrap: balance;
+  }
+
+  p,
+  li,
+  dd {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: var(--accent-soft);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  /* Anything a link can jump to clears the sticky header and, on case studies, the tab bar. */
+  [id] {
+    scroll-margin-top: calc(var(--header-h) + var(--subnav-h, 0px) + 1.25rem);
+  }
+  /* A page section brings its own top padding, so its edge can tuck under the header and the heading still lands clear of it. */
+  section[data-tuck] {
+    scroll-margin-top: calc(var(--header-h) - 2rem);
+  }
+
+  summary {
+    cursor: pointer;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+}
+
+@layer components {
+  .container-page,
+  .container-wide {
+    width: 100%;
+    max-width: var(--container-page);
+    margin-inline: auto;
+    /* A margin that grows with the window: a phone keeps its gutter, a wide screen is filled without touching its edges. */
+    padding-inline: clamp(1.25rem, 4vw, 4.5rem);
+  }
+  .container-wide {
+    max-width: var(--container-wide);
+  }
+
+  /* Small label above a heading or a group. */
+  .eyebrow {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.625rem;
+    padding: 0.5rem 1.05rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius-control);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+    transition:
+      background-color 120ms,
+      border-color 120ms,
+      color 120ms,
+      box-shadow 120ms,
+      transform 120ms;
+  }
+  .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+  .btn-primary {
+    background: var(--primary);
+    color: var(--primary-fg);
+    box-shadow: var(--shadow-sm);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+  }
+  .btn-accent {
+    background: var(--accent);
+    color: var(--accent-fg);
+  }
+  .btn-accent:hover:not(:disabled) {
+    background: var(--accent-hover);
+  }
+  .btn-secondary {
+    background: var(--surface);
+    border-color: var(--line-strong);
+    color: var(--fg);
+    box-shadow: var(--shadow-sm);
+  }
+  .btn-secondary:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .btn-ghost {
+    color: var(--muted);
+  }
+  .btn-ghost:hover:not(:disabled) {
+    background: var(--surface-2);
+    color: var(--fg);
+  }
+  .btn-sm {
+    min-height: 2.125rem;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+
+  .link {
+    color: var(--accent);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 0.2em;
+    transition: text-decoration-color 120ms;
+  }
+  .link:hover {
+    text-decoration-color: currentColor;
+  }
+
+  /* A card that sits on the page. */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-panel);
+    box-shadow: var(--shadow-md);
+  }
+  .panel-inset {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-control);
+  }
+  /* A card that is also a link or a button. */
+  .panel-link {
+    transition:
+      border-color 150ms,
+      transform 150ms,
+      box-shadow 150ms;
+  }
+  .panel-link:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  /* A coloured square that carries an icon. Its colour comes from data-tone. */
+  .tile {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.875rem;
+    background: var(--tone-soft, var(--accent-soft));
+    color: var(--tone-vivid, var(--accent));
+  }
+  .tile-sm {
+    width: 2.125rem;
+    height: 2.125rem;
+    border-radius: 0.625rem;
+  }
+  /* Text inside a solid tile must be large and bold: the vivid colours carry an icon or a big figure, not small print. */
+  .tile-solid {
+    background: linear-gradient(145deg, var(--tone-vivid, var(--accent)), color-mix(in srgb, var(--tone-vivid, var(--accent)) 84%, black));
+    color: var(--surface);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.28),
+      0 6px 14px -6px color-mix(in srgb, var(--tone-vivid, var(--accent)) 70%, transparent);
+  }
+  .tile {
+    transition:
+      scale 180ms ease,
+      rotate 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  /*
+   * The lit square of a diagram component: a logo, or an icon for its kind, in
+   * white on a filled tile that throws a little of its own colour around it.
+   * The colour comes from --lit-light and --lit-dark (a technology's own
+   * colour) or from the tone of the kind.
+   */
+  .lit-tile {
+    --lit: var(--lit-light, var(--tone-vivid, var(--accent)));
+    --lit-ink: var(--lit-ink-light, #ffffff);
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    color: var(--lit-ink);
+    background: linear-gradient(145deg, color-mix(in srgb, var(--lit) 88%, white), var(--lit) 55%, color-mix(in srgb, var(--lit) 86%, black));
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.32),
+      0 5px 12px -5px color-mix(in srgb, var(--lit) 75%, transparent);
+    transition:
+      scale 180ms ease,
+      box-shadow 180ms ease;
+  }
+  .lit-tile-active {
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.32),
+      0 0 0 2px var(--surface),
+      0 0 0 4px var(--lit),
+      0 8px 18px -4px color-mix(in srgb, var(--lit) 80%, transparent);
+  }
+
+  /* A label that says what something is. Not a control. Its colour comes from data-tone. */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    background: var(--tone-soft, var(--accent-soft));
+    color: var(--tone, var(--accent));
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
+  }
+
+  /* Toggle chips: filters, presets, view switches. State comes from aria-pressed. */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 2.125rem;
+    padding: 0.25rem 0.85rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: var(--surface);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--muted);
+    transition:
+      background-color 120ms,
+      border-color 120ms,
+      color 120ms;
+  }
+  .chip:hover:not(:disabled) {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .chip[aria-pressed="true"] {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Two or three mutually exclusive choices. */
+  .segmented {
+    display: inline-flex;
+    padding: 3px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-control);
+  }
+  .segmented > button {
+    padding: 0.3rem 0.8rem;
+    border-radius: 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--muted);
+    transition:
+      background-color 120ms,
+      color 120ms;
+  }
+  .segmented > button:hover:not(:disabled) {
+    color: var(--fg);
+  }
+  .segmented > button[aria-pressed="true"] {
+    background: var(--surface);
+    color: var(--accent);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .field {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    background: var(--surface);
+    border: 1px solid var(--line-control);
+    border-radius: var(--radius-control);
+    font-size: 0.9375rem;
+    color: var(--fg);
+    transition:
+      border-color 120ms,
+      box-shadow 120ms;
+  }
+  .field:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+    outline: none;
+  }
+  .field[aria-invalid="true"] {
+    border-color: var(--danger);
+  }
+
+  /* Tabs inside a panel: an underline marks the selected one. */
+  .tablist {
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--line);
+    scrollbar-width: none;
+  }
+  .tab {
+    margin-bottom: -1px;
+    padding: 0.55rem 0.75rem;
+    border-bottom: 2px solid transparent;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .tab:hover {
+    color: var(--fg);
+  }
+  .tab[aria-selected="true"] {
+    border-bottom-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* The page-level tab bar: a tinted rail, with the current tab as a white pill. */
+  .tabbar {
+    display: flex;
+    gap: 0.25rem;
+    padding: 0.3rem;
+    overflow-x: auto;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 0.95rem;
+    scrollbar-width: none;
+  }
+  .tabbar > a {
+    display: inline-flex;
+    flex: 1 0 auto;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.55rem 0.95rem;
+    border-radius: 0.7rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--muted);
+    white-space: nowrap;
+    transition:
+      background-color 120ms,
+      color 120ms;
+  }
+  .tabbar > a:hover {
+    color: var(--fg);
+  }
+  .tabbar > a[aria-current="true"] {
+    background: var(--surface);
+    color: var(--accent);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* Identifiers, paths, payload keys, timings. */
+  .code {
+    font-family: var(--font-mono);
+    font-size: 0.8125em;
+  }
+
+  /* A small heading inside a panel. */
+  .label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--subtle);
+  }
+}
+
+/* On the dark page a lit tile glows instead of casting a shadow. */
+[data-theme="dark"] .lit-tile {
+  --lit: var(--lit-dark, var(--tone-vivid, var(--accent)));
+  --lit-ink: var(--lit-ink-dark, var(--surface));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.22),
+    0 0 16px -3px color-mix(in srgb, var(--lit) 75%, transparent);
+}
+[data-theme="dark"] .lit-tile-active {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.22),
+    0 0 0 2px var(--surface),
+    0 0 0 4px var(--lit),
+    0 0 22px -2px var(--lit);
+}
+[data-theme="dark"] .tile-solid {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.2),
+    0 0 16px -4px color-mix(in srgb, var(--tone-vivid, var(--accent)) 75%, transparent);
+}
+
+/* Tone: one attribute picks a colour pair for everything inside. */
+[data-tone="indigo"] {
+  --tone: var(--tone-indigo);
+  --tone-vivid: var(--tone-indigo-vivid);
+  --tone-soft: var(--tone-indigo-soft);
+}
+[data-tone="blue"] {
+  --tone: var(--tone-blue);
+  --tone-vivid: var(--tone-blue-vivid);
+  --tone-soft: var(--tone-blue-soft);
+}
+[data-tone="teal"] {
+  --tone: var(--tone-teal);
+  --tone-vivid: var(--tone-teal-vivid);
+  --tone-soft: var(--tone-teal-soft);
+}
+[data-tone="green"] {
+  --tone: var(--tone-green);
+  --tone-vivid: var(--tone-green-vivid);
+  --tone-soft: var(--tone-green-soft);
+}
+[data-tone="violet"] {
+  --tone: var(--tone-violet);
+  --tone-vivid: var(--tone-violet-vivid);
+  --tone-soft: var(--tone-violet-soft);
+}
+[data-tone="amber"] {
+  --tone: var(--tone-amber);
+  --tone-vivid: var(--tone-amber-vivid);
+  --tone-soft: var(--tone-amber-soft);
+}
+[data-tone="rose"] {
+  --tone: var(--tone-rose);
+  --tone-vivid: var(--tone-rose-vivid);
+  --tone-soft: var(--tone-rose-soft);
+}
+[data-tone="slate"] {
+  --tone: var(--tone-slate);
+  --tone-vivid: var(--tone-slate-vivid);
+  --tone-soft: var(--tone-slate-soft);
+}
+[data-tone="cyan"] {
+  --tone: var(--tone-cyan);
+  --tone-vivid: var(--tone-cyan-vivid);
+  --tone-soft: var(--tone-cyan-soft);
+}
+
+/*
+ * Lens: one page, two depths. The attribute lives on <html>, so switching
+ * never re-renders or re-fetches anything.
+ */
+[data-lens="recruiter"] .eng-only {
+  display: none !important;
+}
+[data-lens="engineer"] .rec-only {
+  display: none !important;
+}
+
+/*
+ * Case-study tabs. The current tab is an attribute on <html>, set before first
+ * paint from the address, so the right panel is there when the browser looks
+ * for the link's target. Without JavaScript the attribute is never set and
+ * every panel shows, one after another.
+ */
+html[data-tab] [data-panel] {
+  display: none;
+}
+html[data-tab="overview"] [data-panel="overview"],
+html[data-tab="demo"] [data-panel="demo"],
+html[data-tab="architecture"] [data-panel="architecture"],
+html[data-tab="decisions"] [data-panel="decisions"],
+html[data-tab="limitations"] [data-panel="limitations"],
+html[data-tab="evidence"] [data-panel="evidence"] {
+  display: block;
+}
+/* Some tabs need the full width, so the side column steps aside for them. */
+/*
+ * The demo always takes the width of the side column: it is two panes itself.
+ * The diagram takes it only where the three columns would squeeze it.
+ */
+html[data-tab="demo"] [data-side] {
+  display: none;
+}
+@media (min-width: 1280px) {
+  html[data-tab="demo"] [data-main] {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 1535.98px) {
+  html[data-tab="architecture"] [data-side] {
+    display: none;
+  }
+}
+@media (min-width: 1280px) and (max-width: 1535.98px) {
+  html[data-tab="architecture"] [data-main] {
+    grid-column: 1 / -1;
+  }
+}
+/* With the rail open the three columns need about 1660px before the diagram is readable between them. */
+@media (min-width: 1536px) and (max-width: 1659.98px) {
+  html[data-rail="expanded"][data-tab="architecture"] [data-side] {
+    display: none;
+  }
+  html[data-rail="expanded"][data-tab="architecture"] [data-main] {
+    grid-column: 1 / -1;
+  }
+}
+
+/*
+ * The Automation Lab opened on a link to one workflow: the workspace is held
+ * back until it shows that workflow, so the first one never flashes in its
+ * place. If the page never hydrates it shows itself after a few seconds.
+ */
+html[data-lab="pending"] [data-lab-workspace] {
+  visibility: hidden;
+  animation: lab-reveal 0s linear 4s forwards;
+}
+@keyframes lab-reveal {
+  to {
+    visibility: visible;
+  }
+}
+
+/*
+ * A case study: a rail of projects against the left edge, then the study and
+ * a side column.
+ *
+ * The rail is a list on a wide screen and a strip of icons on a narrower one.
+ * A visitor can switch it either way, and the choice is kept in data-rail on
+ * <html>. Below 1280px the rail is a drawer opened from the page instead.
+ */
+.case-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  --rail-open: 18.25rem;
+  --rail-closed: 4.75rem;
+  --rail: var(--rail-closed);
+}
+.case-rail {
+  display: none;
+}
+.case-content {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  width: 100%;
+  max-width: 100rem;
+  margin-inline: auto;
+  padding: 1.25rem 1.25rem 4rem;
+}
+@media (min-width: 640px) {
+  .case-content {
+    padding: 1.5rem 1.5rem 4rem;
+  }
+}
+@media (min-width: 1280px) {
+  .case-shell {
+    grid-template-columns: var(--rail) minmax(0, 1fr);
+  }
+  .case-rail {
+    display: block;
+    position: sticky;
+    top: var(--header-h);
+    height: calc(100dvh - var(--header-h));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-right: 1px solid var(--line);
+    background: var(--surface-2);
+    padding: 1.25rem 0.875rem 1.5rem;
+  }
+  .case-content {
+    grid-template-columns: minmax(0, 1fr) 19.5rem;
+    padding: 1.5rem 1.75rem 4rem;
+  }
+}
+@media (min-width: 1660px) {
+  .case-shell {
+    --rail: var(--rail-open);
+  }
+}
+html[data-rail="collapsed"] .case-shell {
+  --rail: var(--rail-closed);
+}
+html[data-rail="expanded"] .case-shell {
+  --rail: var(--rail-open);
+}
+/* What only the open rail shows: names, descriptions, the search field. */
+@media (max-width: 1659.98px) {
+  html:not([data-rail="expanded"]) .case-rail [data-rail-full] {
+    display: none;
+  }
+}
+html[data-rail="collapsed"] .case-rail [data-rail-full] {
+  display: none;
+}
+
+/*
+ * The summary under a project's title shows two lines of each note until
+ * "Details" is pressed. The clamp applies only once the page's script has run:
+ * without it there is no button, so everything is shown.
+ */
+html[data-theme] .summary-clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  overflow: hidden;
+}
+html[data-theme] .summary-more {
+  display: none;
+}
+html:not([data-theme]) .summary-toggle {
+  display: none;
+}
+
+/* A screenshot at full size, over the page. */
+dialog.lightbox {
+  max-width: min(96vw, 90rem);
+  max-height: 94dvh;
+  margin: auto;
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: var(--surface);
+  color: var(--fg);
+  box-shadow: var(--shadow-lg);
+}
+dialog.lightbox::backdrop {
+  background: rgb(16 27 53 / 0.6);
+}
+
+/* The same list as a drawer, on screens with no room for a rail. */
+dialog.drawer {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: min(22rem, 92vw);
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 1rem 0.875rem 1.5rem;
+  border: 0;
+  border-right: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--fg);
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+}
+dialog.drawer::backdrop {
+  background: rgb(16 27 53 / 0.45);
+}
+
+/* Workflow status: one place that maps a status to its colours. */
+[data-status="pending"],
+[data-status="skipped"],
+[data-status="cancelled"],
+[data-status="idle"] {
+  --status: var(--subtle);
+  --status-soft: var(--surface-2);
+}
+[data-status="running"] {
+  --status: var(--accent);
+  --status-soft: var(--accent-soft);
+}
+[data-status="success"] {
+  --status: var(--success);
+  --status-soft: var(--success-soft);
+}
+[data-status="failed"] {
+  --status: var(--danger);
+  --status-soft: var(--danger-soft);
+}
+[data-status="retrying"] {
+  --status: var(--warn);
+  --status-soft: var(--warn-soft);
+}
+[data-status="waiting"] {
+  --status: var(--hold);
+  --status-soft: var(--hold-soft);
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--status) 45%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 7px color-mix(in srgb, var(--status) 0%, transparent);
+  }
+}
+
+.status-pulse {
+  animation: pulse-ring 1.2s ease-out infinite;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/*
+ * A panel that has just been shown eases in. The animation must not fill
+ * forwards: a transform that stays applied would trap every fixed sheet
+ * inside the panel instead of the viewport.
+ */
+.rise {
+  animation: rise 220ms ease-out backwards;
+}
+
+/*
+ * Motion
+ * ------
+ * Three kinds, and one rule for all of them: they end at `none`, so nothing
+ * keeps a transform that would trap a fixed sheet, and all of them stop when
+ * the visitor asks for less motion.
+ *
+ *   .enter      the first screen arrives in order: --i picks the place in line
+ *   .reveal     a block eases in as it scrolls into view (where the browser
+ *               can tie an animation to scrolling; elsewhere it is just there)
+ *   hover       cards lift, tiles tilt, arrows lean the way they point
+ */
+@keyframes enter {
+  from {
+    opacity: 0;
+    translate: 0 14px;
+  }
+  to {
+    opacity: 1;
+    translate: none;
+  }
+}
+.enter {
+  animation: enter 520ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    translate: 0 26px;
+    scale: 0.985;
+  }
+  to {
+    opacity: 1;
+    translate: none;
+    scale: none;
+  }
+}
+/*
+ * A block that a link can jump to only fades. The browser works out where to
+ * scroll from where the block is at that moment, so one that was still sliding
+ * would be missed by the distance it had left to slide.
+ */
+@keyframes reveal-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@supports (animation-timeline: view()) {
+  .reveal {
+    animation: reveal linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 42%;
+  }
+  .reveal[id] {
+    animation-name: reveal-fade;
+  }
+}
+
+/* A slow drift of colour through the words that carry the accent. Both ends of it pass on the page behind. */
+@keyframes shimmer {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 200% 50%;
+  }
+}
+.text-shimmer {
+  background: linear-gradient(90deg, var(--accent), var(--tone-violet-vivid), var(--accent));
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 7s linear infinite;
+}
+
+/* A card that is a link lifts a little more, and the tile inside it tilts. */
+.panel-link:hover {
+  box-shadow: var(--shadow-lg);
+}
+.panel-link:hover .tile,
+a:hover > .tile,
+button:hover > .lit-tile,
+a:hover .lit-tile {
+  scale: 1.07;
+}
+.panel-link:hover .tile {
+  rotate: -4deg;
+}
+.btn {
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    color 150ms,
+    transform 150ms,
+    box-shadow 150ms;
+}
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+.btn > svg:last-child {
+  transition: translate 180ms ease;
+}
+.btn:hover > svg:last-child:not(:first-child) {
+  translate: 3px 0;
+}
+
+/* The components of a diagram arrive one after another, left to right. */
+@keyframes pop {
+  from {
+    opacity: 0;
+    scale: 0.92;
+  }
+  to {
+    opacity: 1;
+    scale: none;
+  }
+}
+.pop {
+  animation: pop 380ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  animation-delay: calc(var(--i, 0) * 45ms);
+}
+
+/* The lines between layers follow the components they join. */
+@keyframes link-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.link-in {
+  animation: link-in 420ms ease-out backwards;
+  animation-delay: calc(240ms + var(--i, 0) * 60ms);
+}
+
+/*
+ * The picture beside the headline. Its cards drift a little, each at its own
+ * pace; while a request is being followed, the parts on its way are lit and
+ * the rest step back.
+ */
+@keyframes hub-float {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -5px;
+  }
+}
+.hub-card {
+  animation: hub-float 6s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.9s);
+  transition:
+    opacity 450ms ease,
+    filter 450ms ease,
+    box-shadow 450ms ease,
+    border-color 450ms ease;
+}
+[data-hub][data-playing="true"] .hub-card[data-lit="off"] {
+  opacity: 0.4;
+  filter: saturate(0.55);
+}
+[data-hub][data-playing="true"] .hub-card[data-lit="from"] {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+}
+[data-hub][data-playing="true"] .hub-card[data-lit="on"] {
+  border-color: var(--accent);
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent),
+    0 0 34px -6px color-mix(in srgb, var(--accent) 70%, transparent),
+    var(--shadow-lg);
+}
+/*
+ * The picture is laid out at 640 by 430 and scaled to its frame. The ratio of
+ * two lengths is not a number in CSS, so it is taken as the tangent of the
+ * angle they make. A browser that cannot do that lays the picture out at the
+ * frame's own size instead.
+ */
+.hub-frame {
+  container-type: inline-size;
+}
+.hub-stage {
+  scale: tan(atan2(100cqw, 640px));
+}
+@supports not (scale: tan(atan2(1px, 1px))) {
+  .hub-stage {
+    width: 100% !important;
+    height: 100% !important;
+  }
+}
+
+/* A length of light that runs along a line, from one end to the other. */
+@keyframes hub-travel {
+  from {
+    stroke-dashoffset: 22;
+  }
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+@keyframes hub-travel-back {
+  from {
+    stroke-dashoffset: -100;
+  }
+  to {
+    stroke-dashoffset: 22;
+  }
+}
+.hub-pulse {
+  stroke-dasharray: 22 100;
+  animation: hub-travel 1.1s cubic-bezier(0.45, 0, 0.3, 1) both;
+}
+.hub-pulse[data-back="true"] {
+  animation-name: hub-travel-back;
+}
+/* The quiet lines breathe: a dash that drifts along them all the time. */
+@keyframes hub-drift {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+.hub-line {
+  stroke-dasharray: 3 5;
+  animation: hub-drift 2.4s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .btn-primary:hover:not(:disabled),
+  .panel-link:hover {
+    transform: none;
+  }
+  /* An animation tied to scrolling has no duration to shorten, so it is switched off by name. */
+  .reveal,
+  .enter,
+  .pop,
+  .link-in,
+  .hub-card,
+  .hub-line,
+  .hub-pulse,
+  .text-shimmer {
+    animation: none;
+  }
+  .text-shimmer {
+    background-position: 0% 50%;
+  }
+}
+
+/* Paper is white whatever the theme, so a printed page uses ink-on-white values. */
+@media print {
+  html[data-theme] {
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --surface-2: #f3f3f1;
+    --surface-3: #e9e9e6;
+    --line: #d9d9d4;
+    --line-strong: #b5b5ae;
+    --fg: #111111;
+    --muted: #333333;
+    --subtle: #555555;
+    --accent: #1b3fb0;
+    color-scheme: light;
+  }
+  body {
+    background: #ffffff;
+  }
+  .panel {
+    box-shadow: none;
+  }
+}
+
+/* React Flow: use the site tokens instead of the library defaults. */
+.react-flow {
+  --xy-background-color: transparent;
+  --xy-edge-stroke: var(--line-strong);
+  --xy-edge-stroke-selected: var(--accent);
+  --xy-edge-label-background-color: var(--surface);
+  --xy-edge-label-color: var(--fg);
+  --xy-controls-button-background-color: var(--surface);
+  --xy-controls-button-background-color-hover: var(--surface-3);
+  --xy-controls-button-color: var(--fg);
+  --xy-controls-button-border-color: var(--line);
+  --xy-attribution-background-color: transparent;
+  --xy-node-boxshadow-selected: none;
+  font-family: var(--font-sans);
+}
+
+.react-flow__controls {
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  overflow: hidden;
+}
+
+/* The library's own rule comes later in the cascade, so this one is written to outrank it. */
+.react-flow .react-flow__attribution a {
+  color: var(--muted);
+}

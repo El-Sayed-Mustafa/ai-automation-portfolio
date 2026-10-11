@@ -1,0 +1,2110 @@
+{
+  "id": "pest-control-crm",
+  "title": "Pest Control CRM and Field Operations",
+  "tagline": "A production CRM for a field-service company in Bahrain, moved from Google Sheets to Postgres without rewriting the app its team already used.",
+  "summary": "A pest-control company in Bahrain runs its whole operation on this system: WhatsApp enquiries arrive as leads, the office books visits, crews file reports from their phones and the owner reads one dashboard. I built it on Google Apps Script, then moved its data to Supabase Postgres and added a fast API path when spreadsheet reads became the bottleneck.",
+  "categories": [
+    "automation",
+    "business-apps",
+    "backend"
+  ],
+  "engagement": "client",
+  "engagementNote": "Freelance client project. The client is not named; the source repository is public.",
+  "icon": "bug",
+  "tone": "green",
+  "highlights": [
+    {
+      "text": "WhatsApp enquiries become leads, one per phone number",
+      "provenance": "code"
+    },
+    {
+      "text": "Booking conflicts are refused on the server",
+      "provenance": "code"
+    },
+    {
+      "text": "Technician notifications run in the background, with retries",
+      "provenance": "code"
+    },
+    {
+      "text": "An API with signed, scoped, expiring tokens",
+      "provenance": "code"
+    },
+    {
+      "text": "18 tables behind 30 ordered migrations",
+      "provenance": "code"
+    },
+    {
+      "text": "Moved from Google Sheets to Postgres without rewriting the app",
+      "provenance": "documented"
+    }
+  ],
+  "statusLabel": "In production",
+  "roleLabel": "Design and development",
+  "status": {
+    "text": "In production",
+    "provenance": "documented",
+    "sources": [
+      {
+        "path": "README.md",
+        "lines": "1-9"
+      },
+      {
+        "path": "Config.js",
+        "lines": "7-11",
+        "note": "ENVIRONMENT: 'production'"
+      }
+    ]
+  },
+  "repository": {
+    "name": "El-Sayed-Mustafa/pest-control-crm-bahrain",
+    "url": "https://github.com/El-Sayed-Mustafa/pest-control-crm-bahrain",
+    "branch": "main",
+    "visibility": "public",
+    "linkSources": false
+  },
+  "problem": {
+    "text": "The office books the work, the crew files each visit from a phone, WhatsApp enquiries have to become leads, and the owner needs one screen that shows where the month stands.",
+    "provenance": "documented",
+    "sources": [
+      {
+        "path": "README.md",
+        "lines": "3-6"
+      }
+    ]
+  },
+  "context": [
+    {
+      "text": "The system began on Google Sheets with a Google Apps Script web app, and its Google integrations (Gmail, Calendar, Contacts, Drive) live in Apps Script.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/ARCHITECTURE.md",
+          "lines": "241-246"
+        },
+        {
+          "path": "README.md",
+          "lines": "97-99"
+        }
+      ]
+    },
+    {
+      "text": "It is Arabic-first and right-to-left with a full English translation, and has two front-ends: an office app with 17 screens and a mobile portal for technicians.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "README.md",
+          "lines": "8-9"
+        },
+        {
+          "path": "Index.html"
+        },
+        {
+          "path": "TechnicianIndex.html"
+        }
+      ]
+    },
+    {
+      "text": "As the data grew, reading from Sheets made cold loads slow: the bootstrap query took about 5.6 seconds.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "SUPABASE_MIGRATION_TEST_RESULTS_AR.md",
+          "lines": "104"
+        }
+      ]
+    }
+  ],
+  "role": {
+    "text": "Design and development of the system, and the migration of its data layer from Google Sheets to Supabase Postgres.",
+    "provenance": "owner",
+    "sources": []
+  },
+  "challenges": [
+    {
+      "text": "Move a live system to a new database one domain at a time, proving each domain returns the same data before switching it over.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "Config.js",
+          "lines": "31-59"
+        },
+        {
+          "path": "Supabase.js",
+          "note": "parity functions"
+        }
+      ]
+    },
+    {
+      "text": "Remove the Apps Script cold start from everyday reads and writes without losing the Google integrations that only Apps Script can run.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/ARCHITECTURE.md",
+          "lines": "66-90"
+        }
+      ]
+    },
+    {
+      "text": "Keep saves fast while still sending notifications and syncing contacts, and make sure a retry can never create a second booking.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "DeferredMaintenance.js",
+          "lines": "1-4"
+        },
+        {
+          "path": "Script.html",
+          "lines": "181-187"
+        }
+      ]
+    }
+  ],
+  "solution": [
+    {
+      "text": "Supabase Postgres holds the data in 18 tables behind 30 ordered migrations; lists and dashboards are SQL functions rather than scans in script.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "supabase/migrations"
+        }
+      ]
+    },
+    {
+      "text": "A Deno Edge Function serves 53 office operations and 12 technician operations directly to the browser, authenticated by a short-lived HMAC token that Apps Script signs.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "supabase/functions/crm-api/index.ts",
+          "lines": "118-144"
+        },
+        {
+          "path": "supabase/functions/crm-api/index.ts",
+          "lines": "1411-1435"
+        },
+        {
+          "path": "FastApi.js",
+          "lines": "10-17"
+        }
+      ]
+    },
+    {
+      "text": "Reads fall back to Apps Script when the fast path fails. Writes never do.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "Script.html",
+          "lines": "172-192"
+        }
+      ]
+    },
+    {
+      "text": "Google side effects are written to an outbox table and handled by a background worker with retry and backoff, so the Save button never waits for Gmail.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "supabase/functions/crm-api/index.ts",
+          "lines": "331-338"
+        },
+        {
+          "path": "DeferredMaintenance.js",
+          "lines": "198-258"
+        }
+      ]
+    }
+  ],
+  "stack": [
+    {
+      "name": "Google Apps Script",
+      "role": "Web app server, webhook receiver, Google integrations, fallback API",
+      "provenance": "code"
+    },
+    {
+      "name": "Supabase Postgres",
+      "role": "Primary database: tables, SQL functions, row-level security",
+      "provenance": "code"
+    },
+    {
+      "name": "Supabase Edge Functions (Deno, TypeScript)",
+      "role": "Fast-path API for reads and writes",
+      "provenance": "code"
+    },
+    {
+      "name": "HTML, CSS, JavaScript",
+      "role": "Both front-ends, with no framework and no build step",
+      "provenance": "code"
+    },
+    {
+      "name": "Green API",
+      "role": "WhatsApp gateway: inbound webhook and chat pull",
+      "provenance": "code"
+    },
+    {
+      "name": "Gmail, Calendar, Contacts, Drive",
+      "role": "Notifications, contact sync and file storage",
+      "provenance": "code"
+    }
+  ],
+  "beforeAfter": {
+    "title": "Before and after the migration",
+    "note": "This compares the system before and after its data moved to Postgres. Timings were measured by the author on the staging deployment and are recorded in the repository.",
+    "before": [
+      {
+        "text": "Google Sheets was the database.",
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "docs/ARCHITECTURE.md",
+            "lines": "243"
+          }
+        ]
+      },
+      {
+        "text": "Every request went through Apps Script, which is slow to cold-start and serialises requests per user.",
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "README.md",
+            "lines": "97-99"
+          }
+        ]
+      },
+      {
+        "text": "Cold bootstrap query: about 5.6 seconds.",
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "SUPABASE_MIGRATION_TEST_RESULTS_AR.md",
+            "lines": "104"
+          }
+        ]
+      },
+      {
+        "text": "Opening the manager dashboard: about 16 seconds.",
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "SUPABASE_MIGRATION_TEST_RESULTS_AR.md",
+            "lines": "188"
+          }
+        ]
+      }
+    ],
+    "after": [
+      {
+        "text": "Postgres is the only operational store; the Sheet is kept frozen as a recovery snapshot.",
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "Config.js",
+            "lines": "22-30"
+          }
+        ]
+      },
+      {
+        "text": "The browser calls the Edge Function directly, with Apps Script as the fallback for reads.",
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "Script.html",
+            "lines": "98-192"
+          }
+        ]
+      },
+      {
+        "text": "Cold bootstrap query: about 0.56 seconds.",
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "SUPABASE_MIGRATION_TEST_RESULTS_AR.md",
+            "lines": "104"
+          }
+        ]
+      },
+      {
+        "text": "Opening the manager dashboard: about 1.8 seconds, with the same figures.",
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "SUPABASE_MIGRATION_TEST_RESULTS_AR.md",
+            "lines": "188"
+          }
+        ]
+      }
+    ]
+  },
+  "architecture": {
+    "summary": "Two browser apps talk to two server runtimes over one Postgres database. The Edge Function is the fast path; Apps Script owns everything Google and is the fallback. Slow side effects leave the request through an outbox.",
+    "layers": [
+      {
+        "id": "clients",
+        "label": "Clients"
+      },
+      {
+        "id": "application",
+        "label": "Application"
+      },
+      {
+        "id": "data",
+        "label": "Data"
+      },
+      {
+        "id": "async",
+        "label": "Background work"
+      },
+      {
+        "id": "external",
+        "label": "External services"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "green-api",
+        "label": "Green API",
+        "layer": "external",
+        "kind": "external",
+        "technology": "WhatsApp gateway (REST and webhooks)",
+        "responsibility": "Delivers inbound WhatsApp messages to the CRM by webhook. The chat list can also be pulled on demand from the Leads screen.",
+        "inputs": [
+          "WhatsApp messages from customers"
+        ],
+        "outputs": [
+          "Webhook POST with chat id, message and contact name",
+          "Chat list on request"
+        ],
+        "details": [
+          "The webhook is accepted only with a shared key in the query string, and is denied when no key is configured.",
+          "Messages from group chats and from unusable numbers are ignored."
+        ],
+        "failureModes": [
+          "The gateway can deliver the same message more than once."
+        ],
+        "reliability": [
+          "Leads are keyed by phone number, so a redelivery can never create a second lead."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "GreenApiLeads.js",
+            "lines": "6-123"
+          },
+          {
+            "path": "GreenApiLeads.js",
+            "lines": "221-224"
+          }
+        ],
+        "position": {
+          "x": 0,
+          "y": -10
+        }
+      },
+      {
+        "id": "office-app",
+        "label": "Office web app",
+        "layer": "clients",
+        "kind": "frontend",
+        "technology": "HTML, CSS and JavaScript served by Apps Script HtmlService",
+        "responsibility": "The coordinator's workspace: leads, customers, booking, calendar, visit reports, follow-ups, inventory and the manager dashboard, across 17 screens.",
+        "whyThisTechnology": {
+          "text": "No framework and no build step: the interface ships as Apps Script HTML files.",
+          "provenance": "documented",
+          "sources": [
+            {
+              "path": "README.md",
+              "lines": "8-9"
+            }
+          ]
+        },
+        "inputs": [
+          "Bootstrap data and a signed token embedded in the first HTML response",
+          "The coordinator's actions"
+        ],
+        "outputs": [
+          "{fn, args} requests to the Edge Function",
+          "google.script.run calls to Apps Script"
+        ],
+        "details": [
+          "One transport function is the only way the app talks to a server, and it always resolves to {ok, message, data}.",
+          "19 read functions are cached in localStorage for 6 hours with stale-while-revalidate: a screen paints from the last copy while a fresh one loads.",
+          "Every successful write clears the read caches."
+        ],
+        "failureModes": [
+          "The fast path is unreachable or slow.",
+          "The token expires during a session."
+        ],
+        "reliability": [
+          "Fast-path requests are aborted after 12 seconds.",
+          "A failed read is replayed through Apps Script. A failed write is reported and never replayed.",
+          "The token is refreshed when less than 90 seconds remain; an expired-token response triggers one refresh and one retry."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "Script.html",
+            "lines": "36-46"
+          },
+          {
+            "path": "Script.html",
+            "lines": "98-229"
+          }
+        ],
+        "position": {
+          "x": 0,
+          "y": 170
+        }
+      },
+      {
+        "id": "technician-portal",
+        "label": "Technician portal",
+        "layer": "clients",
+        "kind": "frontend",
+        "technology": "Mobile web app (HTML, CSS, JavaScript) served by Apps Script",
+        "responsibility": "The crew's phone view: assigned visits, the visit report with materials and payment, expenses and van stock.",
+        "inputs": [
+          "Technician id and password",
+          "Visit report form"
+        ],
+        "outputs": [
+          "Technician-scoped requests to the Edge Function",
+          "Uploads through Apps Script"
+        ],
+        "details": [
+          "Signing in returns a token valid for 6 hours.",
+          "The Edge Function only returns and changes records that belong to the technician named in the token."
+        ],
+        "failureModes": [
+          "Repeated wrong passwords.",
+          "A slow connection in the field."
+        ],
+        "reliability": [
+          "Fast-path requests are aborted after 15 seconds.",
+          "Five failed sign-ins lock the technician out for 10 minutes on the Apps Script path."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "TechnicianScript.html",
+            "lines": "21"
+          },
+          {
+            "path": "Settings.js",
+            "lines": "142-167"
+          },
+          {
+            "path": "supabase/functions/crm-api/index.ts",
+            "lines": "1399-1410"
+          }
+        ],
+        "position": {
+          "x": 0,
+          "y": 320
+        }
+      },
+      {
+        "id": "apps-script",
+        "label": "Apps Script server",
+        "layer": "application",
+        "kind": "backend",
+        "technology": "Google Apps Script (V8), 28 server modules",
+        "responsibility": "Serves both web apps, receives the WhatsApp webhook, runs every Google integration, signs the fast-path token, and is a complete second implementation of the API used as the fallback.",
+        "whyThisTechnology": {
+          "text": "Apps Script is where the Google integrations live, so the migration kept it and replaced only the data layer underneath.",
+          "provenance": "documented",
+          "sources": [
+            {
+              "path": "README.md",
+              "lines": "97-99"
+            },
+            {
+              "path": "docs/ARCHITECTURE.md",
+              "lines": "241-255"
+            }
+          ]
+        },
+        "inputs": [
+          "Webhook POSTs from Green API",
+          "google.script.run calls from both front-ends"
+        ],
+        "outputs": [
+          "HTML pages with embedded bootstrap data",
+          "{ok, message, data} responses",
+          "PostgREST requests to Postgres"
+        ],
+        "details": [
+          "Writes run inside a script lock that waits up to 20 seconds, so one conflict check reads the previous writer's committed data.",
+          "Domain code still writes sheet-shaped objects, which one adapter maps onto typed Postgres columns. That is what let the cutover happen without rewriting each module.",
+          "Reads and writes were switched from Sheets to Postgres one domain at a time behind separate feature flags."
+        ],
+        "failureModes": [
+          "A cold start adds seconds to a request.",
+          "Two people save at the same moment."
+        ],
+        "reliability": [
+          "Every public function returns the same {ok, message, data} envelope, including on errors.",
+          "Key-protected endpoints deny when the key is not configured."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "Utils.js",
+            "lines": "616-634"
+          },
+          {
+            "path": "Config.js",
+            "lines": "7-59"
+          },
+          {
+            "path": "FastApi.js",
+            "lines": "10-17"
+          },
+          {
+            "path": "Webapp.js"
+          }
+        ],
+        "position": {
+          "x": 310,
+          "y": 30
+        }
+      },
+      {
+        "id": "edge-function",
+        "label": "Edge Function crm-api",
+        "layer": "application",
+        "kind": "backend",
+        "technology": "Supabase Edge Function (Deno, TypeScript)",
+        "responsibility": "The fast path. One POST endpoint dispatches {fn, args} to 53 office operations and 12 technician operations, reads and writes included.",
+        "whyThisTechnology": {
+          "text": "It takes the Apps Script cold start out of the critical path: the browser reaches Postgres through one short hop.",
+          "provenance": "documented",
+          "sources": [
+            {
+              "path": "docs/ARCHITECTURE.md",
+              "lines": "66-90"
+            },
+            {
+              "path": "Config.js",
+              "lines": "18-21"
+            }
+          ]
+        },
+        "inputs": [
+          "{fn, args} with an x-crm-token header"
+        ],
+        "outputs": [
+          "{ok, message, data}",
+          "Rows and RPC calls to Postgres",
+          "Outbox events for Google side effects"
+        ],
+        "details": [
+          "The token is verified with HMAC-SHA256 through WebCrypto, then checked for scope and expiry.",
+          "Each scope has its own allow-list. An unknown operation returns 404 and a bad token returns 401.",
+          "Booking rules are enforced here: one visit per customer per day, and no overlapping visit for the crew.",
+          "It never calls a Google service; it enqueues the work instead."
+        ],
+        "failureModes": [
+          "A multi-step write is a sequence of separate database calls, not one transaction, so a failure in the middle can leave partial state.",
+          "The booking conflict check and the insert are separate calls on this path, which leaves a small race window that the locked Apps Script path does not have."
+        ],
+        "reliability": [
+          "Ids come from an atomic counter function, so two simultaneous bookings cannot take the same number."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "supabase/functions/crm-api/index.ts",
+            "lines": "118-144"
+          },
+          {
+            "path": "supabase/functions/crm-api/index.ts",
+            "lines": "691-809"
+          },
+          {
+            "path": "supabase/functions/crm-api/index.ts",
+            "lines": "1411-1435"
+          }
+        ],
+        "position": {
+          "x": 310,
+          "y": 200
+        }
+      },
+      {
+        "id": "worker",
+        "label": "Deferred worker",
+        "layer": "async",
+        "kind": "worker",
+        "technology": "Apps Script function on a one-minute time trigger, also called by the browser",
+        "responsibility": "Does the slow work after a save: drains the outbox, sends technician notifications, syncs customer names across records and updates Google Contacts.",
+        "whyThisTechnology": {
+          "text": "Short writes stay short: notifications and derived views are processed after the business row is committed.",
+          "provenance": "documented",
+          "sources": [
+            {
+              "path": "DeferredMaintenance.js",
+              "lines": "1-4"
+            }
+          ]
+        },
+        "inputs": [
+          "Pending outbox events",
+          "Jobs stored in Script Properties"
+        ],
+        "outputs": [
+          "Emails, calendar updates and contact updates",
+          "Notification status written back to the appointment"
+        ],
+        "details": [
+          "The browser asks for a run 1.2 seconds after each successful write, so side effects usually start right after the save.",
+          "Each run drains the outbox first, then up to 10 appointment jobs, then up to 3 customer-identity jobs.",
+          "The job list is read before the outbox is drained, so a job queued in one run executes in the next.",
+          "The trigger is installed by a setup function. Whether it is installed in the live deployment cannot be told from the repository."
+        ],
+        "failureModes": [
+          "The worker holds no lock, so two runs can overlap."
+        ],
+        "reliability": [
+          "Each event and each job runs in its own try/catch, so one failure never blocks the rest.",
+          "Failed appointment jobs are retried on later runs and dropped after 5 attempts with the last error recorded."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "DeferredMaintenance.js",
+            "lines": "11-20"
+          },
+          {
+            "path": "DeferredMaintenance.js",
+            "lines": "82-190"
+          },
+          {
+            "path": "Script.html",
+            "lines": "27-30"
+          }
+        ],
+        "position": {
+          "x": 310,
+          "y": 500
+        }
+      },
+      {
+        "id": "sheets-legacy",
+        "label": "Google Sheets",
+        "layer": "data",
+        "kind": "legacy",
+        "technology": "Google Sheets workbook",
+        "status": "legacy",
+        "statusNote": "Frozen after the cutover",
+        "responsibility": "The original database. It is kept frozen as a recovery snapshot and as the forensic record of the state before the cutover.",
+        "inputs": [
+          "Nothing since the cutover"
+        ],
+        "outputs": [
+          "Reference values for parity checks and diagnostics"
+        ],
+        "details": [
+          "Every migrated row keeps its original sheet record as JSON, so any row can be compared with what it was built from.",
+          "Two production incidents were diagnosed and repaired against the frozen sheet."
+        ],
+        "failureModes": [],
+        "reliability": [
+          "The backup write to Sheets is switched off, so the legacy store can never slow down or block a save."
+        ],
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "docs/ARCHITECTURE.md",
+            "lines": "241-255"
+          },
+          {
+            "path": "Config.js",
+            "lines": "27-30"
+          }
+        ],
+        "position": {
+          "x": 620,
+          "y": -60
+        }
+      },
+      {
+        "id": "postgres",
+        "label": "Supabase Postgres",
+        "layer": "data",
+        "kind": "database",
+        "technology": "PostgreSQL on Supabase: 18 tables, 30 migrations, SQL functions",
+        "responsibility": "The single operational store: customers, leads, appointments, visit reports, follow-ups, contracts, inventory and expenses.",
+        "whyThisTechnology": {
+          "text": "Reading from Sheets was the bottleneck. In Postgres the same bootstrap query went from about 5.6 seconds to about 0.56.",
+          "provenance": "documented",
+          "sources": [
+            {
+              "path": "SUPABASE_MIGRATION_TEST_RESULTS_AR.md",
+              "lines": "104"
+            }
+          ]
+        },
+        "inputs": [
+          "Rows and RPC calls from the Edge Function",
+          "PostgREST requests from Apps Script"
+        ],
+        "outputs": [
+          "Rows",
+          "Aggregated dashboard and list results"
+        ],
+        "details": [
+          "Row-level security is enabled on every table with no policies: the public roles get nothing, and all access goes through the service role held by the two servers.",
+          "Phone matching uses generated digit columns with indexes; name search uses trigram indexes.",
+          "Human-readable ids such as CUST-n and APPT-n come from a counter table updated under a row lock.",
+          "Dashboards and lists are SQL functions, so aggregation happens in the database rather than in script."
+        ],
+        "failureModes": [
+          "Authorisation is enforced in the two server runtimes, not by per-user policies in the database."
+        ],
+        "reliability": [
+          "Foreign keys and a single id counter keep both server paths writing consistent rows."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "supabase/migrations",
+            "note": "30 SQL files"
+          },
+          {
+            "path": "supabase/functions/crm-api/index.ts",
+            "lines": "317-322"
+          }
+        ],
+        "position": {
+          "x": 620,
+          "y": 90
+        }
+      },
+      {
+        "id": "outbox",
+        "label": "Outbox table",
+        "layer": "async",
+        "kind": "queue",
+        "technology": "Postgres table crm_sync_outbox",
+        "responsibility": "A durable queue of Google side effects created by fast-path writes, so the Edge Function never has to call Google.",
+        "inputs": [
+          "Events such as appointment_created and report_saved from the Edge Function"
+        ],
+        "outputs": [
+          "Up to 15 pending, due events per worker run"
+        ],
+        "details": [
+          "Each row has an event key, type, entity, payload, status, attempt count, next attempt time and last error.",
+          "After a failure the next attempt is scheduled attempts x 60 seconds later, capped at 15 minutes.",
+          "At 8 attempts the event is marked failed and is no longer selected."
+        ],
+        "failureModes": [
+          "Rows are not claimed or leased, so two overlapping worker runs can pick up the same event: delivery is at least once.",
+          "If the enqueue itself fails, the error is logged and the booking still succeeds."
+        ],
+        "reliability": [
+          "Downstream jobs are keyed by appointment id, so handling an event twice merges into one job instead of sending two notifications."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "supabase/functions/crm-api/index.ts",
+            "lines": "331-338"
+          },
+          {
+            "path": "DeferredMaintenance.js",
+            "lines": "198-258"
+          }
+        ],
+        "position": {
+          "x": 620,
+          "y": 350
+        }
+      },
+      {
+        "id": "job-queue",
+        "label": "Job store",
+        "layer": "async",
+        "kind": "queue",
+        "technology": "Apps Script Script Properties used as a keyed job queue",
+        "responsibility": "Holds one pending job per appointment, customer or report until the worker runs it.",
+        "inputs": [
+          "Jobs queued by the worker and by Apps Script saves"
+        ],
+        "outputs": [
+          "Jobs for the worker, in key order"
+        ],
+        "details": [
+          "The key is the entity id, so queueing a second job for the same appointment merges its flags into the first.",
+          "A failed job stores its attempt count, last error and last attempt time."
+        ],
+        "failureModes": [
+          "A job that keeps failing is dropped after 5 attempts."
+        ],
+        "reliability": [
+          "Merging by key means repeated saves and repeated outbox events cannot multiply notifications."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "DeferredMaintenance.js",
+            "lines": "36-58"
+          },
+          {
+            "path": "DeferredMaintenance.js",
+            "lines": "136-158"
+          }
+        ],
+        "position": {
+          "x": 620,
+          "y": 500
+        }
+      },
+      {
+        "id": "drive",
+        "label": "Google Drive",
+        "layer": "external",
+        "kind": "storage",
+        "technology": "DriveApp",
+        "responsibility": "Stores visit photos, voice notes, receipts and call recordings uploaded from both apps.",
+        "inputs": [
+          "Files uploaded through Apps Script"
+        ],
+        "outputs": [
+          "File links saved on the visit report, expense or call record"
+        ],
+        "details": [
+          "Uploads have a size limit and call recordings get sanitised file names."
+        ],
+        "failureModes": [],
+        "reliability": [],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "Visitreports.js"
+          },
+          {
+            "path": "CustomerCalls.js"
+          }
+        ],
+        "position": {
+          "x": 930,
+          "y": 140
+        }
+      },
+      {
+        "id": "gmail",
+        "label": "Gmail",
+        "layer": "external",
+        "kind": "external",
+        "technology": "MailApp",
+        "responsibility": "Sends the technician an Arabic, right-to-left email with the visit details when an appointment is booked.",
+        "inputs": [
+          "Appointment, customer and technician records"
+        ],
+        "outputs": [
+          "One email to the technician",
+          "A notification status on the appointment"
+        ],
+        "details": [
+          "The email carries the customer, phone, address, map link and a link to the technician portal."
+        ],
+        "failureModes": [
+          "A send error is caught and written to the appointment's notification status. It is not retried."
+        ],
+        "reliability": [
+          "A failed email can never fail the booking, because it runs after the save."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "CalendarEmail.js",
+            "lines": "136-197"
+          }
+        ],
+        "position": {
+          "x": 930,
+          "y": 330
+        }
+      },
+      {
+        "id": "calendar",
+        "label": "Google Calendar",
+        "layer": "external",
+        "kind": "external",
+        "technology": "CalendarApp",
+        "status": "disabled",
+        "statusNote": "Implemented, switched off in the committed configuration",
+        "responsibility": "Creates a calendar event with a guest invite and a 60-minute reminder for each appointment.",
+        "inputs": [
+          "Appointment date, time, address and technician email"
+        ],
+        "outputs": [
+          "A calendar event id stored on the appointment"
+        ],
+        "details": [
+          "The code path exists and is guarded by CREATE_CALENDAR_EVENTS, which is false."
+        ],
+        "failureModes": [],
+        "reliability": [
+          "A calendar failure is caught separately, so it cannot stop the email."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "CalendarEmail.js",
+            "lines": "153-174"
+          },
+          {
+            "path": "Config.js",
+            "lines": "84"
+          }
+        ],
+        "position": {
+          "x": 930,
+          "y": 460
+        }
+      },
+      {
+        "id": "contacts",
+        "label": "Google Contacts",
+        "layer": "external",
+        "kind": "external",
+        "technology": "People API",
+        "responsibility": "Keeps a Google contact for each paying customer, named with the visit date, service and amount.",
+        "inputs": [
+          "Paid visit reports and complaint visits"
+        ],
+        "outputs": [
+          "A created or updated contact"
+        ],
+        "details": [
+          "A contact job is keyed by report id, so saving a report again cannot create a second contact.",
+          "A complaint visit only adds a mark and never overwrites paid-visit data."
+        ],
+        "failureModes": [],
+        "reliability": [
+          "Failed contact jobs stay queued and are tried again on the next run."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "ContactsSync.js",
+            "lines": "13-194"
+          }
+        ],
+        "position": {
+          "x": 930,
+          "y": 590
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "webhook",
+        "from": "green-api",
+        "to": "apps-script",
+        "protocol": "Webhook POST with shared key",
+        "data": "Chat id, message, contact name"
+      },
+      {
+        "id": "bootstrap",
+        "from": "apps-script",
+        "to": "office-app",
+        "protocol": "HTML response",
+        "data": "Bootstrap data and a 1-hour signed token"
+      },
+      {
+        "id": "office-fast",
+        "from": "office-app",
+        "to": "edge-function",
+        "protocol": "HTTPS POST, HMAC token, 12 s timeout",
+        "data": "{fn, args} for reads and writes"
+      },
+      {
+        "id": "office-fallback",
+        "from": "office-app",
+        "to": "apps-script",
+        "protocol": "google.script.run",
+        "data": "Replayed reads and Google-only operations",
+        "kind": "fallback"
+      },
+      {
+        "id": "tech-fast",
+        "from": "technician-portal",
+        "to": "edge-function",
+        "protocol": "HTTPS POST, technician token, 15 s timeout",
+        "data": "Visits, reports, expenses, stock"
+      },
+      {
+        "id": "tech-fallback",
+        "from": "technician-portal",
+        "to": "apps-script",
+        "protocol": "google.script.run",
+        "data": "Sign-in, uploads and replayed reads",
+        "kind": "fallback"
+      },
+      {
+        "id": "edge-db",
+        "from": "edge-function",
+        "to": "postgres",
+        "protocol": "supabase-js with the service role",
+        "data": "Rows and SQL function calls"
+      },
+      {
+        "id": "script-db",
+        "from": "apps-script",
+        "to": "postgres",
+        "protocol": "PostgREST over UrlFetchApp",
+        "data": "Rows and SQL function calls"
+      },
+      {
+        "id": "enqueue",
+        "from": "edge-function",
+        "to": "outbox",
+        "protocol": "Insert",
+        "data": "Side-effect events",
+        "kind": "async"
+      },
+      {
+        "id": "wake",
+        "from": "office-app",
+        "to": "worker",
+        "protocol": "Deferred call, 1.2 s after a write",
+        "data": "A request to run the worker",
+        "kind": "async"
+      },
+      {
+        "id": "drain",
+        "from": "worker",
+        "to": "outbox",
+        "protocol": "Select pending, then update",
+        "data": "Events, attempts and next attempt time",
+        "kind": "async"
+      },
+      {
+        "id": "jobs",
+        "from": "worker",
+        "to": "job-queue",
+        "protocol": "Script Properties",
+        "data": "Notification, identity and contact jobs",
+        "kind": "async"
+      },
+      {
+        "id": "worker-db",
+        "from": "worker",
+        "to": "postgres",
+        "protocol": "PostgREST over UrlFetchApp",
+        "data": "Appointment details in, notification status out",
+        "kind": "async"
+      },
+      {
+        "id": "send-mail",
+        "from": "worker",
+        "to": "gmail",
+        "protocol": "MailApp.sendEmail",
+        "data": "Visit details for the technician",
+        "kind": "async"
+      },
+      {
+        "id": "calendar-event",
+        "from": "worker",
+        "to": "calendar",
+        "protocol": "CalendarApp",
+        "data": "Event and guest invite",
+        "kind": "disabled"
+      },
+      {
+        "id": "contact-sync",
+        "from": "worker",
+        "to": "contacts",
+        "protocol": "People API",
+        "data": "Contact for a paid visit",
+        "kind": "async"
+      },
+      {
+        "id": "uploads",
+        "from": "apps-script",
+        "to": "drive",
+        "protocol": "DriveApp",
+        "data": "Photos, voice notes, receipts, recordings"
+      },
+      {
+        "id": "legacy-read",
+        "from": "apps-script",
+        "to": "sheets-legacy",
+        "protocol": "SpreadsheetApp",
+        "data": "Parity checks and diagnostics only",
+        "kind": "fallback"
+      }
+    ],
+    "flows": [
+      {
+        "id": "whatsapp-to-lead",
+        "label": "A WhatsApp message becomes a lead",
+        "description": "The gateway posts the message to Apps Script, which validates it, matches the number against customers and creates or updates one lead.",
+        "path": [
+          "webhook",
+          "script-db"
+        ]
+      },
+      {
+        "id": "booking-fast-path",
+        "label": "A booking is saved",
+        "description": "The browser sends the booking straight to the Edge Function, which checks the rules, writes the appointment and queues the notification.",
+        "path": [
+          "office-fast",
+          "edge-db",
+          "enqueue"
+        ]
+      },
+      {
+        "id": "notification",
+        "label": "The technician is notified",
+        "description": "After the save returns, the browser wakes the worker. The worker drains the outbox, queues a job, loads the appointment and sends the email.",
+        "path": [
+          "wake",
+          "drain",
+          "jobs",
+          "worker-db",
+          "send-mail"
+        ]
+      },
+      {
+        "id": "read-fallback",
+        "label": "A read survives a fast-path failure",
+        "description": "When the Edge Function fails or times out on a read, the same request is replayed through Apps Script and the user never sees an error.",
+        "path": [
+          "office-fast",
+          "office-fallback",
+          "script-db"
+        ]
+      },
+      {
+        "id": "visit-report",
+        "label": "A technician files a visit report",
+        "description": "The report is written through the fast path, a report_saved event is queued, and the worker updates Google Contacts when the visit was paid.",
+        "path": [
+          "tech-fast",
+          "edge-db",
+          "enqueue",
+          "drain",
+          "contact-sync"
+        ]
+      }
+    ]
+  },
+  "workflows": [
+    {
+      "id": "whatsapp-to-booked-visit",
+      "title": "WhatsApp enquiry to a booked visit",
+      "summary": "Follow one customer message through the real rules of the system: it becomes a lead, a person decides to book, the server refuses conflicts, and the technician is notified in the background.",
+      "proves": "It shows how the system keeps one lead per phone number, refuses conflicting bookings on the server, and notifies the technician in the background with retries, without the save ever waiting for it.",
+      "scenarioId": "crm.whatsapp-to-booked-visit",
+      "mode": "simulation",
+      "modeNote": "This runs in your browser. It is a TypeScript re-implementation of the production rules, executed on invented data. No real service is called, no message is sent, and timings are simulated, not measured.",
+      "sandbox": {
+        "note": "On the server the same program runs against a SQLite database that is created for the run and deleted after it. The database is a reduced copy of the CRM's schema, not the production database, which is Postgres on Supabase. The WhatsApp gateway, the Apps Script job store and the technician's email stay simulated: no message is sent.",
+        "real": [
+          "Leads, customers, appointments, follow-ups, the outbox and the id counters are rows in a database",
+          "Primary keys, foreign keys, NOT NULL and the outbox's unique event key are enforced by the database",
+          "Each data change shows the row the database returned",
+          "The duration and the number of SQL statements are measured on the server"
+        ],
+        "simulated": [
+          "The WhatsApp gateway and its webhook",
+          "The Edge Function's token check",
+          "The Apps Script job store",
+          "The email to the technician: nothing is sent",
+          "The times beside each step, which stay on the scenario's clock"
+        ]
+      },
+      "technologies": [
+        "Google Apps Script",
+        "Supabase Edge Functions",
+        "PostgreSQL",
+        "Green API (WhatsApp)",
+        "Gmail"
+      ],
+      "phases": [
+        {
+          "id": "intake",
+          "label": "Intake"
+        },
+        {
+          "id": "decision",
+          "label": "Human decision"
+        },
+        {
+          "id": "booking",
+          "label": "Booking"
+        },
+        {
+          "id": "async",
+          "label": "Background work"
+        }
+      ],
+      "steps": [
+        {
+          "id": "webhook.receive",
+          "label": "Receive the webhook",
+          "kind": "trigger",
+          "nodeId": "apps-script",
+          "phase": "intake",
+          "summary": "A customer's WhatsApp message arrives from the gateway.",
+          "description": "Green API posts the message to the Apps Script web app. The handler runs inside a script lock, compares the key in the query string with the configured one, and rejects the request when the key is missing or wrong.",
+          "sources": [
+            {
+              "path": "GreenApiLeads.js",
+              "lines": "6-22"
+            },
+            {
+              "path": "Utils.js",
+              "lines": "616-634"
+            }
+          ]
+        },
+        {
+          "id": "payload.parse",
+          "label": "Parse the message",
+          "kind": "transform",
+          "nodeId": "apps-script",
+          "phase": "intake",
+          "summary": "The sender's chat id becomes a normalised phone number.",
+          "description": "The chat id is reduced to digits and stored as +digits; a bare 8-digit number gets the Bahrain country code. Direction, message type, text and a contact name are extracted, and generic names are discarded.",
+          "sources": [
+            {
+              "path": "GreenApiLeads.js",
+              "lines": "125-214"
+            },
+            {
+              "path": "Utils.js",
+              "lines": "400-414"
+            }
+          ]
+        },
+        {
+          "id": "lead.filter",
+          "label": "Drop what is not a lead",
+          "kind": "validation",
+          "nodeId": "apps-script",
+          "phase": "intake",
+          "summary": "Group chats and unusable numbers are ignored.",
+          "description": "Three guards run in order: no phone, a phone that is not 7 to 15 digits or is all zeros, and a group chat id. An ignored message returns ok and writes nothing.",
+          "sources": [
+            {
+              "path": "GreenApiLeads.js",
+              "lines": "24-29"
+            },
+            {
+              "path": "GreenApiLeads.js",
+              "lines": "221-224"
+            }
+          ]
+        },
+        {
+          "id": "customer.match",
+          "label": "Match a customer",
+          "kind": "database",
+          "nodeId": "postgres",
+          "phase": "intake",
+          "summary": "The number is checked against every customer on file.",
+          "description": "The number is expanded into the forms it may have been stored in, with and without the country code, and matched against the digit columns of the primary and secondary phone.",
+          "sources": [
+            {
+              "path": "Utils.js",
+              "lines": "421-432"
+            },
+            {
+              "path": "GreenApiLeads.js",
+              "lines": "226-234"
+            }
+          ]
+        },
+        {
+          "id": "lead.upsert",
+          "label": "Create or update the lead",
+          "kind": "database",
+          "nodeId": "postgres",
+          "phase": "intake",
+          "summary": "One lead per phone number, however many messages arrive.",
+          "description": "If a lead exists for the number, its last message and message count are updated and a name a person typed is kept. Otherwise a new lead takes the next LEAD-n id with the status New, or Existing Customer when the number matched a customer.",
+          "sources": [
+            {
+              "path": "GreenApiLeads.js",
+              "lines": "31-121"
+            }
+          ]
+        },
+        {
+          "id": "lead.evaluate",
+          "label": "Coordinator calls the lead",
+          "kind": "human",
+          "nodeId": "office-app",
+          "phase": "decision",
+          "summary": "A person decides what happens next. In this demo that person is you.",
+          "description": "The coordinator records the result of the call. The result sets the lead status through a fixed map, the note is appended with a timestamp and never replaces earlier notes, and the lead keeps exactly one open follow-up: created, moved, or completed when the date is cleared.",
+          "sources": [
+            {
+              "path": "supabase/functions/crm-api/index.ts",
+              "lines": "599-655"
+            }
+          ]
+        },
+        {
+          "id": "lead.convert",
+          "label": "Convert to a customer",
+          "kind": "database",
+          "nodeId": "edge-function",
+          "phase": "booking",
+          "summary": "The lead becomes a customer, or is linked to the customer who already owns the number.",
+          "description": "This runs when the booking is saved. A customer is looked up by phone; if there is none, one is created with the next CUST-n id. The lead is then linked to that customer.",
+          "sources": [
+            {
+              "path": "supabase/functions/crm-api/index.ts",
+              "lines": "656-672"
+            },
+            {
+              "path": "Script.html",
+              "lines": "4150"
+            }
+          ]
+        },
+        {
+          "id": "booking.request",
+          "label": "Send the booking",
+          "kind": "api",
+          "nodeId": "edge-function",
+          "phase": "booking",
+          "summary": "The booking form goes straight to the fast API.",
+          "description": "The browser posts {fn, args} to the Edge Function and aborts after 12 seconds. The function verifies the HMAC-SHA256 token, its scope and its expiry, then checks the operation against the allow-list. A write that fails here is not replayed through Apps Script.",
+          "sources": [
+            {
+              "path": "Script.html",
+              "lines": "98-125"
+            },
+            {
+              "path": "Script.html",
+              "lines": "181-187"
+            },
+            {
+              "path": "supabase/functions/crm-api/index.ts",
+              "lines": "128-144"
+            }
+          ]
+        },
+        {
+          "id": "booking.validate",
+          "label": "Validate and check conflicts",
+          "kind": "validation",
+          "nodeId": "edge-function",
+          "phase": "booking",
+          "summary": "The server refuses double bookings.",
+          "description": "Required fields, both-or-neither times, end after start and a non-negative price are checked first. Then two queries: the customer must have no other visit that day, and the crew must have no visit that overlaps the requested time.",
+          "sources": [
+            {
+              "path": "supabase/functions/crm-api/index.ts",
+              "lines": "691-715"
+            }
+          ]
+        },
+        {
+          "id": "booking.insert",
+          "label": "Write the appointment",
+          "kind": "database",
+          "nodeId": "postgres",
+          "phase": "booking",
+          "summary": "The visit is saved with its place in the day's schedule.",
+          "description": "The id comes from the locked counter. A newly typed address is filed into the customer's first empty address slot and never overwrites a saved one. The appointment is inserted with report status Required, notification status Pending and a day order one higher than the visits already on that day.",
+          "sources": [
+            {
+              "path": "supabase/functions/crm-api/index.ts",
+              "lines": "716-790"
+            },
+            {
+              "path": "supabase/functions/crm-api/index.ts",
+              "lines": "317-322"
+            }
+          ]
+        },
+        {
+          "id": "outbox.enqueue",
+          "label": "Queue the notification",
+          "kind": "queue",
+          "nodeId": "outbox",
+          "phase": "booking",
+          "summary": "Notifying the technician is queued, so Save returns at once.",
+          "description": "An appointment_created event is inserted into the outbox with status pending and zero attempts. The response tells the browser the notification is queued. No Google service has been called yet.",
+          "sources": [
+            {
+              "path": "supabase/functions/crm-api/index.ts",
+              "lines": "331-338"
+            },
+            {
+              "path": "supabase/functions/crm-api/index.ts",
+              "lines": "807"
+            }
+          ]
+        },
+        {
+          "id": "outbox.drain",
+          "label": "Worker drains the outbox",
+          "kind": "worker",
+          "nodeId": "worker",
+          "phase": "async",
+          "summary": "A background worker picks the event up, and retries if it fails.",
+          "description": "The browser asks for a worker run 1.2 seconds after the save, and a one-minute trigger runs the same function. The worker takes up to 15 pending events that are due, turns appointment_created into a notification job keyed by the appointment id, and marks the event processed. On an error it adds one to the attempt count and schedules the next attempt attempts x 60 seconds later, up to 15 minutes; at 8 attempts the event is marked failed.",
+          "sources": [
+            {
+              "path": "DeferredMaintenance.js",
+              "lines": "198-258"
+            },
+            {
+              "path": "Script.html",
+              "lines": "27-30"
+            }
+          ]
+        },
+        {
+          "id": "notify.technician",
+          "label": "Notify the technician",
+          "kind": "notification",
+          "nodeId": "gmail",
+          "phase": "async",
+          "summary": "The crew receives the visit details by email.",
+          "description": "On the following worker run the job loads the appointment, the crew and the customer. If the crew has no email it records that and stops. Calendar events are implemented but switched off. The email is sent with MailApp; a send error is caught and written to the appointment instead of being retried.",
+          "sources": [
+            {
+              "path": "DeferredMaintenance.js",
+              "lines": "136-158"
+            },
+            {
+              "path": "CalendarEmail.js",
+              "lines": "136-197"
+            },
+            {
+              "path": "Config.js",
+              "lines": "83-84"
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "key": "senderNumber",
+          "label": "Sender number",
+          "type": "text",
+          "maxLength": 22,
+          "help": "Digits only. The sample numbers cannot be assigned to a real subscriber in Bahrain."
+        },
+        {
+          "key": "chatType",
+          "label": "Chat type",
+          "type": "select",
+          "options": [
+            "individual",
+            "group"
+          ]
+        },
+        {
+          "key": "contactName",
+          "label": "Contact name",
+          "type": "text",
+          "maxLength": 40
+        },
+        {
+          "key": "message",
+          "label": "Message",
+          "type": "textarea",
+          "maxLength": 280
+        },
+        {
+          "key": "serviceType",
+          "label": "Service",
+          "type": "select",
+          "options": [
+            "General pest control",
+            "Termite treatment",
+            "Rodent control",
+            "Inspection"
+          ]
+        },
+        {
+          "key": "crew",
+          "label": "Crew",
+          "type": "select",
+          "options": [
+            "Crew A",
+            "Crew B"
+          ]
+        },
+        {
+          "key": "startTime",
+          "label": "Start time",
+          "type": "select",
+          "options": [
+            "09:00",
+            "10:30",
+            "13:00",
+            "15:00"
+          ],
+          "help": "Crew A already has a visit from 10:00 to 11:00."
+        },
+        {
+          "key": "price",
+          "label": "Price (BHD)",
+          "type": "number"
+        }
+      ],
+      "faults": [
+        {
+          "id": "invalid-webhook-key",
+          "label": "Webhook arrives with the wrong key",
+          "stepId": "webhook.receive",
+          "classification": "implemented",
+          "description": "Someone posts to the webhook address without the shared key.",
+          "expected": "The request is rejected before its body is used. Nothing is written.",
+          "sources": [
+            {
+              "path": "GreenApiLeads.js",
+              "lines": "8-11"
+            }
+          ]
+        },
+        {
+          "id": "duplicate-delivery",
+          "label": "The gateway delivers the same message twice",
+          "stepId": "lead.upsert",
+          "classification": "limitation",
+          "description": "Webhook providers redeliver. The handler stores the last message id but never compares it.",
+          "expected": "There is still one lead, because leads are keyed by phone number. The message count is incremented twice.",
+          "sources": [
+            {
+              "path": "GreenApiLeads.js",
+              "lines": "51-76"
+            }
+          ]
+        },
+        {
+          "id": "fast-path-down",
+          "label": "The Edge Function does not answer",
+          "stepId": "booking.request",
+          "classification": "implemented",
+          "description": "The fast path times out while the booking is being saved.",
+          "expected": "The coordinator sees an error. The write is deliberately not replayed through Apps Script, because a lost response after a successful insert would create a second booking.",
+          "sources": [
+            {
+              "path": "Script.html",
+              "lines": "181-187"
+            },
+            {
+              "path": "docs/ARCHITECTURE.md",
+              "lines": "87-90"
+            }
+          ]
+        },
+        {
+          "id": "crew-conflict",
+          "label": "Double-book the crew",
+          "stepId": "booking.validate",
+          "classification": "implemented",
+          "description": "The requested slot overlaps a visit the crew already has.",
+          "expected": "The server rejects the booking and names the clashing appointment. Nothing is written.",
+          "sources": [
+            {
+              "path": "supabase/functions/crm-api/index.ts",
+              "lines": "707-715"
+            }
+          ]
+        },
+        {
+          "id": "worker-transient",
+          "label": "The worker fails twice, then recovers",
+          "stepId": "outbox.drain",
+          "classification": "implemented",
+          "group": "worker",
+          "description": "The worker hits an error while handling the event.",
+          "expected": "The event stays pending and is retried after 60 seconds, then after 120 seconds, and succeeds on the third attempt.",
+          "sources": [
+            {
+              "path": "DeferredMaintenance.js",
+              "lines": "247-255"
+            }
+          ]
+        },
+        {
+          "id": "worker-permanent",
+          "label": "The worker keeps failing",
+          "stepId": "outbox.drain",
+          "classification": "implemented",
+          "group": "worker",
+          "description": "The error never clears.",
+          "expected": "After 8 attempts the event is marked failed and is no longer picked up. The booking exists; the notification needs a person.",
+          "sources": [
+            {
+              "path": "DeferredMaintenance.js",
+              "lines": "247-255"
+            }
+          ]
+        },
+        {
+          "id": "technician-no-email",
+          "label": "The crew has no email on file",
+          "stepId": "notify.technician",
+          "classification": "implemented",
+          "group": "notify",
+          "description": "The technician record has an empty email field.",
+          "expected": "The job finishes and the appointment's notification status reads \"Technician email missing\".",
+          "sources": [
+            {
+              "path": "CalendarEmail.js",
+              "lines": "147-151"
+            }
+          ]
+        },
+        {
+          "id": "mail-failure",
+          "label": "The mail service rejects the send",
+          "stepId": "notify.technician",
+          "classification": "limitation",
+          "group": "notify",
+          "description": "MailApp throws, for example when a daily quota is exhausted.",
+          "expected": "The error is caught and written to the appointment. The job is removed, so the email is not sent again later.",
+          "sources": [
+            {
+              "path": "CalendarEmail.js",
+              "lines": "176-190"
+            },
+            {
+              "path": "DeferredMaintenance.js",
+              "lines": "139-146"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "decisions": [
+    {
+      "id": "two-paths",
+      "title": "A fast path beside Apps Script, not instead of it",
+      "problem": "Apps Script is slow to cold-start and serialises requests per user, but it is the only place the Google integrations can run.",
+      "options": [
+        {
+          "name": "Keep every request on Apps Script",
+          "verdict": "rejected",
+          "note": "Every read keeps paying the cold start, documented as roughly 3 to 8 seconds."
+        },
+        {
+          "name": "Add an Edge Function as a direct path, with Apps Script as the fallback",
+          "verdict": "chosen",
+          "note": "Reads and writes reach Postgres in one hop; a failed read replays through Apps Script unnoticed."
+        }
+      ],
+      "rationale": "The fast path removes the cold start from everyday work without giving up anything Apps Script does. The flag that enables it is deliberately not tied to the environment setting, so switching between staging and production cannot turn the speed off by accident.",
+      "tradeoffs": [
+        "The API now exists twice, in Apps Script and in the Edge Function, and the two implementations have to be kept in step.",
+        "The booking conflict check is atomic under the Apps Script lock but not on the fast path."
+      ],
+      "evolution": "Move multi-step writes into SQL functions so both paths share one transactional implementation.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/ARCHITECTURE.md",
+          "lines": "66-90"
+        },
+        {
+          "path": "README.md",
+          "lines": "97-106"
+        },
+        {
+          "path": "Config.js",
+          "lines": "18-21"
+        }
+      ]
+    },
+    {
+      "id": "no-write-replay",
+      "title": "Reads fall back. Writes never do.",
+      "problem": "A request that times out on the fast path may or may not have reached the database.",
+      "options": [
+        {
+          "name": "Replay a failed write through Apps Script, as reads do",
+          "verdict": "rejected",
+          "note": "If the first attempt did succeed, the replay creates a duplicate appointment."
+        },
+        {
+          "name": "Report the error and let a person decide",
+          "verdict": "chosen",
+          "note": "An error message can be acted on; a duplicate booking sends a crew to the wrong place."
+        }
+      ],
+      "rationale": "A duplicated appointment is materially worse than an error a human can act on, so the transport treats reads and writes differently on purpose.",
+      "tradeoffs": [
+        "A write that fails on the fast path costs the coordinator a manual retry, even when the fallback path is healthy."
+      ],
+      "evolution": "Give each write an idempotency key so it can be retried safely. The table for those keys already exists in the schema and is not used yet.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/ARCHITECTURE.md",
+          "lines": "87-90"
+        },
+        {
+          "path": "Script.html",
+          "lines": "181-187"
+        }
+      ]
+    },
+    {
+      "id": "keep-apps-script-ui",
+      "title": "Replace the data layer, keep the application",
+      "problem": "The database had to change while a team was using the system every day.",
+      "options": [
+        {
+          "name": "Rewrite every domain module against the new database",
+          "verdict": "rejected",
+          "note": "It would have changed the whole application at the same time as its storage."
+        },
+        {
+          "name": "Keep the modules writing sheet-shaped objects and map them onto Postgres columns in one adapter",
+          "verdict": "chosen",
+          "note": "Each domain could be switched over separately, behind its own flag, after its parity tests passed."
+        }
+      ],
+      "rationale": "The adapter reads oddly, but it is the reason the cutover could be done without rewriting every module, and it allowed a domain to be switched back if a comparison failed.",
+      "tradeoffs": [
+        "Server code still speaks in spreadsheet column names such as 'Customer ID', which is confusing to a new reader."
+      ],
+      "evolution": "Retire the sheet-shaped layer module by module now that Postgres is the only store.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/ARCHITECTURE.md",
+          "lines": "252-255"
+        },
+        {
+          "path": "Config.js",
+          "lines": "31-59"
+        }
+      ]
+    },
+    {
+      "id": "defer-side-effects",
+      "title": "Google side effects run after the save",
+      "problem": "Sending an email, writing a calendar event and syncing a contact are slow, and each can fail for reasons unrelated to the booking.",
+      "options": [
+        {
+          "name": "Call the Google services inside the save request",
+          "verdict": "rejected",
+          "note": "The coordinator waits for every service, and a mail error would fail a valid booking."
+        },
+        {
+          "name": "Commit the business row, queue the side effects, process them in a worker",
+          "verdict": "chosen",
+          "note": "Saves stay short and a notification failure cannot undo a booking."
+        }
+      ],
+      "rationale": "Short writes stay short. The appointment records its own notification status, so a failed side effect is visible on the record it belongs to.",
+      "tradeoffs": [
+        "The technician is notified seconds to a minute after the booking, not instantly.",
+        "Delivery is at least once, so the downstream jobs have to tolerate being queued twice."
+      ],
+      "evolution": "Claim outbox rows before processing them, and retry transient mail failures instead of only recording them.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "DeferredMaintenance.js",
+          "lines": "1-4"
+        },
+        {
+          "path": "DeferredMaintenance.js",
+          "lines": "87-88"
+        }
+      ]
+    },
+    {
+      "id": "sheets-backup-off",
+      "title": "The spreadsheet backup was switched off",
+      "problem": "After the cutover, every save could still be mirrored back to the spreadsheet as a backup.",
+      "options": [
+        {
+          "name": "Keep queueing a spreadsheet backup on every save",
+          "verdict": "rejected",
+          "note": "Even queueing the backup adds another network request to every save."
+        },
+        {
+          "name": "Make Postgres the only operational store and freeze the spreadsheet",
+          "verdict": "chosen",
+          "note": "The workbook stays as a recovery snapshot and can never block a user."
+        }
+      ],
+      "rationale": "The backup protected against a risk that the parity tests had already retired, and it cost time on every write.",
+      "tradeoffs": [
+        "The spreadsheet no longer reflects current data, so it cannot be used as a live report."
+      ],
+      "evolution": "Rely on database backups, and remove the dormant backup code path.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "Config.js",
+          "lines": "27-30"
+        }
+      ]
+    },
+    {
+      "id": "forensic-record",
+      "title": "Keep what the data was migrated from",
+      "problem": "After a migration, a question about one record has to be answerable from what it was built from.",
+      "options": [
+        {
+          "name": "Discard the spreadsheet after the cutover",
+          "verdict": "rejected",
+          "note": "Nothing would remain to compare a migrated row against."
+        },
+        {
+          "name": "Freeze the spreadsheet and store each row's original record alongside it",
+          "verdict": "chosen",
+          "note": "Any row can be compared with its source."
+        }
+      ],
+      "rationale": "Two production incidents were diagnosed against the frozen sheet and repaired from its values.",
+      "tradeoffs": [
+        "Every migrated row carries a copy of its original record as JSON, which costs storage."
+      ],
+      "evolution": "Archive the source payloads once the history they protect is no longer disputed.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "docs/ARCHITECTURE.md",
+          "lines": "241-250"
+        }
+      ]
+    }
+  ],
+  "metrics": [
+    {
+      "id": "bootstrap-query",
+      "label": "Cold bootstrap query",
+      "before": "about 5.6 s",
+      "after": "about 0.56 s",
+      "kind": "measured",
+      "method": "Server-side query time, Sheets compared with Supabase, measured by the author on the staging deployment during the migration.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "SUPABASE_MIGRATION_TEST_RESULTS_AR.md",
+          "lines": "104"
+        }
+      ]
+    },
+    {
+      "id": "cold-ui-load",
+      "label": "Cold load of the interface",
+      "before": "about 8.6 s",
+      "after": "about 4.1 s",
+      "kind": "measured",
+      "method": "Measured by the author on staging at that stage of the migration. The same entry records about 2.6 s for a warm load.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "SUPABASE_MIGRATION_TEST_RESULTS_AR.md",
+          "lines": "109"
+        }
+      ]
+    },
+    {
+      "id": "manager-dashboard",
+      "label": "Opening the manager dashboard",
+      "before": "about 16 s",
+      "after": "about 1.8 s",
+      "kind": "measured",
+      "method": "Measured by the author on staging during the operational cutover, with the dashboard figures unchanged. A forced refresh took about 4.3 s.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "SUPABASE_MIGRATION_TEST_RESULTS_AR.md",
+          "lines": "188"
+        }
+      ]
+    },
+    {
+      "id": "records-migrated",
+      "label": "Records migrated",
+      "value": "17,000+",
+      "kind": "count",
+      "method": "Reference record count across the 15 source sheets, recorded in the migration test results.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "SUPABASE_MIGRATION_TEST_RESULTS_AR.md",
+          "lines": "19-24"
+        }
+      ]
+    },
+    {
+      "id": "schema-size",
+      "label": "Database schema",
+      "value": "18 tables, 30 migrations",
+      "kind": "count",
+      "method": "Counted in the repository: CREATE TABLE statements and SQL files under supabase/migrations.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "supabase/migrations"
+        }
+      ]
+    },
+    {
+      "id": "fast-path-operations",
+      "label": "Operations on the fast path",
+      "value": "53 office, 12 technician",
+      "kind": "count",
+      "method": "Counted in the two allow-lists of the Edge Function.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "supabase/functions/crm-api/index.ts",
+          "lines": "1413-1433"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    {
+      "id": "webhook-dedup",
+      "title": "Redelivered webhooks are not deduplicated",
+      "current": "The handler saves the id of the last message but does not compare it, so a redelivery increments the message count again. It cannot create a second lead.",
+      "proposal": "Compare the incoming message id with the stored one, or record processed ids in the idempotency table that already exists in the schema.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "GreenApiLeads.js",
+          "lines": "51-76"
+        }
+      ]
+    },
+    {
+      "id": "fast-path-atomicity",
+      "title": "The fast-path booking check is not atomic",
+      "current": "On the Edge Function path the conflict check and the insert are separate calls. The Apps Script path performs both inside one lock.",
+      "proposal": "Move the booking into a single SQL function that checks and inserts in one transaction, and call it from both paths.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "supabase/functions/crm-api/index.ts",
+          "lines": "701-790"
+        },
+        {
+          "path": "Utils.js",
+          "lines": "616-634"
+        }
+      ]
+    },
+    {
+      "id": "mail-retry",
+      "title": "A failed email is recorded, not retried",
+      "current": "A send error is caught and written to the appointment's notification status, and the job is removed.",
+      "proposal": "Let transient mail errors fail the job so the existing attempt counter retries it, and keep recording permanent ones.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "CalendarEmail.js",
+          "lines": "176-190"
+        },
+        {
+          "path": "DeferredMaintenance.js",
+          "lines": "136-158"
+        }
+      ]
+    },
+    {
+      "id": "outbox-claim",
+      "title": "Outbox rows are not claimed",
+      "current": "Two overlapping worker runs can select the same pending event. Jobs keyed by appointment id absorb the duplicate.",
+      "proposal": "Claim rows with an update that returns them, or select them with SKIP LOCKED inside a SQL function.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "DeferredMaintenance.js",
+          "lines": "198-203"
+        }
+      ]
+    },
+    {
+      "id": "automated-tests",
+      "title": "There is no automated test suite",
+      "current": "Correctness was established with in-app parity checks that compare Sheets and Postgres results, staging self-tests and a transactional import that rolls back on any count mismatch. None of them run in CI.",
+      "proposal": "Extract the pure business rules, such as phone matching and booking conflicts, and cover them with unit tests in CI. The simulation on this page is tested that way.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "Supabase.js",
+          "note": "parity functions"
+        },
+        {
+          "path": "supabase/import_snapshot_to_supabase.cjs"
+        }
+      ]
+    }
+  ],
+  "screenshots": [],
+  "screenshotsNote": "Screenshots of the live system show the client's business figures, so none are published here until the client has approved them.",
+  "evidence": [
+    {
+      "label": "Application source",
+      "kind": "source",
+      "description": "28 Apps Script server modules, 8 HTML files for the two front-ends and the Edge Function in one TypeScript file.",
+      "sources": [
+        {
+          "path": "supabase/functions/crm-api/index.ts"
+        },
+        {
+          "path": "Script.html"
+        },
+        {
+          "path": "GreenApiLeads.js"
+        },
+        {
+          "path": "DeferredMaintenance.js"
+        }
+      ]
+    },
+    {
+      "label": "Database schema",
+      "kind": "schema",
+      "description": "30 ordered SQL migrations: tables, indexes, SQL functions, row-level security and grants.",
+      "sources": [
+        {
+          "path": "supabase/migrations"
+        }
+      ]
+    },
+    {
+      "label": "Migration measurements",
+      "kind": "measurements",
+      "description": "The author's log of parity results and timings for each stage of the move from Sheets to Postgres. Written in Arabic.",
+      "sources": [
+        {
+          "path": "SUPABASE_MIGRATION_TEST_RESULTS_AR.md"
+        }
+      ]
+    },
+    {
+      "label": "Architecture notes",
+      "kind": "documentation",
+      "description": "The two request paths, token flow, caching layers, failure modes and the reasoning behind them.",
+      "sources": [
+        {
+          "path": "docs/ARCHITECTURE.md"
+        },
+        {
+          "path": "README.md"
+        }
+      ]
+    },
+    {
+      "label": "Tests for this page's simulation",
+      "kind": "tests",
+      "description": "The re-implemented rules and every failure path of the demo are covered by unit tests in this portfolio's own repository.",
+      "sources": []
+    }
+  ]
+}

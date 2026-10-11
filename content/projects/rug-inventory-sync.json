@@ -1,0 +1,2617 @@
+{
+  "id": "rug-inventory-sync",
+  "title": "Rug Inventory and Shopify Synchronisation",
+  "tagline": "An operations app for a rug retailer that compares every monthly warehouse file with live inventory before anything is written, and sends approved changes to Shopify a few rugs at a time.",
+  "summary": "An internal web app for a retailer of one-of-a-kind rugs with two warehouses. Each month a warehouse sends a spreadsheet. The app normalises it, compares it with live inventory and stores the whole comparison as a preview. A person reads the preview and applies it or deletes it. New rugs need a separate approval before they can be listed. Changes to existing listings reach Shopify from a queue, a small batch per run, with retries when the API throttles and a log line per rug. Writes are checked on the server against the signed-in role, and changes are recorded in an audit log.",
+  "categories": [
+    "automation",
+    "business-apps",
+    "backend"
+  ],
+  "engagement": "client",
+  "engagementNote": "Freelance client project. The text of this page does not name the client; the screenshot and the author's public write-up do, and the owner confirmed both may be shown. The source repository is private. The limits and timings in the demo on this page are invented.",
+  "icon": "store",
+  "tone": "rose",
+  "highlights": [
+    {
+      "text": "A monthly file is compared with live inventory before anything is written",
+      "provenance": "code"
+    },
+    {
+      "text": "A price cell holding words or zero keeps the stored price",
+      "provenance": "code"
+    },
+    {
+      "text": "A rug whose status a person set on purpose is never overwritten",
+      "provenance": "code"
+    },
+    {
+      "text": "New rugs need a separate approval before they can be listed",
+      "provenance": "code"
+    },
+    {
+      "text": "Shopify updates go out a few rugs per run, with retries on throttling",
+      "provenance": "code"
+    },
+    {
+      "text": "Writes are checked on the server against the signed-in role",
+      "provenance": "code"
+    }
+  ],
+  "statusLabel": "Core workflows implemented",
+  "roleLabel": "Design and development",
+  "status": {
+    "text": "The public write-up says the core inventory, import review, sign-in, audit and the Shopify queue foundations are implemented, and that the final automation of the image folders still depends on the Drive folder structure being confirmed. In the code, the update worker runs on a timer only if its trigger was installed, and new listings are created by a script run by hand.",
+    "provenance": "documented",
+    "sources": [
+      {
+        "path": "showcase/README.md",
+        "lines": "139"
+      },
+      {
+        "path": "apps-script/Shopify_Push.gs",
+        "lines": "463-467"
+      },
+      {
+        "path": "apps-script/Shopify_Create.gs",
+        "lines": "12-16"
+      }
+    ]
+  },
+  "repository": {
+    "name": "Private repository for this project",
+    "visibility": "private",
+    "linkSources": false,
+    "writeUpUrl": "https://github.com/El-Sayed-Mustafa/adibs-rug-inventory-showcase"
+  },
+  "problem": {
+    "text": "Inventory arrived from two warehouses in different spreadsheet formats. Product data, sold status and the Shopify listing could drift apart, and staff needed a way to review a month's changes without risking the live store.",
+    "provenance": "documented",
+    "sources": [
+      {
+        "path": "showcase/README.md",
+        "lines": "9-13"
+      }
+    ]
+  },
+  "context": [
+    {
+      "text": "The retailer holds more than 25,000 one-of-a-kind rugs across two warehouses, according to the public write-up.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "3"
+        }
+      ]
+    },
+    {
+      "text": "Each rug is a single item. Its listing has one unit while the rug is in stock and none once it is sold.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Shopify_Push.gs",
+          "lines": "4-7"
+        },
+        {
+          "path": "apps-script/Shopify_Push.gs",
+          "lines": "281-289"
+        }
+      ]
+    },
+    {
+      "text": "The app is one Google Apps Script web app. It serves a single page, and the page calls server functions that talk to the database.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Code.gs",
+          "lines": "1-4"
+        },
+        {
+          "path": "apps-script/Code.gs",
+          "lines": "354-359"
+        },
+        {
+          "path": "apps-script/Code.gs",
+          "lines": "1077-1086"
+        }
+      ]
+    },
+    {
+      "text": "State lives in Supabase PostgreSQL, reached from the server over its REST interface.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Import_CA.gs",
+          "lines": "418-441"
+        }
+      ]
+    },
+    {
+      "text": "The two warehouses send different files. This page follows the simpler one, which can say four things about a rug: it exists, its width, its length and its price.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Import_CA.gs",
+          "lines": "21-24"
+        }
+      ]
+    },
+    {
+      "text": "For the other warehouse an import refreshes status, size and price, and fills any other attribute only where the stored cell is blank.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Import_UT.gs",
+          "lines": "12-16"
+        },
+        {
+          "path": "apps-script/Import_UT.gs",
+          "lines": "523-533"
+        }
+      ]
+    },
+    {
+      "text": "The public write-up also describes an image workflow with five stages, from raw to uploaded. In the code a rug's stage is set by a person.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "21"
+        },
+        {
+          "path": "apps-script/Code.gs",
+          "lines": "2868-2872"
+        }
+      ]
+    }
+  ],
+  "role": {
+    "text": "Design and development of the application.",
+    "provenance": "owner",
+    "sources": []
+  },
+  "challenges": [
+    {
+      "text": "A wrong file would change live inventory and then the storefront, so nothing may be written before a person has seen what it would do.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "11"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "34"
+        },
+        {
+          "path": "apps-script/Import_CA.gs",
+          "lines": "4-6"
+        }
+      ]
+    },
+    {
+      "text": "Sizes are typed by hand: typographic quote marks, a letter O for zero, two single quotes for inches, inches of twelve or more.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Import_CA.gs",
+          "lines": "339-365"
+        }
+      ]
+    },
+    {
+      "text": "The price column sometimes holds words instead of a number. Read as zero, they would wipe real prices.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Import_CA.gs",
+          "lines": "374-394"
+        }
+      ]
+    },
+    {
+      "text": "Some rugs carry a status that a person set on purpose. A file that still lists them must not put them back in stock.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Import_CA.gs",
+          "lines": "32-33"
+        },
+        {
+          "path": "apps-script/Import_CA.gs",
+          "lines": "252-258"
+        }
+      ]
+    },
+    {
+      "text": "The file has no column for a sale. A sale shows only as a rug that is no longer listed.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Import_CA.gs",
+          "lines": "21-24"
+        },
+        {
+          "path": "apps-script/Import_CA.gs",
+          "lines": "292-300"
+        }
+      ]
+    },
+    {
+      "text": "The storefront API limits how fast an app may write, and one rug that fails must not stop the others.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Shopify_Push.gs",
+          "lines": "13-16"
+        },
+        {
+          "path": "apps-script/Shopify_Push.gs",
+          "lines": "197-207"
+        },
+        {
+          "path": "apps-script/Shopify_Push.gs",
+          "lines": "429-459"
+        }
+      ]
+    }
+  ],
+  "solution": [
+    {
+      "text": "The server normalises the file, compares each row with the warehouse's inventory and stores the whole comparison as a preview. Applying the batch is the only step that changes inventory.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Import_Upload.gs",
+          "lines": "8-58"
+        },
+        {
+          "path": "apps-script/Import_CA.gs",
+          "lines": "207-303"
+        },
+        {
+          "path": "apps-script/Code.gs",
+          "lines": "1904"
+        }
+      ]
+    },
+    {
+      "text": "Each row gets an action: new, update, sold, unchanged or error. Rows that need review and rugs that are protected are counted beside it.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Import_CA.gs",
+          "lines": "207-303"
+        },
+        {
+          "path": "showcase/docs/SYSTEM_DESIGN.md",
+          "lines": "85"
+        }
+      ]
+    },
+    {
+      "text": "An unreadable size makes the row an error. It stays visible in the preview, and the page tells the reviewer it will be skipped when the batch is applied.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Import_CA.gs",
+          "lines": "218-227"
+        },
+        {
+          "path": "apps-script/Code.gs",
+          "lines": "1741-1745"
+        }
+      ]
+    },
+    {
+      "text": "A price cell that holds words or zero is flagged for review and the stored price is kept. It is never set to zero.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Import_CA.gs",
+          "lines": "374-394"
+        },
+        {
+          "path": "apps-script/Import_CA.gs",
+          "lines": "231-236"
+        },
+        {
+          "path": "apps-script/Import_CA.gs",
+          "lines": "265-267"
+        }
+      ]
+    },
+    {
+      "text": "A person reads the stored preview, then applies it or deletes it. A batch has two stored states: preview and applied.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Import_Upload.gs",
+          "lines": "264-293"
+        },
+        {
+          "path": "apps-script/Import_Upload.gs",
+          "lines": "331-356"
+        }
+      ]
+    },
+    {
+      "text": "New rugs arrive unapproved and need a separate approval. Existing rugs changed by an import are marked ready at apply, without a second approval.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Import_Upload.gs",
+          "lines": "295-319"
+        },
+        {
+          "path": "apps-script/Import_CA.gs",
+          "lines": "121"
+        }
+      ]
+    },
+    {
+      "text": "A worker takes a small batch from the queue per run, retries a throttled call with a growing wait, logs every rug, and carries on when one rug fails.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Shopify_Push.gs",
+          "lines": "163-216"
+        },
+        {
+          "path": "apps-script/Shopify_Push.gs",
+          "lines": "429-459"
+        }
+      ]
+    },
+    {
+      "text": "Writes are checked on the server against the signed-in role. Rug edits, bulk changes and applied batches are written to an audit log with the actor.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Code.gs",
+          "lines": "162-177"
+        },
+        {
+          "path": "apps-script/Code.gs",
+          "lines": "179-211"
+        },
+        {
+          "path": "apps-script/Import_Upload.gs",
+          "lines": "264-282"
+        }
+      ]
+    }
+  ],
+  "stack": [
+    {
+      "name": "Google Apps Script",
+      "role": "The web app, its server functions, the import engine and the storefront scripts",
+      "provenance": "code"
+    },
+    {
+      "name": "Supabase PostgreSQL",
+      "role": "Inventory, import batches, users, the audit log and the queue, over REST and RPC",
+      "provenance": "code"
+    },
+    {
+      "name": "React 18",
+      "role": "The single page the app serves, compiled in the browser",
+      "provenance": "code"
+    },
+    {
+      "name": "Shopify Admin GraphQL API",
+      "role": "Quantity, status and price of listings, and new products",
+      "provenance": "code"
+    },
+    {
+      "name": "Google Drive and Sheets",
+      "role": "Temporary copies of uploads, XLSX conversion, and the rug photographs",
+      "provenance": "code"
+    }
+  ],
+  "beforeAfter": {
+    "title": "Before and after the app",
+    "note": "The before column is the situation as the public write-up describes it. No timings or volumes were recorded for either side, so none are shown.",
+    "before": [
+      {
+        "text": "Inventory arrived from two warehouses in different spreadsheet formats.",
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "showcase/README.md",
+            "lines": "11"
+          }
+        ]
+      },
+      {
+        "text": "Product data, sold status and the Shopify listing could drift apart.",
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "showcase/README.md",
+            "lines": "11"
+          }
+        ]
+      },
+      {
+        "text": "Staff needed a way to review changes without risking the live store.",
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "showcase/README.md",
+            "lines": "11"
+          }
+        ]
+      }
+    ],
+    "after": [
+      {
+        "text": "One inventory holds the rugs of both warehouses.",
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "showcase/README.md",
+            "lines": "17"
+          }
+        ]
+      },
+      {
+        "text": "Every file is stored as a comparison first. Applying it is a separate step that a person takes.",
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "apps-script/Import_Upload.gs",
+            "lines": "37-45"
+          },
+          {
+            "path": "apps-script/Import_Upload.gs",
+            "lines": "264-293"
+          }
+        ]
+      },
+      {
+        "text": "Changes to existing listings reach the storefront from a queue, a small batch per run, with a log line per rug.",
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "apps-script/Shopify_Push.gs",
+            "lines": "163-216"
+          }
+        ]
+      }
+    ]
+  },
+  "architecture": {
+    "summary": "One Apps Script web app sits between the staff and a PostgreSQL database. An import is computed and stored as a preview by the server, and applied by one database function when a person says so. A separate worker reads a queue derived from inventory and pushes changes to Shopify. Creating new listings is a script run by hand.",
+    "layers": [
+      {
+        "id": "people",
+        "label": "People"
+      },
+      {
+        "id": "inputs",
+        "label": "Files and media"
+      },
+      {
+        "id": "app",
+        "label": "Apps Script application"
+      },
+      {
+        "id": "data",
+        "label": "Supabase PostgreSQL"
+      },
+      {
+        "id": "sync",
+        "label": "Storefront synchronisation"
+      },
+      {
+        "id": "external",
+        "label": "External service"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "operator",
+        "label": "Inventory staff",
+        "layer": "people",
+        "kind": "actor",
+        "technology": "An editor or admin account",
+        "responsibility": "Uploads the monthly file, reads the preview, applies or deletes it, approves new rugs, and starts the storefront scripts.",
+        "inputs": [
+          "The stored preview of a batch",
+          "The new rugs waiting for approval"
+        ],
+        "outputs": [
+          "Apply or delete",
+          "Approval of a new rug",
+          "A run of a storefront script"
+        ],
+        "details": [
+          "The public write-up describes four roles: admin, editor, bookkeeper and viewer.",
+          "Imports need an editor or an admin.",
+          "In review is something this person does. It is not a state a batch is stored in."
+        ],
+        "failureModes": [
+          "Applying a batch without reading it. Nothing else stands between a bad file and inventory."
+        ],
+        "reliability": [
+          "Before an apply the page asks for confirmation and names the error rows and the flagged prices."
+        ],
+        "provenance": "documented",
+        "sources": [
+          {
+            "path": "showcase/README.md",
+            "lines": "23"
+          },
+          {
+            "path": "showcase/docs/SYSTEM_DESIGN.md",
+            "lines": "136-145"
+          },
+          {
+            "path": "apps-script/Import_Upload.gs",
+            "lines": "9-10"
+          },
+          {
+            "path": "apps-script/Code.gs",
+            "lines": "1741-1745"
+          }
+        ],
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": "warehouse-file",
+        "label": "Monthly warehouse file",
+        "layer": "inputs",
+        "kind": "storage",
+        "technology": "CSV or XLSX, one per warehouse",
+        "responsibility": "Says which rugs a warehouse holds this month, with their size and price.",
+        "inputs": [
+          "A warehouse's month-end stock list"
+        ],
+        "outputs": [
+          "Rows of rug number, width, length and price"
+        ],
+        "details": [
+          "The file followed on this page can say four things about a rug: it exists, its width, its length and its price.",
+          "It has no column for a sale. A rug that was sold is simply no longer listed.",
+          "The other warehouse's file has more columns and goes through a larger transform."
+        ],
+        "failureModes": [
+          "Title lines above the header.",
+          "Sizes and prices typed by hand.",
+          "A file that is cut short, or that lists a rug twice."
+        ],
+        "reliability": [
+          "The header row is searched for near the top of the sheet instead of being assumed."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "apps-script/Import_CA.gs",
+            "lines": "21-24"
+          },
+          {
+            "path": "apps-script/Import_CA.gs",
+            "lines": "145-157"
+          },
+          {
+            "path": "showcase/README.md",
+            "lines": "18"
+          }
+        ],
+        "position": {
+          "x": 0,
+          "y": 224
+        }
+      },
+      {
+        "id": "drive",
+        "label": "Google Drive",
+        "layer": "inputs",
+        "kind": "storage",
+        "technology": "Temporary upload copies, photographs",
+        "responsibility": "Holds the temporary copy of an uploaded file while it is read, and the rug photographs.",
+        "inputs": [
+          "An uploaded file",
+          "Photographs"
+        ],
+        "outputs": [
+          "Sheet values for the import"
+        ],
+        "details": [
+          "An upload is saved as a temporary file, read, and binned whether the preview succeeds or fails.",
+          "An XLSX file is converted to a temporary Google Sheet, and only its first sheet is read.",
+          "The public write-up describes five image stages from raw to uploaded. In the code a rug's stage is set by a person."
+        ],
+        "failureModes": [
+          "An XLSX file with several sheets: only the first is read."
+        ],
+        "reliability": [
+          "The temporary copies are binned in a finally block, so a failed preview leaves nothing behind."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "apps-script/Import_Upload.gs",
+            "lines": "24-25"
+          },
+          {
+            "path": "apps-script/Import_Upload.gs",
+            "lines": "55-57"
+          },
+          {
+            "path": "apps-script/Import_CA.gs",
+            "lines": "186-203"
+          },
+          {
+            "path": "showcase/README.md",
+            "lines": "21"
+          },
+          {
+            "path": "apps-script/Code.gs",
+            "lines": "2868-2872"
+          }
+        ],
+        "position": {
+          "x": 0,
+          "y": 336
+        }
+      },
+      {
+        "id": "web-app",
+        "label": "Inventory workspace",
+        "layer": "app",
+        "kind": "frontend",
+        "technology": "A React page served by Apps Script",
+        "responsibility": "Shows inventory, takes the upload, shows the stored preview row by row, and offers apply, delete, edit and approve.",
+        "inputs": [
+          "A person's actions",
+          "Pages of a stored comparison"
+        ],
+        "outputs": [
+          "Calls to server functions"
+        ],
+        "details": [
+          "One HTML page, with React compiled in the browser.",
+          "The file's type and size are checked before the upload; the server checks again.",
+          "A fresh preview opens on its errors if it has any, then on its review flags, then on every change.",
+          "From a row, an existing rug opens in a side drawer where its live record can be edited. A new rug cannot be opened: it is not in inventory yet.",
+          "A row shows the stored old and new values beside the rug's current record."
+        ],
+        "failureModes": [
+          "Reloading the page signs the user out: the session is kept in page memory only.",
+          "A failed call shows a short message and nothing more."
+        ],
+        "reliability": [
+          "Apply and delete each ask for confirmation.",
+          "The import panel states that apply is the only action that changes live inventory."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "apps-script/Code.gs",
+            "lines": "354-359"
+          },
+          {
+            "path": "apps-script/Code.gs",
+            "lines": "380-382"
+          },
+          {
+            "path": "apps-script/Code.gs",
+            "lines": "1697-1726"
+          },
+          {
+            "path": "apps-script/Code.gs",
+            "lines": "1741-1769"
+          },
+          {
+            "path": "apps-script/Code.gs",
+            "lines": "1873-1896"
+          },
+          {
+            "path": "apps-script/Code.gs",
+            "lines": "1904"
+          },
+          {
+            "path": "apps-script/Code.gs",
+            "lines": "2718"
+          }
+        ],
+        "position": {
+          "x": 310,
+          "y": 0
+        }
+      },
+      {
+        "id": "server",
+        "label": "Apps Script server",
+        "layer": "app",
+        "kind": "backend",
+        "technology": "Server functions called from the page",
+        "responsibility": "Checks the signed session and the role on writes, validates uploads, runs the import, and relays reads and writes to the database.",
+        "whyThisTechnology": {
+          "text": "The page talks to the database through the script so that the service credential stays on the server.",
+          "provenance": "documented",
+          "sources": [
+            {
+              "path": "apps-script/Code.gs",
+              "lines": "1-4"
+            },
+            {
+              "path": "showcase/README.md",
+              "lines": "98"
+            }
+          ]
+        },
+        "inputs": [
+          "Calls from the page, with a session token on each write"
+        ],
+        "outputs": [
+          "REST and RPC requests to the database",
+          "Audit entries"
+        ],
+        "details": [
+          "Signing in returns a signed, expiring token that carries the role.",
+          "Writes are checked on the server against the signed-in role: imports need an editor or an admin, a viewer cannot write, and a bookkeeper can change only its own fields.",
+          "The database credential and the storefront token are read from server-side script properties.",
+          "An edit records the rug's whole old row and its new row. A bulk change records the new values only."
+        ],
+        "failureModes": [
+          "A database error is passed to the page as an error message. There is no retry.",
+          "An edit reads the old row and then writes. Two people saving the same rug overwrite each other, and the last write wins."
+        ],
+        "reliability": [
+          "An upload is refused before it is read when the role, the file type or the size is wrong."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "apps-script/Code.gs",
+            "lines": "129-150"
+          },
+          {
+            "path": "apps-script/Code.gs",
+            "lines": "162-177"
+          },
+          {
+            "path": "apps-script/Code.gs",
+            "lines": "179-211"
+          },
+          {
+            "path": "apps-script/Import_Upload.gs",
+            "lines": "8-25"
+          },
+          {
+            "path": "apps-script/Shopify_Push.gs",
+            "lines": "421-427"
+          }
+        ],
+        "position": {
+          "x": 310,
+          "y": 112
+        }
+      },
+      {
+        "id": "import-engine",
+        "label": "Import engine",
+        "layer": "app",
+        "kind": "backend",
+        "technology": "Parse, normalise, compare",
+        "responsibility": "Turns a warehouse file into a row-by-row comparison with live inventory, without writing to inventory.",
+        "inputs": [
+          "Sheet values",
+          "The warehouse's current rugs"
+        ],
+        "outputs": [
+          "One row per rug with an action, a note and the old and new values",
+          "Counts per class"
+        ],
+        "details": [
+          "Finds the header row near the top of the sheet, then reads columns by name.",
+          "Repairs sizes typed by hand and returns them as feet and inches. A size that cannot be read makes the row an error.",
+          "Reads a price only when the cell holds a number above zero. Otherwise the cell becomes a note and the stored price is kept.",
+          "Compares within one warehouse: status, width, length and price.",
+          "A rug that is in stock and absent from the file is proposed as sold.",
+          "A rug with a protected status is recorded as unchanged, with a note."
+        ],
+        "failureModes": [
+          "A rug number listed twice in one file is not detected: each line becomes its own row.",
+          "A file that is cut short proposes every missing in-stock rug as sold. Nothing in the repository checks the size of a file against the inventory."
+        ],
+        "reliability": [
+          "Words in a price cell, or a price of zero, never overwrite a price.",
+          "Errors and flags stay visible in the preview instead of being dropped."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "apps-script/Import_CA.gs",
+            "lines": "145-183"
+          },
+          {
+            "path": "apps-script/Import_CA.gs",
+            "lines": "207-303"
+          },
+          {
+            "path": "apps-script/Import_CA.gs",
+            "lines": "339-394"
+          },
+          {
+            "path": "apps-script/Import_UT.gs",
+            "lines": "463-550"
+          }
+        ],
+        "position": {
+          "x": 310,
+          "y": 224
+        }
+      },
+      {
+        "id": "import-batches",
+        "label": "Import batches",
+        "layer": "data",
+        "kind": "database",
+        "technology": "One record per previewed file",
+        "responsibility": "Stores the whole comparison of one file: its counts and every row, changed or not.",
+        "inputs": [
+          "A comparison from the import engine"
+        ],
+        "outputs": [
+          "Pages of rows for review",
+          "The rows the apply step and the update worker read"
+        ],
+        "details": [
+          "Two stored states: preview and applied.",
+          "Storing a preview does not change inventory.",
+          "A preview can be deleted. An applied batch cannot.",
+          "The stored rows are not recomputed when a rug is corrected during review.",
+          "The definition of this record is not in the repository."
+        ],
+        "failureModes": [
+          "The comparison is a snapshot. If inventory changes between preview and apply, the stored old values are stale, and the server code does not check again."
+        ],
+        "reliability": [
+          "Deleting is limited to batches still in the preview state, both in the check and in the delete itself."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "apps-script/Import_Upload.gs",
+            "lines": "37-45"
+          },
+          {
+            "path": "apps-script/Import_Upload.gs",
+            "lines": "60-90"
+          },
+          {
+            "path": "apps-script/Import_Upload.gs",
+            "lines": "264-272"
+          },
+          {
+            "path": "apps-script/Import_Upload.gs",
+            "lines": "331-356"
+          }
+        ],
+        "position": {
+          "x": 620,
+          "y": 0
+        }
+      },
+      {
+        "id": "apply-function",
+        "label": "Apply function",
+        "layer": "data",
+        "kind": "database",
+        "technology": "A database function, not in the repository",
+        "statusNote": "The server calls it, but its body is not in the repository. What happens inside it is unknown.",
+        "responsibility": "Applies one stored batch to inventory and returns how many rugs it inserted, updated, marked sold and skipped.",
+        "inputs": [
+          "A batch number"
+        ],
+        "outputs": [
+          "Four counts",
+          "Changed inventory"
+        ],
+        "details": [
+          "Only its call and its result are in the repository.",
+          "No server code sets a batch to applied, so the function must do it.",
+          "Whether it checks the stored rows against current inventory, and whether it writes audit entries per rug, is unknown.",
+          "The demo on this page uses a plain stand-in for it and says so."
+        ],
+        "failureModes": [
+          "Unknown: the body is not in the repository."
+        ],
+        "reliability": [
+          "The server refuses to call it for a batch that is no longer a preview."
+        ],
+        "provenance": "inferred",
+        "sources": [
+          {
+            "path": "apps-script/Import_Upload.gs",
+            "lines": "269-275"
+          },
+          {
+            "path": "apps-script/Import_CA.gs",
+            "lines": "16-17",
+            "note": "A setup note names a database script that is not in the repository."
+          }
+        ],
+        "position": {
+          "x": 620,
+          "y": 112
+        }
+      },
+      {
+        "id": "inventory",
+        "label": "Inventory",
+        "layer": "data",
+        "kind": "database",
+        "technology": "PostgreSQL, one row per rug",
+        "responsibility": "The record of every rug in both warehouses: status, size, price, approval and its storefront link.",
+        "inputs": [
+          "Applied batches",
+          "Edits from the drawer",
+          "Approvals",
+          "The mark that a rug was pushed"
+        ],
+        "outputs": [
+          "Current rugs for a comparison",
+          "Rugs for the workspace",
+          "The storefront queue"
+        ],
+        "details": [
+          "A rug carries a flag that says it is approved for the storefront. A new rug arrives with it off.",
+          "Each rug belongs to one warehouse, and an import reads only that warehouse's rugs.",
+          "The base table's definition is not in the repository. Later migrations that add columns to it are."
+        ],
+        "failureModes": [
+          "A write carries no version check: the last write wins."
+        ],
+        "reliability": [
+          "An import never overwrites a rug whose status is protected."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "apps-script/Import_CA.gs",
+            "lines": "307-329"
+          },
+          {
+            "path": "apps-script/Import_CA.gs",
+            "lines": "252-258"
+          },
+          {
+            "path": "apps-script/Import_Upload.gs",
+            "lines": "295-319"
+          },
+          {
+            "path": "apps-script/phase2-workflow.sql",
+            "lines": "3-9"
+          }
+        ],
+        "position": {
+          "x": 620,
+          "y": 224
+        }
+      },
+      {
+        "id": "audit-log",
+        "label": "Audit log",
+        "layer": "data",
+        "kind": "database",
+        "technology": "One entry per change",
+        "responsibility": "Records who changed what: the actor, the action, the fields, the old values and the new values.",
+        "inputs": [
+          "Edits, bulk changes and applied batches"
+        ],
+        "outputs": [
+          "Rows that can be queried in the database. The app has no screen that reads them."
+        ],
+        "details": [
+          "An edit stores the rug's whole old row and its new row.",
+          "A bulk change stores one entry per rug, with the new values only.",
+          "An applied batch stores one entry with the file, the counts and who applied it."
+        ],
+        "failureModes": [
+          "The entry is written after the change, in a separate call. If it fails, the change stays and the caller sees an error."
+        ],
+        "reliability": [
+          "An index by rug and time supports reading one rug's history."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "apps-script/phase2-workflow.sql",
+            "lines": "38-51"
+          },
+          {
+            "path": "apps-script/Code.gs",
+            "lines": "162-167"
+          },
+          {
+            "path": "apps-script/Code.gs",
+            "lines": "186-190"
+          },
+          {
+            "path": "apps-script/Code.gs",
+            "lines": "201-211"
+          },
+          {
+            "path": "apps-script/Import_Upload.gs",
+            "lines": "277-282"
+          }
+        ],
+        "position": {
+          "x": 620,
+          "y": 336
+        }
+      },
+      {
+        "id": "sync-queue",
+        "label": "Storefront queue",
+        "layer": "sync",
+        "kind": "queue",
+        "technology": "Derived from inventory, not a job table",
+        "responsibility": "Lists the rugs whose storefront listing is behind their inventory record.",
+        "inputs": [
+          "Inventory records, and when each was last pushed"
+        ],
+        "outputs": [
+          "A small batch per run for the update worker"
+        ],
+        "details": [
+          "Nothing in the server code adds a rug to the queue. The worker's comments say a rug leaves it when its push time is stamped.",
+          "Each entry says whether the rug needs an update or a new listing.",
+          "An entry has no attempt count and no failed state.",
+          "The definition of the queue is not in the repository, so its exact membership rule is unknown."
+        ],
+        "failureModes": [
+          "A rug that fails on every run is picked again each time.",
+          "There is no dead-letter state and no alert."
+        ],
+        "reliability": [
+          "A run that stops half way loses nothing: a rug is marked as pushed only after its own push succeeded."
+        ],
+        "provenance": "inferred",
+        "sources": [
+          {
+            "path": "apps-script/Shopify_Push.gs",
+            "lines": "1-16"
+          },
+          {
+            "path": "apps-script/Shopify_Push.gs",
+            "lines": "197-207"
+          },
+          {
+            "path": "apps-script/Shopify_Push.gs",
+            "lines": "219-272"
+          }
+        ],
+        "position": {
+          "x": 930,
+          "y": 0
+        }
+      },
+      {
+        "id": "update-worker",
+        "label": "Update worker",
+        "layer": "sync",
+        "kind": "worker",
+        "technology": "Apps Script, by timer if installed, or by hand",
+        "statusNote": "It runs on a timer only if someone installed its trigger from the script editor. Whether that was done in production is not recorded in the repository. Otherwise it is run by hand.",
+        "responsibility": "Pushes quantity, listing status and price to listings that already exist, a small batch per run.",
+        "inputs": [
+          "A batch from the queue",
+          "The newest applied import's changed rugs"
+        ],
+        "outputs": [
+          "Writes to the storefront",
+          "A pushed mark per rug",
+          "A log line per rug"
+        ],
+        "details": [
+          "Runs on a timer only if someone installed its trigger from the script editor. Whether that was done in production is not recorded in the repository. Otherwise it is run by hand.",
+          "Takes a script lock first. If another run holds it, this run is skipped.",
+          "Picks the newest applied import's updated and sold rugs first, oldest change first, then fills up from older entries.",
+          "Never creates a listing: a rug without one is left to the new listing script.",
+          "Sets one unit at the rug's own warehouse location and none at the other. An in-stock rug's listing is set active.",
+          "Writes the price only when the listing's price has drifted from the record.",
+          "Stops early when the run is over its time budget."
+        ],
+        "failureModes": [
+          "One rug fails: it is logged and not marked as pushed, and the loop continues.",
+          "Missing storefront settings: the run stops before any work."
+        ],
+        "reliability": [
+          "Every write is absolute, so pushing a rug twice is harmless.",
+          "A throttled or failing API call is retried with a wait that grows with each attempt.",
+          "A log write that fails does not break the run."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "apps-script/Shopify_Push.gs",
+            "lines": "163-216"
+          },
+          {
+            "path": "apps-script/Shopify_Push.gs",
+            "lines": "219-272"
+          },
+          {
+            "path": "apps-script/Shopify_Push.gs",
+            "lines": "278-311"
+          },
+          {
+            "path": "apps-script/Shopify_Push.gs",
+            "lines": "429-459"
+          },
+          {
+            "path": "apps-script/Shopify_Push.gs",
+            "lines": "463-473"
+          }
+        ],
+        "position": {
+          "x": 930,
+          "y": 112
+        }
+      },
+      {
+        "id": "create-script",
+        "label": "New listing script (run by hand)",
+        "layer": "sync",
+        "kind": "worker",
+        "technology": "Apps Script, started from the editor",
+        "statusNote": "Run by hand from the script editor, one batch at a time. No button in the app and no timer starts it.",
+        "responsibility": "Creates a storefront product for an approved, complete, in-stock rug that has no listing yet.",
+        "inputs": [
+          "Rugs the database marks as complete and that are approved"
+        ],
+        "outputs": [
+          "A new product",
+          "The listing's ids written back to the rug",
+          "A log line"
+        ],
+        "details": [
+          "An operator runs it from the script editor: first one product to check by eye, then a batch. No button in the app and no timer starts it.",
+          "It picks only rugs that the database marks as complete and that carry the approval flag.",
+          "Title, description and tags are built from the rug's record.",
+          "Stock, category and image are set as best effort, so that they cannot fail the product."
+        ],
+        "failureModes": [
+          "A rug that fails is logged and the batch goes on."
+        ],
+        "reliability": [
+          "The author's instructions start with a single product, compared with an existing one, before any batch."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "apps-script/Shopify_Create.gs",
+            "lines": "1-23"
+          },
+          {
+            "path": "apps-script/Shopify_Create.gs",
+            "lines": "42-67"
+          },
+          {
+            "path": "apps-script/Shopify_Create.gs",
+            "lines": "130-146"
+          },
+          {
+            "path": "apps-script/Shopify_Create.gs",
+            "lines": "381-397"
+          }
+        ],
+        "position": {
+          "x": 930,
+          "y": 224
+        }
+      },
+      {
+        "id": "sync-log",
+        "label": "Storefront log",
+        "layer": "sync",
+        "kind": "database",
+        "technology": "One line per rug per run",
+        "responsibility": "Records the outcome of every push and every created listing.",
+        "inputs": [
+          "The update worker",
+          "The new listing script"
+        ],
+        "outputs": [
+          "A history an operator can read",
+          "The list a check script compares with the storefront"
+        ],
+        "details": [
+          "Each line holds the rug, the operation, success or failure, and a short message.",
+          "A helper script re-reads the latest successful pushes from the storefront and compares price, quantity and status. It is run by hand."
+        ],
+        "failureModes": [
+          "Nothing reads the failures and tells anyone."
+        ],
+        "reliability": [
+          "Writing a log line is wrapped so that its failure cannot stop a run."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "apps-script/Shopify_Push.gs",
+            "lines": "60-129"
+          },
+          {
+            "path": "apps-script/Shopify_Push.gs",
+            "lines": "504-511"
+          },
+          {
+            "path": "apps-script/Shopify_Create.gs",
+            "lines": "457-460"
+          }
+        ],
+        "position": {
+          "x": 930,
+          "y": 336
+        }
+      },
+      {
+        "id": "shopify",
+        "label": "Shopify",
+        "layer": "external",
+        "kind": "external",
+        "technology": "Admin GraphQL API",
+        "responsibility": "The storefront: products, prices and stock per location.",
+        "inputs": [
+          "Quantity, status and price writes",
+          "New products"
+        ],
+        "outputs": [
+          "An answer per write, with the app's remaining rate budget"
+        ],
+        "details": [
+          "Each warehouse has its own stock location.",
+          "A rug is one of a kind, so its stock is one or zero."
+        ],
+        "failureModes": [
+          "Rate limiting.",
+          "Server errors.",
+          "A write rejected for one product."
+        ],
+        "reliability": [
+          "Calls are retried on rate limiting and on server errors. After a successful call the worker pauses when the remaining budget is low.",
+          "An authorisation failure is not retried."
+        ],
+        "provenance": "code",
+        "sources": [
+          {
+            "path": "apps-script/Shopify_Push.gs",
+            "lines": "37"
+          },
+          {
+            "path": "apps-script/Shopify_Push.gs",
+            "lines": "281-289"
+          },
+          {
+            "path": "apps-script/Shopify_Push.gs",
+            "lines": "429-459"
+          }
+        ],
+        "position": {
+          "x": 1240,
+          "y": 112
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "operator-webapp",
+        "from": "operator",
+        "to": "web-app",
+        "protocol": "Browser",
+        "data": "Sign-in, uploads, review, edits and approvals"
+      },
+      {
+        "id": "file-webapp",
+        "from": "warehouse-file",
+        "to": "web-app",
+        "protocol": "Drag and drop, or a file picker",
+        "data": "One CSV or XLSX file for one warehouse"
+      },
+      {
+        "id": "webapp-server",
+        "from": "web-app",
+        "to": "server",
+        "protocol": "google.script.run, one server execution per call",
+        "data": "The session token with each write; the file as base64 text"
+      },
+      {
+        "id": "server-drive",
+        "from": "server",
+        "to": "drive",
+        "protocol": "DriveApp and the Drive service",
+        "data": "A temporary copy of the upload; an XLSX converted to a sheet"
+      },
+      {
+        "id": "server-engine",
+        "from": "server",
+        "to": "import-engine",
+        "protocol": "Function call",
+        "data": "Sheet values in, a comparison out"
+      },
+      {
+        "id": "engine-inventory",
+        "from": "import-engine",
+        "to": "inventory",
+        "protocol": "HTTPS REST read, in pages",
+        "data": "Status, size and price of one warehouse's rugs"
+      },
+      {
+        "id": "server-batches",
+        "from": "server",
+        "to": "import-batches",
+        "protocol": "HTTPS REST insert, read and delete",
+        "data": "The stored comparison, and pages of it for review"
+      },
+      {
+        "id": "server-apply",
+        "from": "server",
+        "to": "apply-function",
+        "protocol": "HTTPS RPC",
+        "data": "A batch number in, four counts out"
+      },
+      {
+        "id": "apply-batches",
+        "from": "apply-function",
+        "to": "import-batches",
+        "protocol": "SQL inside the function (not in the repository)",
+        "data": "The stored rows, and the batch's state"
+      },
+      {
+        "id": "apply-inventory",
+        "from": "apply-function",
+        "to": "inventory",
+        "protocol": "SQL inside the function (not in the repository)",
+        "data": "New, updated and sold rugs"
+      },
+      {
+        "id": "server-inventory",
+        "from": "server",
+        "to": "inventory",
+        "protocol": "HTTPS REST patch and insert",
+        "data": "Edits, the ready flag after an import, approvals"
+      },
+      {
+        "id": "server-audit",
+        "from": "server",
+        "to": "audit-log",
+        "protocol": "HTTPS REST insert",
+        "data": "Actor, action, fields, old and new values"
+      },
+      {
+        "id": "queue-inventory",
+        "from": "sync-queue",
+        "to": "inventory",
+        "protocol": "Derived from inventory (definition not in the repository)",
+        "data": "Rugs changed since their last push"
+      },
+      {
+        "id": "operator-worker",
+        "from": "operator",
+        "to": "update-worker",
+        "protocol": "Script editor by hand, or a timer trigger if installed",
+        "data": "The start of one run",
+        "kind": "async"
+      },
+      {
+        "id": "worker-batches",
+        "from": "update-worker",
+        "to": "import-batches",
+        "protocol": "HTTPS REST read",
+        "data": "The newest applied batch's updated and sold rugs"
+      },
+      {
+        "id": "worker-queue",
+        "from": "update-worker",
+        "to": "sync-queue",
+        "protocol": "HTTPS REST read",
+        "data": "A small batch of rugs that already have a listing"
+      },
+      {
+        "id": "worker-shopify",
+        "from": "update-worker",
+        "to": "shopify",
+        "protocol": "HTTPS POST, GraphQL, retried when throttled",
+        "data": "Quantity per location, listing status, price"
+      },
+      {
+        "id": "worker-inventory",
+        "from": "update-worker",
+        "to": "inventory",
+        "protocol": "HTTPS RPC (function not in the repository)",
+        "data": "The mark that a rug was pushed"
+      },
+      {
+        "id": "worker-log",
+        "from": "update-worker",
+        "to": "sync-log",
+        "protocol": "HTTPS REST insert",
+        "data": "One line per rug: operation, outcome, message"
+      },
+      {
+        "id": "operator-create",
+        "from": "operator",
+        "to": "create-script",
+        "protocol": "Script editor, by hand",
+        "data": "The start of one batch of new listings",
+        "kind": "async"
+      },
+      {
+        "id": "create-inventory",
+        "from": "create-script",
+        "to": "inventory",
+        "protocol": "HTTPS REST read and RPC",
+        "data": "Approved, complete rugs without a listing; then the new listing's ids"
+      },
+      {
+        "id": "create-shopify",
+        "from": "create-script",
+        "to": "shopify",
+        "protocol": "HTTPS POST, GraphQL",
+        "data": "A new product with title, description, tags, price, rug number and stock"
+      },
+      {
+        "id": "create-log",
+        "from": "create-script",
+        "to": "sync-log",
+        "protocol": "HTTPS REST insert",
+        "data": "One line per created or failed rug"
+      }
+    ],
+    "flows": [
+      {
+        "id": "file-to-preview",
+        "label": "A file becomes a stored preview",
+        "description": "The file is uploaded, copied to Drive to be read, normalised, compared with the warehouse's rugs and stored as a batch. Inventory is only read.",
+        "path": [
+          "file-webapp",
+          "webapp-server",
+          "server-drive",
+          "server-engine",
+          "engine-inventory",
+          "server-batches"
+        ]
+      },
+      {
+        "id": "batch-applied",
+        "label": "A reviewed batch is applied",
+        "description": "The reviewer applies the batch. One database function changes inventory, then the server marks changed existing rugs ready and writes the audit entry.",
+        "path": [
+          "operator-webapp",
+          "webapp-server",
+          "server-apply",
+          "apply-batches",
+          "apply-inventory",
+          "server-inventory",
+          "server-audit"
+        ]
+      },
+      {
+        "id": "new-rug-approved",
+        "label": "A new rug is approved",
+        "description": "A person approves a new rug in the workspace. The server checks the role, sets the flag and writes an audit entry.",
+        "path": [
+          "operator-webapp",
+          "webapp-server",
+          "server-inventory",
+          "server-audit"
+        ]
+      },
+      {
+        "id": "changes-pushed",
+        "label": "Changes reach existing listings",
+        "description": "A run of the update worker reads the newest applied batch and the queue, pushes a small batch to Shopify, marks each rug as pushed and logs it.",
+        "path": [
+          "operator-worker",
+          "worker-batches",
+          "worker-queue",
+          "queue-inventory",
+          "worker-shopify",
+          "worker-inventory",
+          "worker-log"
+        ]
+      },
+      {
+        "id": "listing-created",
+        "label": "A new listing is created by hand",
+        "description": "An operator runs the new listing script from the editor. It reads approved, complete rugs, creates their products and writes the ids back.",
+        "path": [
+          "operator-create",
+          "create-inventory",
+          "create-shopify",
+          "create-log"
+        ]
+      }
+    ]
+  },
+  "workflows": [
+    {
+      "id": "file-to-shopify",
+      "title": "One monthly file, from upload to the storefront queue",
+      "summary": "Follow one warehouse file through the import: upload, normalise, compare, store the preview, decide as the reviewer, apply, approve the new rugs, and watch the update worker push a small batch. Change two cells of the file and see how they are read.",
+      "proves": "It shows that nothing reaches inventory or the storefront without a stored preview and a person's decision, that a bad cell is flagged instead of guessed, and where the real system's guards end.",
+      "scenarioId": "rugs.file-to-shopify",
+      "mode": "simulation",
+      "modeNote": "This is a simulation that runs in your browser on invented rugs, with invented rug numbers, sizes and prices. The upload checks, the repair of sizes and prices, the classification of rows, the two batch states and the way the update worker picks and pushes are re-implemented from the project's code and really run. The limits and timings are invented for the demo, because the real values are private: the file size limit, how far the header is searched, page and chunk sizes, the batch size, the retry count, the waits and the price tolerance. The name of the protected status is invented too. The database function that applies a batch is not in the repository, so the apply step is a labelled stand-in. No real service is called: no file is uploaded, no database is written, and Shopify is simulated. In the real system the update worker is started by a timer or by hand, not by an import.",
+      "technologies": [
+        "Google Apps Script",
+        "Supabase PostgreSQL",
+        "Shopify Admin GraphQL API",
+        "Google Drive"
+      ],
+      "phases": [
+        {
+          "id": "read",
+          "label": "Read the file"
+        },
+        {
+          "id": "compare",
+          "label": "Compare and store"
+        },
+        {
+          "id": "apply",
+          "label": "Review and apply"
+        },
+        {
+          "id": "storefront",
+          "label": "Approve and sync"
+        }
+      ],
+      "steps": [
+        {
+          "id": "file.upload",
+          "label": "Upload and check the file",
+          "kind": "trigger",
+          "nodeId": "server",
+          "phase": "read",
+          "summary": "The file is checked before it is read: who sends it, its type and its size.",
+          "description": "The page checks the file's type and size, then sends it as base64 text with the session token. The server checks again, in order: the role in the signed session must be editor or admin, a warehouse must be chosen, the name must end in .csv or .xlsx, the file must not be empty, and it must be under the size limit. It then saves a temporary copy to read.",
+          "sources": [
+            {
+              "path": "apps-script/Import_Upload.gs",
+              "lines": "8-25"
+            },
+            {
+              "path": "apps-script/Code.gs",
+              "lines": "1697-1726"
+            }
+          ]
+        },
+        {
+          "id": "file.parse",
+          "label": "Find the header and read the rows",
+          "kind": "transform",
+          "nodeId": "import-engine",
+          "phase": "read",
+          "summary": "The header row is searched for near the top, then rows are read by column name.",
+          "description": "An XLSX file is converted to a temporary Google Sheet and its first sheet is read; a CSV is parsed directly. The header is the first of the leading rows that names the rug number column, so title lines above it do no harm. If no such row is found the preview fails with a message and nothing is stored. A row with no rug number is skipped without a message.",
+          "sources": [
+            {
+              "path": "apps-script/Import_CA.gs",
+              "lines": "145-183"
+            },
+            {
+              "path": "apps-script/Import_CA.gs",
+              "lines": "186-203"
+            }
+          ]
+        },
+        {
+          "id": "rows.normalise",
+          "label": "Normalise sizes and prices",
+          "kind": "transform",
+          "nodeId": "import-engine",
+          "phase": "read",
+          "summary": "Sizes typed by hand are repaired. A price that is not a number is not guessed.",
+          "description": "A size is repaired and rewritten as feet and inches: typographic quote marks, a letter O typed for zero, two single quotes typed for inches, stray spaces, and inches of twelve or more. A size that still cannot be read is left empty. A price cell that holds words, or zero, gives no price and a note saying what the cell held.",
+          "sources": [
+            {
+              "path": "apps-script/Import_CA.gs",
+              "lines": "339-394"
+            }
+          ]
+        },
+        {
+          "id": "inventory.load",
+          "label": "Load the warehouse's inventory",
+          "kind": "database",
+          "nodeId": "inventory",
+          "phase": "compare",
+          "summary": "The current status, size and price of every rug in that warehouse, read a page at a time.",
+          "description": "Only the rugs of the file's warehouse are read, in pages, until a page comes back short. Stored sizes and prices pass through the same normalisers as the file, so both sides are compared in one form. Nothing is written.",
+          "sources": [
+            {
+              "path": "apps-script/Import_CA.gs",
+              "lines": "307-329"
+            }
+          ]
+        },
+        {
+          "id": "rows.classify",
+          "label": "Classify every row",
+          "kind": "validation",
+          "nodeId": "import-engine",
+          "phase": "compare",
+          "summary": "Each rug becomes new, updated, sold, unchanged or an error, with flags for review and protection.",
+          "description": "In order: an unreadable size makes the row an error; a price note is counted for review; a rug not in inventory is new; a rug with a protected status is recorded as unchanged with a note; otherwise status, width, length and price are compared, the price only when the file gave one. Last, every rug that is in stock and absent from the file is proposed as sold. A rug number listed twice is not noticed.",
+          "sources": [
+            {
+              "path": "apps-script/Import_CA.gs",
+              "lines": "207-303"
+            },
+            {
+              "path": "showcase/docs/SYSTEM_DESIGN.md",
+              "lines": "85"
+            }
+          ]
+        },
+        {
+          "id": "preview.store",
+          "label": "Store the preview",
+          "kind": "database",
+          "nodeId": "import-batches",
+          "phase": "compare",
+          "summary": "The whole comparison is saved. Inventory has not changed.",
+          "description": "One batch record is written in the preview state with the file name, the counts and every row, unchanged ones included. The temporary copy of the upload is binned whether this succeeds or fails. Inventory is not written.",
+          "sources": [
+            {
+              "path": "apps-script/Import_Upload.gs",
+              "lines": "37-58"
+            }
+          ]
+        },
+        {
+          "id": "review.decide",
+          "label": "A person reviews the preview",
+          "kind": "human",
+          "nodeId": "operator",
+          "phase": "apply",
+          "summary": "The reviewer reads the changes, then applies the batch or deletes it.",
+          "description": "The preview opens on its errors if there are any, then on review flags, then on all changes. The reviewer can open an existing rug and correct its live record; that edit is audited, and the stored comparison is not recomputed. There is no approval per row and no partial apply: the whole batch is applied, or the preview is deleted. A batch is stored as preview or as applied. In review is not a stored state.",
+          "sources": [
+            {
+              "path": "apps-script/Code.gs",
+              "lines": "1714-1769"
+            },
+            {
+              "path": "apps-script/Import_Upload.gs",
+              "lines": "60-90"
+            },
+            {
+              "path": "apps-script/Import_Upload.gs",
+              "lines": "331-356"
+            },
+            {
+              "path": "docs/OPERATIONS.md",
+              "lines": "3-12"
+            }
+          ]
+        },
+        {
+          "id": "batch.apply",
+          "label": "Apply the batch",
+          "kind": "database",
+          "nodeId": "apply-function",
+          "phase": "apply",
+          "summary": "The only step that changes inventory.",
+          "description": "The server checks the role, loads the batch and refuses unless it is still a preview. It then calls one database function with the batch number and receives four counts: inserted, updated, sold and skipped. That function is not in the repository, so what happens inside it is unknown. The demo uses a stand-in that follows the stored rows.",
+          "sources": [
+            {
+              "path": "apps-script/Import_Upload.gs",
+              "lines": "264-275"
+            },
+            {
+              "path": "apps-script/Code.gs",
+              "lines": "1741-1755"
+            }
+          ]
+        },
+        {
+          "id": "ready.mark",
+          "label": "Mark changed existing rugs ready",
+          "kind": "database",
+          "nodeId": "inventory",
+          "phase": "apply",
+          "summary": "A rug that was already in inventory does not need a second approval.",
+          "description": "For every row that updated or sold an existing rug, the rug's approval flag is set, a few rugs per request. The author's comment gives the reason: an existing record has already passed the listing workflow. New rugs are not included and stay unapproved.",
+          "sources": [
+            {
+              "path": "apps-script/Import_Upload.gs",
+              "lines": "295-319"
+            }
+          ]
+        },
+        {
+          "id": "audit.write",
+          "label": "Write the audit entry",
+          "kind": "database",
+          "nodeId": "audit-log",
+          "phase": "apply",
+          "summary": "One entry records who applied the batch and what it did.",
+          "description": "After the apply and the ready-marking, the server writes one audit entry for the batch with the actor, the file and the counts. These are three separate calls with no rollback. Whether the database function also writes an entry per rug is unknown.",
+          "sources": [
+            {
+              "path": "apps-script/Import_Upload.gs",
+              "lines": "274-282"
+            },
+            {
+              "path": "apps-script/Code.gs",
+              "lines": "162-167"
+            }
+          ]
+        },
+        {
+          "id": "approve.new",
+          "label": "A person approves the new rugs",
+          "kind": "human",
+          "nodeId": "operator",
+          "phase": "storefront",
+          "summary": "A new rug stays out of the storefront until someone approves it.",
+          "description": "A new rug arrives unapproved. The page offers approval only when the record is complete: it lists what is missing and locks the switch until then. Approving writes the flag through a server call that is checked against the role, and adds an audit entry per rug. Approval makes a rug a candidate for a new listing. It does not create one.",
+          "sources": [
+            {
+              "path": "apps-script/Code.gs",
+              "lines": "1258-1277"
+            },
+            {
+              "path": "apps-script/Code.gs",
+              "lines": "2042-2062"
+            },
+            {
+              "path": "apps-script/Code.gs",
+              "lines": "201-211"
+            },
+            {
+              "path": "apps-script/Import_CA.gs",
+              "lines": "121"
+            }
+          ]
+        },
+        {
+          "id": "queue.pick",
+          "label": "The update worker picks a small batch",
+          "kind": "queue",
+          "nodeId": "update-worker",
+          "phase": "storefront",
+          "summary": "A few rugs per run, this import's changes first.",
+          "description": "The worker is started by a timer if its trigger was installed, or by hand. Nothing in the app starts it. It takes a script lock, then picks the newest applied import's updated and sold rugs, oldest change first, and fills the rest of the batch from older queue entries. Only rugs that already have a listing are picked.",
+          "sources": [
+            {
+              "path": "apps-script/Shopify_Push.gs",
+              "lines": "163-178"
+            },
+            {
+              "path": "apps-script/Shopify_Push.gs",
+              "lines": "219-272"
+            },
+            {
+              "path": "apps-script/Shopify_Push.gs",
+              "lines": "463-467"
+            }
+          ]
+        },
+        {
+          "id": "shopify.push",
+          "label": "Push quantity and price to Shopify",
+          "kind": "api",
+          "nodeId": "shopify",
+          "phase": "storefront",
+          "summary": "Stock is set to one or zero, and the price only if it drifted.",
+          "description": "For each rug the worker sets the quantity at the rug's own warehouse location to one or zero and to zero at the other location, sets an in-stock rug's listing active, and writes the price only when the listing's price differs from the record. A throttled or failing call is retried inside the run, with a wait that grows per attempt. A rug that still fails is caught on its own and the loop goes on. In this demo Shopify is simulated.",
+          "sources": [
+            {
+              "path": "apps-script/Shopify_Push.gs",
+              "lines": "197-207"
+            },
+            {
+              "path": "apps-script/Shopify_Push.gs",
+              "lines": "278-311"
+            },
+            {
+              "path": "apps-script/Shopify_Push.gs",
+              "lines": "429-459"
+            }
+          ]
+        },
+        {
+          "id": "push.record",
+          "label": "Mark pushed and log",
+          "kind": "database",
+          "nodeId": "sync-log",
+          "phase": "storefront",
+          "summary": "A pushed rug leaves the queue, and every rug gets a log line.",
+          "description": "After a successful push the worker calls a database function that stamps the rug as pushed, which takes it out of the queue, and writes a log line with the operation and a summary. A failed rug gets a log line with the error and is not stamped, so the next run picks it again. Nothing counts those attempts.",
+          "sources": [
+            {
+              "path": "apps-script/Shopify_Push.gs",
+              "lines": "1-16"
+            },
+            {
+              "path": "apps-script/Shopify_Push.gs",
+              "lines": "197-207"
+            },
+            {
+              "path": "apps-script/Shopify_Push.gs",
+              "lines": "504-511"
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "key": "file",
+          "label": "This month's file",
+          "type": "select",
+          "options": [
+            "full file",
+            "one rug missing",
+            "protected rug listed",
+            "truncated file"
+          ],
+          "help": "The truncated file stops after three rows."
+        },
+        {
+          "key": "role",
+          "label": "Who uploads it",
+          "type": "select",
+          "options": [
+            "editor",
+            "admin",
+            "bookkeeper",
+            "viewer"
+          ],
+          "help": "The four roles of the public write-up. An import needs an editor or an admin."
+        },
+        {
+          "key": "priceCell",
+          "label": "Price cell of rug R-10231",
+          "type": "text",
+          "maxLength": 24,
+          "help": "The stored price is 1250. Try a number, words, 0, or nothing."
+        },
+        {
+          "key": "widthCell",
+          "label": "Width cell of rug R-10244",
+          "type": "text",
+          "maxLength": 16,
+          "help": "The stored width is 4'0\". Try 4' 0'', 3'14\" or 4 ft."
+        },
+        {
+          "key": "batchSize",
+          "label": "Rugs per run of the update worker",
+          "type": "number",
+          "help": "An invented limit: 1 to 6, 3 by default."
+        }
+      ],
+      "faults": [
+        {
+          "id": "wrong-file-type",
+          "label": "The upload is a PDF",
+          "stepId": "file.upload",
+          "classification": "implemented",
+          "description": "Someone uploads the warehouse's PDF instead of the spreadsheet.",
+          "expected": "The server refuses the upload by its file name before reading it. Nothing is stored.",
+          "group": "upload",
+          "sources": [
+            {
+              "path": "apps-script/Import_Upload.gs",
+              "lines": "18"
+            },
+            {
+              "path": "apps-script/Code.gs",
+              "lines": "1699"
+            }
+          ]
+        },
+        {
+          "id": "file-too-large",
+          "label": "The file is over the size limit",
+          "stepId": "file.upload",
+          "classification": "implemented",
+          "description": "The file is larger than the upload limit. The limit in this demo is invented.",
+          "expected": "The page refuses the file before sending it, and the server refuses it again after decoding. Nothing is stored.",
+          "group": "upload",
+          "sources": [
+            {
+              "path": "apps-script/Import_Upload.gs",
+              "lines": "21-22"
+            },
+            {
+              "path": "apps-script/Code.gs",
+              "lines": "1700"
+            }
+          ]
+        },
+        {
+          "id": "header-not-found",
+          "label": "The header row cannot be found",
+          "stepId": "file.parse",
+          "classification": "implemented",
+          "description": "The export's column titles were renamed, so no row near the top names the rug number column.",
+          "expected": "The preview fails with a message, the temporary copy is binned and no batch is stored.",
+          "sources": [
+            {
+              "path": "apps-script/Import_CA.gs",
+              "lines": "150-157"
+            },
+            {
+              "path": "apps-script/Import_Upload.gs",
+              "lines": "55-57"
+            }
+          ]
+        },
+        {
+          "id": "duplicate-sku",
+          "label": "A rug is listed twice in the file",
+          "stepId": "rows.classify",
+          "classification": "limitation",
+          "description": "The file has two lines for the same rug, with different prices.",
+          "expected": "Nothing detects it. Each line becomes its own row in the comparison, so the counts are off by one. What the apply function does with two rows for one rug is not in the repository; the demo's stand-in lets the later row win and says so.",
+          "sources": [
+            {
+              "path": "apps-script/Import_CA.gs",
+              "lines": "211-216"
+            }
+          ]
+        },
+        {
+          "id": "second-apply",
+          "label": "The same batch is applied a second time",
+          "stepId": "batch.apply",
+          "classification": "implemented",
+          "description": "A second request to apply the batch arrives after the first has finished.",
+          "expected": "The server reads the batch's state first and refuses, because the batch is no longer a preview. The check and the apply are two separate calls, so this covers a repeat, not two requests in the same instant.",
+          "sources": [
+            {
+              "path": "apps-script/Import_Upload.gs",
+              "lines": "269-274"
+            }
+          ]
+        },
+        {
+          "id": "audit-write-fails",
+          "label": "The audit entry cannot be written",
+          "stepId": "audit.write",
+          "classification": "limitation",
+          "description": "The audit insert fails after the batch has been applied and the rugs marked ready.",
+          "expected": "The server call ends in an error and the page reports that the apply failed. Nothing is rolled back: the batch is applied, with no audit entry, and a retry is refused because the batch is no longer a preview.",
+          "sources": [
+            {
+              "path": "apps-script/Import_Upload.gs",
+              "lines": "274-282"
+            },
+            {
+              "path": "apps-script/Code.gs",
+              "lines": "1746-1753"
+            }
+          ]
+        },
+        {
+          "id": "storefront-throttled",
+          "label": "Shopify throttles the app",
+          "stepId": "shopify.push",
+          "classification": "implemented",
+          "description": "The API answers twice that the app is over its rate limit.",
+          "expected": "The call waits and is tried again, with a longer wait each time, then goes through. The rugs are pushed as usual.",
+          "sources": [
+            {
+              "path": "apps-script/Shopify_Push.gs",
+              "lines": "429-459"
+            }
+          ]
+        },
+        {
+          "id": "storefront-rejects-one",
+          "label": "Shopify rejects one rug",
+          "stepId": "shopify.push",
+          "classification": "implemented",
+          "description": "One rug's write comes back with an error.",
+          "expected": "The failure is logged for that rug, the rug is not marked as pushed, and the other rugs in the batch are pushed. The rug stays in the queue and is picked again on every run: nothing counts the attempts or parks it.",
+          "sources": [
+            {
+              "path": "apps-script/Shopify_Push.gs",
+              "lines": "197-207"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "decisions": [
+    {
+      "id": "preview-first",
+      "title": "Store the comparison before writing anything",
+      "problem": "A monthly file changes many rugs at once. A wrong one would reach live inventory and then the storefront.",
+      "options": [
+        {
+          "name": "Compute the full comparison, store it as a batch, and apply it in a separate step",
+          "verdict": "chosen",
+          "note": "The reviewer sees every proposed change before any of it is written."
+        },
+        {
+          "name": "Import the file directly and fix mistakes afterwards",
+          "verdict": "rejected",
+          "note": "A mistake would already be in inventory, and on its way to the storefront."
+        }
+      ],
+      "rationale": "The author's note in the code and the public write-up say the same thing: the comparison is stored before anything is written, and apply is the only step that touches live data.",
+      "tradeoffs": [
+        "Every import takes two actions by a person.",
+        "The stored comparison is a snapshot. It is not recomputed if inventory changes before the apply.",
+        "A preview that nobody reads protects nothing."
+      ],
+      "evolution": "Check each stored row against current inventory at apply time, and set aside the rows whose old value no longer matches.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "apps-script/Import_CA.gs",
+          "lines": "4-6"
+        },
+        {
+          "path": "apps-script/Code.gs",
+          "lines": "1904"
+        },
+        {
+          "path": "showcase/README.md",
+          "lines": "34"
+        },
+        {
+          "path": "showcase/docs/SYSTEM_DESIGN.md",
+          "lines": "118"
+        }
+      ]
+    },
+    {
+      "id": "price-never-guessed",
+      "title": "A price that is not a number is a note, not a price",
+      "problem": "The price column sometimes holds words, or zero. Read as a number, those would overwrite real prices with nothing.",
+      "options": [
+        {
+          "name": "Leave the stored price alone and flag the row for a person",
+          "verdict": "chosen",
+          "note": "The row is counted under needs review and shows what the cell said."
+        },
+        {
+          "name": "Write zero, or clear the price",
+          "verdict": "rejected",
+          "note": "It would wipe a price because of a remark typed into the wrong column."
+        }
+      ],
+      "rationale": "The author's comment calls it money that refuses to guess: words in the price cell are notes, so the price is left alone instead of being wiped or set to zero.",
+      "tradeoffs": [
+        "A real price change hidden behind a remark is not applied until someone fixes the cell or the record.",
+        "Any digits in the cell are still read as the number, so a remark that contains a figure is taken as a price."
+      ],
+      "evolution": "Show the flagged rows as a short worklist after the apply, so that a person confirms each kept price.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Import_CA.gs",
+          "lines": "374-394"
+        },
+        {
+          "path": "apps-script/Import_CA.gs",
+          "lines": "231-236"
+        }
+      ]
+    },
+    {
+      "id": "protected-status",
+      "title": "A status set on purpose outranks the file",
+      "problem": "A few statuses are set by a person for a reason the warehouse file knows nothing about. A file that still lists such a rug would put it back in stock.",
+      "options": [
+        {
+          "name": "Record the rug as unchanged, with a note, and count it as protected",
+          "verdict": "chosen",
+          "note": "The reviewer can see the rug was in the file and was left alone."
+        },
+        {
+          "name": "Let the file win, as for any other rug",
+          "verdict": "rejected",
+          "note": "A person's decision would be undone every month."
+        }
+      ],
+      "rationale": "The code keeps a short list of statuses the import must never overwrite and checks it before any field is compared. A comment says the list mirrors the database function.",
+      "tradeoffs": [
+        "The list is written in the server code for each warehouse and, by the comment, again in the database function. The copies can drift apart.",
+        "A protected rug's size or price in the file is ignored as well."
+      ],
+      "evolution": "Keep the list in one place in the database and have the server read it.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Import_CA.gs",
+          "lines": "32-33"
+        },
+        {
+          "path": "apps-script/Import_CA.gs",
+          "lines": "252-258"
+        },
+        {
+          "path": "apps-script/Import_UT.gs",
+          "lines": "461"
+        },
+        {
+          "path": "apps-script/Import_UT.gs",
+          "lines": "491-495"
+        }
+      ]
+    },
+    {
+      "id": "absent-means-sold",
+      "title": "A rug missing from the file is proposed as sold",
+      "problem": "The warehouse file lists what is in stock. It has no column for a sale.",
+      "options": [
+        {
+          "name": "Propose every in-stock rug that the file does not list as sold",
+          "verdict": "chosen",
+          "note": "It needs nothing from the warehouse beyond the list it already sends."
+        },
+        {
+          "name": "Ask the warehouse for an explicit list of sales",
+          "verdict": "rejected",
+          "note": "Not recorded by the author. The code works with the file as it arrives, which suggests the format was not the developer's to change."
+        }
+      ],
+      "rationale": "The file is treated as the full list of what the warehouse holds, so absence is the only sign of a sale. These rows have their own filter in the preview and are shown before anything is written. The reasoning is inferred from the code; the author recorded the rule, not the alternatives.",
+      "tradeoffs": [
+        "A file that is cut short proposes every missing rug as sold. Nothing in the repository checks the size of a file against the inventory.",
+        "The person reading the preview is the only guard."
+      ],
+      "evolution": "Warn when the share of in-stock rugs proposed as sold passes a threshold, and ask for a second confirmation.",
+      "provenance": "inferred",
+      "sources": [
+        {
+          "path": "apps-script/Import_CA.gs",
+          "lines": "21-24"
+        },
+        {
+          "path": "apps-script/Import_CA.gs",
+          "lines": "292-300"
+        },
+        {
+          "path": "apps-script/Code.gs",
+          "lines": "1810"
+        }
+      ]
+    },
+    {
+      "id": "no-second-approval",
+      "title": "Existing rugs do not need a second approval, new rugs do",
+      "problem": "Every change could wait for approval before it reaches the storefront, but a monthly import changes many rugs that are already listed.",
+      "options": [
+        {
+          "name": "Mark existing rugs changed by an import as ready at apply, and keep new rugs unapproved",
+          "verdict": "chosen",
+          "note": "A price change or a sale flows to the storefront without another click per rug."
+        },
+        {
+          "name": "Require approval for every changed rug",
+          "verdict": "rejected",
+          "note": "Each import would leave a long list to approve, for rugs that were approved once already."
+        }
+      ],
+      "rationale": "The author's comment: existing records have already passed the original listing workflow, so an import may update or sell them without a second manual approval, while new rugs stay unapproved behind the normal checks.",
+      "tradeoffs": [
+        "Reading the preview is the only human check on a change to an existing listing.",
+        "The ready flag is set in separate requests after the apply, with no rollback."
+      ],
+      "evolution": "Set the flag inside the same database transaction as the apply.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Import_Upload.gs",
+          "lines": "295-319"
+        }
+      ]
+    },
+    {
+      "id": "split-create-from-update",
+      "title": "Updating listings and creating them are separate scripts",
+      "problem": "A rug without a listing needs a complete record, a title, tags and an image. A rug with a listing needs only a quantity and a price.",
+      "options": [
+        {
+          "name": "One worker for updates, and a separate script for new listings",
+          "verdict": "chosen",
+          "note": "An incomplete new rug cannot hold up a sale or a price change."
+        },
+        {
+          "name": "One worker that does both",
+          "verdict": "rejected",
+          "note": "Create candidates that are not ready would sit in the same batch as the updates."
+        }
+      ],
+      "rationale": "The update worker's header says it: product creation is handled separately, so that incomplete create candidates do not block quantity and price updates.",
+      "tradeoffs": [
+        "New listings are created only when an operator runs the script by hand.",
+        "The two scripts each carry their own copy of the API client and its retry loop."
+      ],
+      "evolution": "Give the new listing script a guarded, admin-only action in the app, with a dry run and its own log view.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Shopify_Push.gs",
+          "lines": "9-10"
+        },
+        {
+          "path": "apps-script/Shopify_Push.gs",
+          "lines": "186-192"
+        },
+        {
+          "path": "apps-script/Shopify_Create.gs",
+          "lines": "12-22"
+        },
+        {
+          "path": "apps-script/Shopify_Create.gs",
+          "lines": "409-432"
+        }
+      ]
+    },
+    {
+      "id": "small-batches",
+      "title": "A few rugs per run, the newest import first",
+      "problem": "The storefront API limits how fast an app may write, and a large burst of catalogue changes is a risk in itself.",
+      "options": [
+        {
+          "name": "A small fixed batch per run, behind a script lock, with the newest import's changes first",
+          "verdict": "chosen",
+          "note": "A run is short and cannot overlap another, and the latest file's changes do not wait behind older ones."
+        },
+        {
+          "name": "Push everything that changed as soon as a batch is applied",
+          "verdict": "rejected",
+          "note": "Not recorded by the author. It would be one long run with every change sent at once."
+        }
+      ],
+      "rationale": "The worker's header gives the reasons for a small batch: to protect search ranking and rate limits. A script lock keeps two runs apart. A note beside the priority rule says the newest import's changes go first and older entries continue after them.",
+      "tradeoffs": [
+        "After a large import the storefront lags behind inventory until enough runs have passed.",
+        "A sold rug stays purchasable until its turn comes.",
+        "If no timer was installed, nothing runs until someone starts it."
+      ],
+      "evolution": "Size the batch from the rate budget the API reports instead of a fixed number, and push sold rugs before price changes.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Shopify_Push.gs",
+          "lines": "13-16"
+        },
+        {
+          "path": "apps-script/Shopify_Push.gs",
+          "lines": "163-165"
+        },
+        {
+          "path": "apps-script/Shopify_Push.gs",
+          "lines": "219-272"
+        },
+        {
+          "path": "apps-script/shopify-priority.sql",
+          "lines": "1-2"
+        }
+      ]
+    }
+  ],
+  "metrics": [
+    {
+      "id": "rugs-managed",
+      "label": "One-of-a-kind rugs the platform manages, across two warehouses",
+      "value": "More than 25,000",
+      "kind": "count",
+      "method": "Stated by the author in the public write-up. How it was counted is not recorded.",
+      "provenance": "documented",
+      "sources": [
+        {
+          "path": "showcase/README.md",
+          "lines": "3"
+        }
+      ]
+    },
+    {
+      "id": "row-classes",
+      "label": "Classes a row of a file can fall into",
+      "value": "7",
+      "kind": "count",
+      "method": "Listed in the public write-up's design notes and checked against the comparison code: five actions (new, update, sold, unchanged, error) and two flags counted beside them (needs review, protected).",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "showcase/docs/SYSTEM_DESIGN.md",
+          "lines": "85"
+        },
+        {
+          "path": "apps-script/Import_CA.gs",
+          "lines": "209"
+        }
+      ]
+    },
+    {
+      "id": "source-size",
+      "label": "Apps Script source in the private repository",
+      "value": "6,554 lines in 9 files",
+      "kind": "count",
+      "method": "Counted for this page with a line count over the .gs files in the copy of the repository that was read. About 2,840 of those lines are the page that is embedded in the main file. The repository holds no test files.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    {
+      "id": "no-tests",
+      "title": "No automated tests",
+      "current": "The repository has no test files, no test runner and no CI configuration. The only checks are scripts run by hand, such as one that pushes a few rugs and one that compares the latest pushes with the storefront.",
+      "proposal": "Move the size, price and comparison functions into a form that runs outside Apps Script, and cover them with table-driven tests built from cells seen in real files.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script"
+        },
+        {
+          "path": "apps-script/Shopify_Push.gs",
+          "lines": "44"
+        },
+        {
+          "path": "apps-script/Shopify_Push.gs",
+          "lines": "60-129"
+        }
+      ]
+    },
+    {
+      "id": "duplicate-rug-numbers",
+      "title": "A rug listed twice in one file is not detected",
+      "current": "The comparison remembers which rug numbers it has seen only to find rugs that are missing from the file. A number listed twice produces two rows, and what the apply function does with them is not in the repository.",
+      "proposal": "Collect duplicates during the comparison, show them as error rows, and refuse to apply a batch that contains any.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Import_CA.gs",
+          "lines": "211-216"
+        },
+        {
+          "path": "apps-script/Import_UT.gs",
+          "lines": "470-473"
+        }
+      ]
+    },
+    {
+      "id": "truncated-file",
+      "title": "A file cut short proposes sales that did not happen",
+      "current": "Every in-stock rug that is absent from the file is proposed as sold. Nothing in the repository compares the number of rows with the inventory, so a truncated or partial file would propose all the missing rugs as sold. The person reading the preview is the only guard that can be seen in the code.",
+      "proposal": "Compare the file's row count with the warehouse's in-stock count, and block the apply above a set share of proposed sales unless a second person confirms.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Import_CA.gs",
+          "lines": "292-300"
+        }
+      ]
+    },
+    {
+      "id": "stale-preview",
+      "title": "The stored comparison is not checked again before it is applied",
+      "current": "The comparison is computed when the file is previewed. A correction made during review edits the live record, not the stored rows, and the server code applies the batch without recomputing or re-validating it. Whether the database function checks anything is unknown, because it is not in the repository.",
+      "proposal": "At apply time, compare each row's stored old value with the current record and set aside the rows that no longer match.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Import_Upload.gs",
+          "lines": "264-275"
+        },
+        {
+          "path": "apps-script/Code.gs",
+          "lines": "2807-2812"
+        }
+      ]
+    },
+    {
+      "id": "no-rollback",
+      "title": "Apply, ready-marking and the audit entry are separate calls",
+      "current": "After the database function applies a batch, the server sets the ready flag in further requests and then writes the audit entry. They are not one transaction. If a later call fails, the page reports that the apply failed although inventory has changed, and a retry is refused because the batch is no longer a preview.",
+      "proposal": "Move the ready flag and the audit entry into the database function, so that the three happen together or not at all.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Import_Upload.gs",
+          "lines": "274-282"
+        },
+        {
+          "path": "apps-script/Code.gs",
+          "lines": "1746-1753"
+        }
+      ]
+    },
+    {
+      "id": "last-write-wins",
+      "title": "Two people editing one rug overwrite each other",
+      "current": "An edit reads the rug's old row for the audit entry and then writes the new values, with no version check. If two people save the same rug, the last write wins and the first is lost without a message.",
+      "proposal": "Send the record's last-changed time with the edit and refuse the write when it no longer matches.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Code.gs",
+          "lines": "186-190"
+        }
+      ]
+    },
+    {
+      "id": "no-retry-cap",
+      "title": "A rug that keeps failing is retried on every run",
+      "current": "The update worker marks a rug only when its push succeeds. A rug that fails gets a log line and nothing else: no attempt count, no failed state, no dead-letter list and no alert. It is picked again on every run.",
+      "proposal": "Record attempts per rug, park a rug after a set number of failures, and report parked rugs to a person.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Shopify_Push.gs",
+          "lines": "197-207"
+        },
+        {
+          "path": "apps-script/Shopify_Push.gs",
+          "lines": "219-272"
+        }
+      ]
+    },
+    {
+      "id": "listings-by-hand",
+      "title": "New listings are created by hand",
+      "current": "The script that creates products is started from the Apps Script editor by an operator. No button in the app calls it and no timer runs it, so an approved new rug waits until someone runs the script. The update worker's timer also exists only if someone installed it, and the repository does not record whether that was done.",
+      "proposal": "Add an admin-only action in the app that runs one guarded batch and shows its log, and show in the app whether the timer is installed.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Shopify_Create.gs",
+          "lines": "12-16"
+        },
+        {
+          "path": "apps-script/Shopify_Create.gs",
+          "lines": "42-67"
+        },
+        {
+          "path": "apps-script/Shopify_Push.gs",
+          "lines": "463-467"
+        }
+      ]
+    },
+    {
+      "id": "reload-signs-out",
+      "title": "Reloading the page signs the user out",
+      "current": "The session token is kept in the page's memory only. A reload or a closed tab returns to the sign-in screen, in the middle of a review as well.",
+      "proposal": "Keep the token in the browser's session storage and check it with the server when the page loads.",
+      "provenance": "code",
+      "sources": [
+        {
+          "path": "apps-script/Code.gs",
+          "lines": "2718"
+        },
+        {
+          "path": "apps-script/Code.gs",
+          "lines": "2907"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/projects/rug-inventory-sync/dashboard.png",
+      "alt": "The inventory workspace: counters for rugs in scope, needing attention, with problems and photographed, a second row for rugs on Shopify, in the queue, awaiting approval and missing data, and a grid of rug cards with their status.",
+      "caption": "The inventory workspace, as published by the author in the project's public write-up. The counters are the retailer's inventory on the day of the screenshot, not results claimed on this page.",
+      "width": 1892,
+      "height": 901
+    }
+  ],
+  "screenshotsNote": "The write-up has a second screenshot of the same view. It is not copied here because the edge of the author's desktop shows in it.",
+  "evidence": [
+    {
+      "label": "Public write-up",
+      "kind": "documentation",
+      "description": "What the owner chose to publish: the problem, the feature list, two architecture diagrams, the import states and the role matrix. Paths on this page that begin with showcase/ are in that repository.",
+      "sources": [
+        {
+          "path": "showcase/README.md"
+        },
+        {
+          "path": "showcase/docs/SYSTEM_DESIGN.md"
+        }
+      ]
+    },
+    {
+      "label": "Import engine",
+      "kind": "source",
+      "description": "The upload checks, the parsing, the size and price normalisers, the comparison, and the preview, review, apply and delete functions.",
+      "sources": [
+        {
+          "path": "apps-script/Import_Upload.gs"
+        },
+        {
+          "path": "apps-script/Import_CA.gs"
+        },
+        {
+          "path": "apps-script/Import_UT.gs"
+        }
+      ]
+    },
+    {
+      "label": "Storefront synchronisation",
+      "kind": "source",
+      "description": "The update worker, its queue pick, the API client with its retries, and the script that creates new listings.",
+      "sources": [
+        {
+          "path": "apps-script/Shopify_Push.gs"
+        },
+        {
+          "path": "apps-script/Shopify_Create.gs"
+        },
+        {
+          "path": "apps-script/shopify-priority.sql",
+          "note": "A priority rule written as a database function. The server code does not call it; the worker applies the same order itself."
+        }
+      ]
+    },
+    {
+      "label": "Web app, roles and audit",
+      "kind": "source",
+      "description": "The page, the session and role checks on writes, and the audit writer.",
+      "sources": [
+        {
+          "path": "apps-script/Code.gs",
+          "lines": "129-211"
+        },
+        {
+          "path": "apps-script/Code.gs",
+          "lines": "1663-1908"
+        }
+      ]
+    },
+    {
+      "label": "Database migrations",
+      "kind": "schema",
+      "description": "The migrations that are in the repository, among them users and the audit log. The base inventory table, the import batch record, the queue and the apply function are not in the repository.",
+      "sources": [
+        {
+          "path": "apps-script/phase2-workflow.sql",
+          "lines": "25-51"
+        }
+      ]
+    },
+    {
+      "label": "Private documentation",
+      "kind": "documentation",
+      "description": "The private repository's own README, architecture notes and monthly operations checklist.",
+      "sources": [
+        {
+          "path": "README.md"
+        },
+        {
+          "path": "docs/ARCHITECTURE.md"
+        },
+        {
+          "path": "docs/OPERATIONS.md"
+        }
+      ]
+    },
+    {
+      "label": "Tests",
+      "kind": "tests",
+      "description": "None. The repository has no automated tests. The checks that exist are scripts run by hand.",
+      "sources": [
+        {
+          "path": "apps-script",
+          "note": "No test files."
+        }
+      ]
+    }
+  ]
+}
