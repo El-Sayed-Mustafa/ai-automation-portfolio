@@ -13,13 +13,12 @@ import {
   Mail,
   MapPin,
   Play,
-  Quote,
   ShieldAlert,
-  Sparkles,
   Workflow as WorkflowIcon,
   Zap,
   type LucideIcon,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { MiniArchitecture } from "@/components/architecture/MiniArchitecture";
 import { runMapSystem } from "@/components/simulator/run-map-system";
@@ -31,7 +30,6 @@ import { WorkflowSimulator } from "@/components/simulator/WorkflowSimulator";
 import { AppIcon, CATEGORY_TONE, GithubMark, LinkedinMark, TONE_CYCLE, Tag, Tile } from "@/components/ui/Icon";
 import { ProvenanceBadge } from "@/components/ui/Provenance";
 import { Section } from "@/components/ui/Section";
-import { NodeTile } from "@/components/ui/TechIcon";
 import { getProjects, getSite } from "@/content/load";
 import { CATEGORY_SHORT, type ArchitectureNode, type Project, type Tone } from "@/content/schema";
 
@@ -177,7 +175,6 @@ export default function HomePage() {
   const more = projects.slice(FEATURED);
   const workflows = projects.flatMap((project) => project.workflows);
 
-  const nodeOf = Object.fromEntries(flagship.architecture.nodes.map((node) => [node.id, node]));
   // Counted from the content of this site, so none of these is a claim that needs taking on trust.
   const counts: { icon: LucideIcon; tone: Tone; value: number; label: string }[] = [
     { icon: LayoutGrid, tone: "blue", value: projects.length, label: "Interactive case studies" },
@@ -185,9 +182,6 @@ export default function HomePage() {
     { icon: ShieldAlert, tone: "violet", value: workflows.reduce((sum, item) => sum + item.faults.length, 0), label: "Failures you can inject" },
     { icon: Boxes, tone: "amber", value: projects.reduce((sum, project) => sum + project.architecture.nodes.length, 0), label: "Components documented" },
   ];
-  const phases = workflow.phases
-    .map((phase) => ({ phase, steps: workflow.steps.filter((step) => step.phase === phase.id) }))
-    .filter((item) => item.steps.length > 0);
 
   // The last two words of the headline carry the accent.
   const words = site.headline.split(" ");
@@ -199,6 +193,13 @@ export default function HomePage() {
       <section aria-labelledby="hero-title" className="container-page overflow-x-clip">
         <div className="grid grid-cols-1 gap-10 pb-8 pt-8 sm:pt-12 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-center lg:gap-12">
           <div>
+            <div className="enter mb-5 flex items-center gap-4">
+              <Image src="/elsayed-mustafa.jpg" alt={`Portrait of ${site.name}`} width={640} height={640} sizes="88px" priority className="h-[5.5rem] w-[5.5rem] rounded-full border-2 border-surface object-cover shadow-md ring-2 ring-accent/30" />
+              <p className="leading-tight">
+                <span className="block text-xl font-bold">{site.name}</span>
+                <span className="mt-1 block text-[0.9375rem] text-muted">{site.role}</span>
+              </p>
+            </div>
             <ul className="enter flex flex-wrap gap-2" aria-label="At a glance">
               <li className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1 text-[0.8125rem] font-medium shadow-sm">
                 <span className="h-2 w-2 rounded-full bg-success" aria-hidden />
@@ -241,7 +242,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="enter panel grid gap-x-6 gap-y-4 p-4 sm:grid-cols-2 lg:grid-cols-[repeat(4,minmax(0,1fr))_minmax(0,1.6fr)] lg:items-center" style={{ "--i": 5 } as React.CSSProperties}>
+        <div className="enter panel grid gap-x-6 gap-y-4 p-4 sm:grid-cols-2 lg:grid-cols-4 lg:items-center" style={{ "--i": 5 } as React.CSSProperties}>
           <ul className="contents" aria-label="This site in numbers">
             {counts.map((item) => (
               <li key={item.label} className="flex items-center gap-3">
@@ -257,14 +258,10 @@ export default function HomePage() {
               </li>
             ))}
           </ul>
-          <p className="flex items-start gap-2.5 border-t border-line pt-4 text-[0.9375rem] italic leading-snug text-muted sm:col-span-2 lg:col-span-1 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
-            <Quote size={18} className="mt-0.5 shrink-0 text-accent/50" aria-hidden />
-            {site.approach[0]}
-          </p>
         </div>
       </section>
 
-      <div className="container-page mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem] xl:items-start">
+      <div className="container-page mt-5">
         <section id="work" aria-labelledby="work-title" className="reveal panel p-4 sm:p-5">
           <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
             <div className="flex min-w-0 items-start gap-3">
@@ -313,60 +310,6 @@ export default function HomePage() {
           ) : null}
         </section>
 
-        <div className="space-y-5">
-          <section aria-labelledby="demo-card-title" className="reveal panel p-4 sm:p-5">
-            <div className="flex items-center justify-between gap-3">
-              <h2 id="demo-card-title" className="flex items-center gap-2 whitespace-nowrap text-[1.0625rem] font-bold">
-                <Sparkles size={18} className="text-accent" aria-hidden />
-                Automation demo
-              </h2>
-              <span className="tag" data-tone="violet">
-                <FlaskConical size={12} aria-hidden /> Simulation
-              </span>
-            </div>
-            <p className="mt-1 text-sm text-muted">{workflow.title}, from the first case study.</p>
-            <ol className="mt-4 space-y-3" aria-label="Stages of the demo">
-              {phases.map(({ phase, steps }, index) => {
-                const stageNode = nodeOf[steps[0].nodeId];
-                return (
-                  <li key={phase.id} data-tone={TONE_CYCLE[index % TONE_CYCLE.length]} className="flex items-center gap-3">
-                    <span className="w-4 shrink-0 text-center text-xs font-bold text-subtle" aria-hidden>
-                      {index + 1}
-                    </span>
-                    {stageNode ? <NodeTile node={stageNode} size={40} /> : null}
-                    <span className="min-w-0">
-                      <span className="block text-sm font-bold leading-snug">{phase.label}</span>
-                      <span className="line-clamp-1 text-[0.8125rem] leading-snug text-muted">{steps[0].summary}</span>
-                    </span>
-                  </li>
-                );
-              })}
-            </ol>
-            <a href="#demo" className="btn btn-primary mt-4 w-full">
-              <Play size={15} aria-hidden /> Run the demo
-            </a>
-            <p className="mt-2.5 text-center text-xs leading-snug text-subtle">
-              {workflow.steps.length} steps on invented data. Nothing real is called and no customer data is used.
-            </p>
-          </section>
-
-          <section aria-labelledby="work-together-title" className="reveal panel p-4 sm:p-5">
-            <div className="flex items-start gap-3">
-              <Tile tone="blue" className="!h-10 !w-10 !rounded-xl">
-                <Mail size={19} aria-hidden />
-              </Tile>
-              <div>
-                <h2 id="work-together-title" className="text-lg font-bold leading-snug">
-                  Let’s work together
-                </h2>
-                <p className="mt-0.5 text-sm leading-snug text-muted">{site.seeking ?? site.availability}</p>
-              </div>
-            </div>
-            <a href="#contact" className="btn btn-primary mt-4 w-full">
-              Contact me <ArrowRight size={15} aria-hidden />
-            </a>
-          </section>
-        </div>
       </div>
 
       <section id="capabilities" aria-labelledby="capabilities-title" className="container-page mt-5">
@@ -453,7 +396,10 @@ export default function HomePage() {
         <Section id="about" kicker="About" title="How I work">
           <div className="grid gap-5 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
             <div className="panel p-5 sm:p-6">
-              <p className="text-[1.0625rem] leading-relaxed">{site.about}</p>
+              <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+                <Image src="/elsayed-mustafa.jpg" alt={`Portrait of ${site.name}`} width={640} height={640} sizes="144px" className="h-36 w-36 shrink-0 rounded-2xl object-cover shadow-md" />
+                <p className="text-[1.0625rem] leading-relaxed">{site.about}</p>
+              </div>
               <h3 className="label mt-6">How I approach a problem</h3>
               <ol className="mt-3 space-y-3">
                 {site.approach.map((item, index) => (
@@ -492,7 +438,7 @@ export default function HomePage() {
                   ))}
                 </ol>
               </div>
-              <div className="panel p-5">
+              <div className="eng-only panel p-5">
                 <SideHeading icon={GraduationCap} tone="violet">
                   Education
                 </SideHeading>
@@ -507,7 +453,7 @@ export default function HomePage() {
                   ))}
                 </ul>
               </div>
-              <div className="panel p-5">
+              <div className="eng-only panel p-5">
                 <SideHeading icon={Award} tone="amber">
                   Certifications
                 </SideHeading>

@@ -1,8 +1,8 @@
 "use client";
 
-import { FlaskConical, History, LoaderCircle, Pause, Play, RotateCcw, Server, SlidersHorizontal, Square, StepForward } from "lucide-react";
+import { ChevronDown, FlaskConical, History, LoaderCircle, Pause, Play, RotateCcw, Server, SlidersHorizontal, Square, StepForward } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import type { Project, Workflow } from "@/content/schema";
 import { getScenarioRuntime, type ScenarioInput, type ScenarioPreset, type ScenarioRuntime } from "@/engine/registry";
 import type { Choice, StepStatus } from "@/engine/types";
@@ -10,7 +10,7 @@ import { TechRow } from "@/components/ui/TechIcon";
 import { SANDBOX_SCENARIO_IDS } from "@/sandbox/protocol";
 import { INSPECTOR_TABS, Inspector, type InspectorTab } from "./Inspector";
 import { Pipeline, ProgressStrip } from "./Pipeline";
-import { RunMap } from "./RunMap";
+import { RunStory } from "./RunStory";
 import type { RunMapSystem } from "./run-map-system";
 import { DatabasePanel, ServerRunSummary } from "./SandboxPanel";
 import { SetupPanel } from "./SetupPanel";
@@ -31,6 +31,34 @@ interface WorkflowSimulatorProps {
   /** "compact" drops the setup form and payload tabs, for use on the home page. */
   variant?: "full" | "compact";
   caseStudyHref?: string;
+}
+
+/** Where the visitor's choice to see the steps and their data is kept. */
+const DETAILS_KEY = "demo-details";
+
+/** How much longer each moment of a run is held on screen while it is told as a story. */
+const STORY_PACE = 1.7;
+const DETAILS_EVENT = "demo:details";
+
+function subscribeToDetails(onChange: () => void): () => void {
+  window.addEventListener(DETAILS_EVENT, onChange);
+  return () => window.removeEventListener(DETAILS_EVENT, onChange);
+}
+
+function readDetails(): boolean {
+  // What the page shows is what <html> says; the boot script set it from the saved choice before first paint.
+  return document.documentElement.getAttribute("data-demo") === "open";
+}
+
+function showDetails(open: boolean): void {
+  if (open) document.documentElement.setAttribute("data-demo", "open");
+  else document.documentElement.removeAttribute("data-demo");
+  try {
+    window.localStorage.setItem(DETAILS_KEY, open ? "open" : "closed");
+  } catch {
+    // Not remembered between visits, still shown.
+  }
+  window.dispatchEvent(new Event(DETAILS_EVENT));
 }
 
 const SPEEDS: { value: Speed; label: string }[] = [
@@ -118,7 +146,10 @@ function SimulatorBody({
   const uid = useId();
   // The server runs a workflow only when the content describes that and the server's own list names it.
   const sandbox = workflow.sandbox && SANDBOX_SCENARIO_IDS.includes(workflow.scenarioId) ? workflow.sandbox : undefined;
-  const controller = useRun(runtime.scenario, sandbox ? workflow.scenarioId : undefined);
+  // The steps, their data and their logs are folded away until asked for. The choice is remembered.
+  const details = useSyncExternalStore(subscribeToDetails, readDetails, () => false);
+  // Told as a story the run is played slowly enough to follow; with the steps open it keeps its usual pace.
+  const controller = useRun(runtime.scenario, sandbox ? workflow.scenarioId : undefined, details ? 1 : STORY_PACE);
   const { state } = controller;
   const [target, setTarget] = useState<RunTarget>("browser");
   const onServer = controller.hasRun && controller.origin === "server";
@@ -214,6 +245,7 @@ function SimulatorBody({
   }
 
   function openSetup() {
+    showDetails(true);
     setTab("setup");
     setView("inspector");
   }
@@ -230,6 +262,7 @@ function SimulatorBody({
     : "";
   const panelId = `${uid}-panel`;
   const [noteOpen, setNoteOpen] = useState(false);
+  // The steps, their data and their logs are folded away until asked for. The choice is remembered.
 
   return (
     <div className="panel overflow-hidden shadow-md" data-testid="workflow-simulator">
@@ -251,9 +284,9 @@ function SimulatorBody({
           )}
         </div>
         <TechRow names={workflow.technologies} className="mt-3" />
-        <p className="mt-3 max-w-3xl text-[0.9375rem] leading-relaxed">{workflow.proves}</p>
-        {/* What is real and what is not is always on the page; its full wording opens in place. */}
-        <p className="mt-2 flex max-w-3xl items-start gap-2 text-[0.8125rem] leading-relaxed text-subtle">
+        {/* The long wording is for the reader who opened the steps. The badge beside the title always says it is a simulation. */}
+        <p data-tech className="mt-3 max-w-3xl text-[0.9375rem] leading-relaxed">{workflow.proves}</p>
+        <p data-tech className="mt-2 flex max-w-3xl items-start gap-2 text-[0.8125rem] leading-relaxed text-subtle">
           <span data-testid="mode-note" className={"min-w-0 flex-1 " + (noteOpen ? "" : "line-clamp-1")}>
             {sandbox && (onServer || (target === "server" && !controller.hasRun)) ? sandbox.note : workflow.modeNote}
           </span>
@@ -264,7 +297,7 @@ function SimulatorBody({
       </div>
 
       {sandbox ? (
-        <div className="flex flex-col gap-2 border-b border-line bg-surface-2 px-4 py-3 sm:px-6 md:flex-row md:items-center md:gap-4">
+        <div data-tech className="flex flex-col gap-2 border-b border-line bg-surface-2 px-4 py-3 sm:px-6 md:flex-row md:items-center md:gap-4">
           <div className="flex shrink-0 items-center gap-2">
             <span className="label">Runs</span>
             <div role="group" aria-label="Where it runs" className="segmented bg-surface-3">
@@ -285,7 +318,7 @@ function SimulatorBody({
       {/* Scenario, then run controls */}
       <div className="space-y-3 border-b border-line bg-surface-2 p-4 sm:px-6">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="label mr-1">Scenario</span>
+          <span className="label mr-1">Try</span>
           {runtime.presets.map((preset) => (
             <button
               key={preset.id}
@@ -299,7 +332,7 @@ function SimulatorBody({
             </button>
           ))}
           {!compact ? (
-            <button type="button" className="btn btn-ghost btn-sm" onClick={openSetup}>
+            <button type="button" data-tech className="btn btn-ghost btn-sm" onClick={openSetup}>
               <SlidersHorizontal size={14} aria-hidden />
               Edit input and failures
               {faults.length > 0 ? (
@@ -329,6 +362,7 @@ function SimulatorBody({
           )}
           <button
             type="button"
+            data-tech
             className="btn btn-secondary"
             onClick={handleStep}
             disabled={controller.pending || (controller.hasRun && caughtUp)}
@@ -337,16 +371,17 @@ function SimulatorBody({
             <StepForward size={15} aria-hidden />
             Step
           </button>
-          <button type="button" className="btn btn-secondary" onClick={controller.replay} disabled={!controller.hasRun}>
+          <button type="button" data-tech className="btn btn-secondary" onClick={controller.replay} disabled={!controller.hasRun}>
             <History size={15} aria-hidden />
             Replay
           </button>
-          <button type="button" className="btn btn-secondary" onClick={handleReset} disabled={!controller.hasRun}>
+          <button type="button" data-tech className="btn btn-secondary" onClick={handleReset} disabled={!controller.hasRun}>
             <RotateCcw size={15} aria-hidden />
             Reset
           </button>
           <button
             type="button"
+            data-tech
             className="btn btn-ghost"
             onClick={controller.cancel}
             disabled={!controller.hasRun || controller.executionFinished}
@@ -355,10 +390,15 @@ function SimulatorBody({
             <Square size={14} aria-hidden />
             Cancel
           </button>
-          <label className="ml-auto flex items-center gap-2 text-sm text-muted">
+          <label data-tech className="ml-auto flex items-center gap-2 text-sm text-muted">
             Speed
             <select
-              value={controller.speed}
+              // Not driven by state: a speed chosen while the page was still loading must not be put back.
+              defaultValue={controller.speed}
+              ref={(element) => {
+                const chosen = element ? (Number(element.value) as Speed) : controller.speed;
+                if (chosen !== controller.speed) queueMicrotask(() => controller.setSpeed(chosen));
+              }}
               onChange={(event) => controller.setSpeed(Number(event.target.value) as Speed)}
               className="field w-auto py-1.5 text-sm"
             >
@@ -398,8 +438,7 @@ function SimulatorBody({
             {settledCount}/{workflow.steps.length} steps settled
           </span>
         </div>
-        <ProgressStrip workflow={workflow} state={state} selectedStepId={shownTab === "setup" ? null : selectedStep.id} onSelect={handleSelect} />
-        {system ? <RunMap architecture={system} workflow={workflow} state={state} activeStepId={followedStepId} /> : null}
+        <RunStory workflow={workflow} system={system} state={state} activeStepId={followedStepId} />
         {onServer && controller.server ? <ServerRunSummary server={controller.server} /> : null}
         {waitingStep && waiting ? (
           <DecisionPanel stepLabel={waitingStep.label} prompt={waiting.prompt} choices={waiting.choices} onDecide={controller.decide} />
@@ -410,13 +449,19 @@ function SimulatorBody({
             <p className="mt-1 leading-relaxed">{state.outcome}</p>
           </div>
         ) : null}
-        {!controller.hasRun ? (
-          <p className="text-sm text-muted">
-            {target === "server"
-              ? "Press “Run workflow” to send this input to the server, which runs it against a database of its own. If the server does not answer, the run is simulated here and says so."
-              : "Press “Run workflow” to execute it, or “Step” to move one step at a time. Nothing leaves your browser."}
-          </p>
-        ) : null}
+      </div>
+
+      {/* Everything under here is the same run in full: each step, what it received, logged and wrote. */}
+      <div className="border-b border-line px-4 py-2.5 sm:px-6">
+        <button type="button" aria-expanded={details} onClick={() => showDetails(!details)} className="inline-flex items-center gap-1.5 text-sm font-semibold text-accent hover:underline">
+          <ChevronDown size={16} aria-hidden className={"transition-transform " + (details ? "rotate-180" : "")} />
+          {details ? "Hide the steps and their data" : `See all ${workflow.steps.length} steps and their data`}
+        </button>
+      </div>
+
+      <div data-demo-details>
+      <div className="border-b border-line px-4 py-3 sm:px-6">
+        <ProgressStrip workflow={workflow} state={state} selectedStepId={shownTab === "setup" ? null : selectedStep.id} onSelect={handleSelect} />
       </div>
 
       {/* On narrow screens the two panes take turns instead of stacking. */}
@@ -537,6 +582,8 @@ function SimulatorBody({
           <span className="code text-subtle">{state.runId}</span>
         </div>
       ) : null}
+
+      </div>
 
       <p role="status" aria-live="polite" className="sr-only">
         {liveMessage}

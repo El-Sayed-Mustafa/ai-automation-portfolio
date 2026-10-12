@@ -1070,6 +1070,16 @@ a:hover .lit-tile {
   animation-delay: calc(var(--i, 0) * 45ms);
 }
 
+/*
+ * A demo opens in its simple form: the steps, their data and the controls only
+ * someone technical needs are folded away until asked for. The choice is on
+ * <html>, set before first paint, so a remembered choice never moves the page.
+ */
+html:not([data-demo="open"]) [data-tech],
+html:not([data-demo="open"]) [data-demo-details] {
+  display: none;
+}
+
 /* The lines between layers follow the components they join. */
 @keyframes link-in {
   from {

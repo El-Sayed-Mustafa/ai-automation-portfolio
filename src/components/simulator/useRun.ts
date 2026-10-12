@@ -75,7 +75,7 @@ interface RemoteRun {
  * `notice` says why: a visitor is never left without a demo, and is never
  * shown a simulation as a server run.
  */
-export function useRun(scenario: Scenario<ScenarioInput>, sandboxScenarioId?: string): RunController {
+export function useRun(scenario: Scenario<ScenarioInput>, sandboxScenarioId?: string, pace = 1): RunController {
   const sessionRef = useRef<RunSession<ScenarioInput> | null>(null);
   const remoteRef = useRef<RemoteRun | null>(null);
   /** Bumped on every run and reset, so an answer to an abandoned request is ignored. */
@@ -101,9 +101,9 @@ export function useRun(scenario: Scenario<ScenarioInput>, sandboxScenarioId?: st
       const id = setTimeout(() => setCursor(events.length), 0);
       return () => clearTimeout(id);
     }
-    const id = setTimeout(() => setCursor((c) => Math.min(c + 1, events.length)), playbackDelay(events[cursor]) / speed);
+    const id = setTimeout(() => setCursor((c) => Math.min(c + 1, events.length)), (playbackDelay(events[cursor]) * pace) / speed);
     return () => clearTimeout(id);
-  }, [isPlaying, cursor, events, speed]);
+  }, [isPlaying, cursor, events, speed, pace]);
 
   const runHere = useCallback(
     (input: ScenarioInput, faults: string[], paused: boolean) => {

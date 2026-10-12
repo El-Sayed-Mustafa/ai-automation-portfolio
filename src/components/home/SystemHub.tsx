@@ -260,7 +260,7 @@ export function SystemHub({
         <Link href={href} className="link">
           {title}
         </Link>
-        : {components} components, {connections} connections. The routes that play are the requests traced in its diagram, replayed here as an animation.
+        : {components} components, {connections} connections. Real requests, replayed here as an animation.
       </p>
     </div>
   );

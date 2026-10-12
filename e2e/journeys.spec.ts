@@ -78,12 +78,11 @@ test.describe("recruiter explores a project", () => {
     // The picture says what it is and how big the real thing is.
     await expect(page.getByText(/The real system behind .*: 14 components, 18 connections\./)).toBeVisible();
 
-    const stages = page.getByRole("list", { name: "Stages of the demo" });
-    await expect(stages.getByRole("listitem")).toContainText(["Intake", "Human decision", "Booking", "Background work"]);
-    await expect(page.getByText("13 steps on invented data. Nothing real is called and no customer data is used.")).toBeVisible();
-    await page.getByRole("link", { name: "Run the demo" }).click();
+    // One way to the demo from the first screen, and the demo itself shows its stages.
+    await page.getByRole("link", { name: "Try an automation demo" }).click();
     await expect(page).toHaveURL(/#demo$/);
     await expect(simulator(page).getByRole("button", { name: "Run workflow" })).toBeInViewport();
+    await expect(simulator(page).getByRole("list", { name: "Stages of this workflow" }).getByRole("listitem")).toContainText(["Intake", "Human decision", "Booking", "Background work"]);
   });
 
   test("every featured project shows what it is, a real picture of it and a way in", async ({ page }) => {
@@ -159,6 +158,9 @@ test.describe("recruiter explores a project", () => {
     const about = page.locator("#about");
     await expect(about.getByRole("heading", { name: "How I work" })).toBeInViewport();
     await expect(about.getByText("Experience", { exact: true })).toBeVisible();
+    // Education and certificates are on the resume. Here they wait for the reader who asks for more detail.
+    await expect(about.getByText("Education", { exact: true })).toBeHidden();
+    await page.getByRole("banner").getByRole("button", { name: "Engineer" }).click();
     await expect(about.getByText("Education", { exact: true })).toBeVisible();
     await expect(about.getByText("Certifications", { exact: true })).toBeVisible();
   });

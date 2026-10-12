@@ -1,8 +1,8 @@
 {
   "name": "Elsayed Mustafa",
   "role": "AI & Automation Engineer",
-  "headline": "I build systems that turn complex operational work into reliable automation.",
-  "intro": "I design and build backend systems, data pipelines and business automation. This site lets you open the systems themselves: run a workflow, break it, and read how each decision was made.",
+  "headline": "I turn manual work into reliable automation.",
+  "intro": "Software and AI tools for customers, daily operations and data. Open a project and try it.",
   "about": "I build production-oriented tools that replace manual workflows with reliable software. My work combines Python automation, AI and machine learning, browser automation, APIs, PostgreSQL and Supabase, Google Apps Script, and practical web interfaces.",
   "approach": [
     "Start with the business workflow and its failure modes, then design the automation around them.",

@@ -89,10 +89,10 @@ test.describe("privacy: the site talks to itself only", () => {
 
     expect(foreign, "requests to another origin").toEqual([]);
     expect(violations, "policy violations and page errors").toEqual([]);
-    // Nothing is kept about the visitor beyond their own choices of theme, lens and rail.
+    // Nothing is kept about the visitor beyond their own choices: theme, lens, rail, and whether a demo's steps are unfolded.
     expect(await page.context().cookies()).toEqual([]);
     const stored = await page.evaluate(() => Object.keys(localStorage).sort());
-    expect(stored.every((key) => ["lens", "rail", "theme"].includes(key)), stored.join(", ")).toBe(true);
+    expect(stored.every((key) => ["demo-details", "lens", "rail", "theme"].includes(key)), stored.join(", ")).toBe(true);
   });
 });
 

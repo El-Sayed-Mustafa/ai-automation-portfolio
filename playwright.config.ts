@@ -23,6 +23,9 @@ export default defineConfig({
   use: {
     baseURL: `http://localhost:${PORT}`,
     channel,
+    // A demo folds its steps and their data away until a visitor asks for them. Nearly every test works with
+    // those steps, so they start unfolded here; e2e/story.spec.ts covers what a first-time visitor sees.
+    storageState: { cookies: [], origins: [{ origin: `http://localhost:${PORT}`, localStorage: [{ name: "demo-details", value: "open" }] }] },
     trace: "retain-on-failure",
   },
   projects: [
