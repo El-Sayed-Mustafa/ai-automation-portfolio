@@ -78,8 +78,9 @@ export function ProjectSidebar({ items, currentId, variant = "rail", onClose }: 
             <span className="text-[0.9375rem] font-semibold leading-snug">{item.title}</span>
             {item.external ? <ArrowUpRight size={14} className="mt-0.5 shrink-0 text-subtle" aria-hidden /> : null}
           </span>
-          <span className="mt-0.5 line-clamp-2 text-[0.8125rem] leading-snug text-muted">{item.blurb}</span>
-          <span className="mt-2 flex flex-wrap gap-1">
+          {/* The short list is names only; what each is and its kinds are for the reader who asks for detail. */}
+          <span className="eng-only mt-0.5 line-clamp-2 text-[0.8125rem] leading-snug text-muted">{item.blurb}</span>
+          <span className="eng-only mt-2 flex flex-wrap gap-1">
             {item.tags.slice(0, 3).map((tag) => (
               <Tag key={tag.label} tone={tag.tone} className="!px-2 !py-px !text-[0.6875rem]">
                 {tag.label}
@@ -90,7 +91,7 @@ export function ProjectSidebar({ items, currentId, variant = "rail", onClose }: 
       </>
     );
     const className =
-      "flex gap-3 rounded-xl border p-2.5 transition-all duration-150 " +
+      "flex items-center gap-3 rounded-xl border p-2.5 transition-all duration-150 " +
       (current ? "border-accent/60 bg-accent-soft shadow-sm" : "border-line bg-surface hover:-translate-y-px hover:border-accent/50 hover:shadow-sm");
     return (
       <li key={item.id}>

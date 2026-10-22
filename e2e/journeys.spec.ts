@@ -118,10 +118,15 @@ test.describe("recruiter explores a project", () => {
     await page.goto(CRM);
     await expect(page.locator("html")).toHaveAttribute("data-lens", "recruiter");
     await expect(page.locator("#overview").getByText("Engineering challenges")).toBeHidden();
+    // The figures are shown once, beside the study, each with its evidence mark; how each was measured is for the Engineer view.
+    const impact = page.getByRole("complementary", { name: "About this project" }).getByRole("region", { name: "Project impact" });
+    await expect(impact.getByText("about 0.56 s", { exact: true })).toBeVisible();
+    await expect(impact.getByText("Documented by author").first()).toBeAttached();
     const results = page.locator("#results");
-    await expect(results.getByText("about 0.56 s", { exact: true })).toBeVisible();
-    await expect(results.getByText("Documented by author").first()).toBeVisible();
-    await expect(results.getByText(/measured by the author on the staging deployment/i).first()).toBeVisible();
+    await expect(results.getByRole("heading", { level: 3 })).toBeVisible();
+    await expect(results.getByText(/measured by the author on the staging deployment/i).first()).toBeHidden();
+    // Each claim keeps its label, as a mark at the end of the sentence.
+    await expect(page.locator("#summary").getByText("Verified in code").first()).toBeAttached();
     // Limitations are part of the short version too: one tab away, in either lens.
     await expect(page.locator("#limitations")).toBeHidden();
     await openTab(page, "Limits");
@@ -1011,6 +1016,8 @@ test.describe("case studies of private repositories", () => {
 
   test("state what is and is not live", async ({ page }) => {
     await page.goto(`${MARKET}#architecture`);
+    // The sentences behind status and role open with "Details"; the short view shows a few words each.
+    await page.locator(".summary-toggle:visible").click();
     await expect(page.getByText("Running in shadow beside the system it replaces. The switch is approved and not yet made.")).toBeVisible();
     const architecture = page.locator("#architecture");
     await architecture.scrollIntoViewIfNeeded();
@@ -1020,6 +1027,8 @@ test.describe("case studies of private repositories", () => {
 
     await page.goto("about:blank");
     await page.goto(`${SOLANA}#architecture`);
+    // The sentences behind status and role open with "Details"; the short view shows a few words each.
+    await page.locator(".summary-toggle:visible").click();
     await expect(page.getByText(/Paper trading is the default; a real-execution layer exists behind two switches and a wallet key/)).toBeVisible();
     const solana = page.locator("#architecture");
     await solana.scrollIntoViewIfNeeded();
@@ -1069,7 +1078,7 @@ test.describe("visitor uses the Automation Lab", () => {
 test.describe("visitor checks the evidence", () => {
   test("finds the files behind the claims in the engineer lens", async ({ page }) => {
     await openEngineerCaseStudy(page);
-    await expect(page.locator("#overview").getByText("Verified in code").first()).toBeVisible();
+    await expect(page.locator("#overview").getByText("Verified in code").filter({ visible: true }).first()).toBeVisible();
     await expect(page.locator("#overview").getByText("Engineering challenges")).toBeVisible();
     await openTab(page, "Evidence");
     const evidence = page.locator("#evidence");
@@ -1078,7 +1087,7 @@ test.describe("visitor checks the evidence", () => {
   });
 
   test("every kind of evidence label is explained on the page", async ({ page }) => {
-    await page.goto(CRM);
+    await openEngineerCaseStudy(page);
     const legend = page.locator("#overview details").filter({ hasText: "What the evidence labels on this page mean" });
     await legend.locator("summary").click();
     for (const label of ["Verified in code", "Documented by author", "Stated by owner", "Inferred", "Proposed"]) {

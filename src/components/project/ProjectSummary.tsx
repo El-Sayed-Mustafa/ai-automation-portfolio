@@ -37,7 +37,7 @@ function Item({
           <span className="min-w-0">{value}</span>
           {provenance ? <ProvenanceMark provenance={provenance} /> : null}
         </p>
-        {note ? <p className={"mt-0.5 text-[0.8125rem] leading-snug text-muted " + (open ? "" : "summary-clamp")}>{note}</p> : null}
+        {note ? <p className={"mt-0.5 text-[0.8125rem] leading-snug text-muted " + (open ? "" : "summary-more")}>{note}</p> : null}
         {children ? (
           <div data-evidence className={open ? "mt-1.5" : "summary-more mt-1.5"}>
             {children}

@@ -224,7 +224,7 @@ test.describe("lead engine: a phone number has to earn the word verified", () =>
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       expect(await page.locator("main").innerText()).not.toMatch(/stealth|undetect|fingerprint|evad|bypass/i);
     }
-    await page.goto(`${LEADS}#results`);
+    await page.goto(`${LEADS}?lens=engineer#results`);
     const results = page.locator("#results");
     await expect(results.getByText("4,118 of 18,736")).toBeVisible();
     await expect(results.getByText("Documented by author").first()).toBeVisible();
@@ -242,6 +242,8 @@ test.describe("lead engine: a phone number has to earn the word verified", () =>
 test.describe("rating estimator: built from the public write-up only", () => {
   test("says whose product it is and what is not finished", async ({ page }) => {
     await page.goto(RATING);
+    // The sentences behind status and role open with "Details"; the short view shows a few words each.
+    await page.locator(".summary-toggle:visible").click();
     await expect(page.getByText("Engineer on the project at BlueBug.")).toBeVisible();
     await expect(page.getByText(/The asynchronous request pipeline is partly built/)).toBeVisible();
     // The parts that are not running yet are marked in the picture of the system and in the diagram.
@@ -275,7 +277,7 @@ test.describe("rating estimator: built from the public write-up only", () => {
   });
 
   test("shows the measured accuracy with its baseline and where the figures come from", async ({ page }) => {
-    await page.goto(`${RATING}#results`);
+    await page.goto(`${RATING}?lens=engineer#results`);
     const results = page.locator("#results");
     await expect(results.getByText("80.7%", { exact: true })).toBeVisible();
     await expect(results.getByText("about 68%", { exact: true })).toBeVisible();

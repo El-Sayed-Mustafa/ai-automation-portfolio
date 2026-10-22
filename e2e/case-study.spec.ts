@@ -35,8 +35,8 @@ test.describe("the project rail", () => {
     await expect(rail.locator('[aria-current="page"]')).toHaveText(/Solana Trading Research Platform/);
     // A new project opens on its overview, and its own links still work: the page it replaced is not in the way.
     await expectTab(page, "overview");
-    await page.getByRole("complementary", { name: "About this project" }).getByRole("link", { name: "How each was measured" }).click();
-    await expect(page.locator("#results-title:visible")).toBeInViewport();
+    // The list is names only: what each project is waits for the Engineer view.
+    await expect(rail.getByText(/A research platform that runs trading strategies/)).toBeHidden();
     await page.locator("[data-main]:visible").getByRole("link", { name: "Try the demo" }).click();
     await expectTab(page, "demo");
     await expect(page.getByTestId("workflow-simulator").getByRole("heading", { level: 3 }).first()).toBeInViewport();
@@ -277,7 +277,8 @@ test.describe("the first screen of a case study", () => {
 
 test.describe("the side column", () => {
   test("shows measured figures with where each comes from, and links to how they were measured", async ({ page }) => {
-    await page.goto(CRM);
+    // How each figure was measured is engineering detail: the link to it is in the Engineer view.
+    await page.goto(`${CRM}?lens=engineer`);
     const side = page.getByRole("complementary", { name: "About this project" });
     const impact = side.getByRole("region", { name: "Project impact" });
     await expect(impact.getByRole("listitem")).toHaveCount(4);

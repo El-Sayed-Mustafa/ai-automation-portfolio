@@ -79,7 +79,7 @@ function TabPanel({ id, icon: Icon, tone, title, intro, children }: { id: TabId;
 }
 
 /** A titled card inside a panel. */
-function Block({ id, title, intro, children, className = "" }: { id?: string; title: string; intro?: ReactNode; children: ReactNode; className?: string }) {
+function Block({ id, title, intro, children, className = "" }: { id?: string; title: ReactNode; intro?: ReactNode; children: ReactNode; className?: string }) {
   return (
     <section id={id} aria-labelledby={id ? `${id}-title` : undefined} className={`reveal panel p-5 sm:p-6 ${className}`}>
       <h3 id={id ? `${id}-title` : undefined} className="text-xl font-bold">
@@ -210,8 +210,21 @@ function Results({ project }: { project: Project }) {
   if (project.metrics.length === 0 && !project.beforeAfter) return null;
   const measured = project.metrics.filter((metric) => metric.before && metric.after);
   const others = project.metrics.filter((metric) => !(metric.before && metric.after));
+  // The short lens shows the figures once, in the side column, and keeps the before and after here.
+  const short = project.beforeAfter ? project.beforeAfter.title : null;
   return (
-    <Block id="results" title="Results, and how each was obtained" intro="Each figure says how it was measured and where it is recorded. None is an estimate made for this page.">
+    <div className={short ? "" : "eng-only"}>
+    <Block
+      id="results"
+      title={
+        <>
+          {short ? <span className="rec-only">{short}</span> : null}
+          <span className="eng-only">Results, and how each was obtained</span>
+        </>
+      }
+      intro={<span className="eng-only">Each figure says how it was measured and where it is recorded. None is an estimate made for this page.</span>}
+    >
+      <div className="eng-only">
       {measured.length > 0 ? (
         // As many columns as there are figures, so two results do not leave a third column empty.
         <ul className={"grid gap-4 " + (measured.length === 1 ? "" : measured.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3")}>
@@ -242,11 +255,14 @@ function Results({ project }: { project: Project }) {
           ))}
         </dl>
       ) : null}
+      </div>
 
       {project.beforeAfter ? (
-        <div className="mt-8">
-          <h4 className="font-display text-lg font-bold">{project.beforeAfter.title}</h4>
-          <p className="mt-1 max-w-(--container-measure) text-sm leading-relaxed text-muted">{project.beforeAfter.note}</p>
+        <div>
+          <div className="eng-only mt-8">
+            <h4 className="font-display text-lg font-bold">{project.beforeAfter.title}</h4>
+            <p className="mt-1 max-w-(--container-measure) text-sm leading-relaxed text-muted">{project.beforeAfter.note}</p>
+          </div>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <div className="rounded-2xl border border-line p-4">
               <h5 className="label flex items-center gap-2">
@@ -276,6 +292,7 @@ function Results({ project }: { project: Project }) {
         </div>
       ) : null}
     </Block>
+    </div>
   );
 }
 
@@ -308,7 +325,7 @@ export function OverviewPanel({ project }: { project: Project }) {
         <HowItWorks project={project} />
         <Screenshots project={project} />
 
-        <div id="summary" className="grid gap-6 lg:grid-cols-2">
+        <div id="summary" className="grid gap-6 lg:grid-cols-2 lg:items-start">
           <Block title="The problem">
             <ClaimText project={project} claim={project.problem} />
             {/* Background, for the reader who wants it. The short lens goes straight from the problem to what was built. */}
@@ -350,19 +367,9 @@ export function OverviewPanel({ project }: { project: Project }) {
 
         <Results project={project} />
 
+        <div className="eng-only">
         <Block title="Technology">
-          {/* Names only in the short lens; what each one is used for in the engineer lens. */}
-          <ul className="rec-only flex flex-wrap gap-2" aria-label="Technology used">
-            {project.stack.map((item) => (
-              <li key={item.name} title={item.role}>
-                <Tag tone="slate" className="!gap-1.5 !px-3 !py-1 !text-[0.8125rem]">
-                  <TechGlyph name={item.name} size={14} />
-                  {item.name}
-                </Tag>
-              </li>
-            ))}
-          </ul>
-          <dl className="eng-only grid gap-x-8 gap-y-3 text-sm sm:grid-cols-2">
+          <dl className="grid gap-x-8 gap-y-3 text-sm sm:grid-cols-2">
             {project.stack.map((item) => (
               <div key={item.name} className="border-l-2 border-accent/40 pl-3">
                 <dt className="font-bold">{item.name}</dt>
@@ -371,8 +378,9 @@ export function OverviewPanel({ project }: { project: Project }) {
             ))}
           </dl>
         </Block>
+        </div>
 
-        <details className="panel">
+        <details className="eng-only panel">
           <summary className="px-5 py-3.5 text-sm font-semibold">What the evidence labels on this page mean</summary>
           <div className="border-t border-line p-5">
             <ProvenanceLegend />
@@ -712,7 +720,7 @@ export function ProjectAside({ project }: { project: Project }) {
               );
             })}
           </ul>
-          <a href="#results" className="link mt-4 inline-flex items-center gap-1 text-sm">
+          <a href="#results" className="eng-only link mt-4 inline-flex items-center gap-1 text-sm">
             How each was measured <ArrowRight size={14} aria-hidden />
           </a>
         </section>

@@ -100,12 +100,18 @@ export function EvidenceLine({
   );
 }
 
-/** A statement, then its evidence line. */
+/**
+ * A statement, then its evidence line. In the short lens the evidence is a
+ * mark at the end of the sentence, with its label as a tooltip and for a
+ * screen reader, so a list of claims is not a list of labels.
+ */
 export function ClaimText({ project, claim, className = "" }: { project: RepoContext; claim: Claim; className?: string }) {
   return (
     <div className={className}>
-      <p className="leading-relaxed">{claim.text}</p>
-      <EvidenceLine project={project} provenance={claim.provenance} sources={claim.sources} className="mt-1.5" />
+      <p className="leading-relaxed">
+        {claim.text} <ProvenanceMark provenance={claim.provenance} className="rec-only align-[-2px]" />
+      </p>
+      <EvidenceLine project={project} provenance={claim.provenance} sources={claim.sources} className="eng-only mt-1.5" />
     </div>
   );
 }
