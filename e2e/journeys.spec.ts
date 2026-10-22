@@ -58,29 +58,37 @@ test.describe("recruiter explores a project", () => {
   test("reaches a case study from the home page in two clicks", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toContainText("reliable automation");
-    await page.getByRole("link", { name: "Explore my projects" }).click();
+    await page.locator("#work").getByRole("link", { name: "All 9 projects" }).click();
     await expect(page).toHaveURL(/\/projects$/);
     await page.getByRole("link", { name: "Read the case study" }).first().click();
     await expect(page).toHaveURL(new RegExp(`${CRM}$`));
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Pest Control CRM and Field Operations");
   });
 
-  test("the home page leads with the work: the layers of a real system and a way to try it", async ({ page }) => {
+  test("the home page leads with what I can do, each skill shown in a real system", async ({ page }) => {
     await page.goto("/");
+    // The skills come straight after the name, in plain words, each with the tools and a piece of work behind it.
+    await page.getByRole("link", { name: "What I can do" }).click();
+    await expect(page).toHaveURL(/#skills$/);
+    const skills = page.locator("#skills");
+    await expect(skills.getByRole("heading", { name: "What I can do for you" })).toBeInViewport();
+    const cards = skills.getByRole("listitem").filter({ has: page.getByRole("link") });
+    await expect(cards).toHaveCount(6);
+    await expect(cards.first()).toContainText("Business automation");
+    await expect(cards.first().getByRole("link")).toHaveAttribute("href", "/projects/rug-inventory-sync");
+    for (const card of await cards.all()) await expect(card.getByRole("link")).toHaveAttribute("href", /^\/projects\/[a-z-]+$/);
+    await expect(skills.getByRole("list", { name: "Tools I work with" }).getByRole("listitem")).toHaveCount(12);
+    // Nothing on the first screen asks the reader to understand engineering figures.
+    await expect(page.getByText("Failures you can inject")).toHaveCount(0);
     // The picture beside the headline is the first case study's own architecture, not an illustration.
     const layers = page.getByRole("list", { name: "The layers of Pest Control CRM and Field Operations" });
     await expect(layers.getByRole("listitem")).toContainText(["Clients", "Application", "Data", "Background work", "External services"]);
     await expect(layers).toContainText("Supabase Postgres");
-    // The figures under it are counted from the site's own content.
-    const counts = page.getByRole("list", { name: "This site in numbers" });
-    await expect(counts.getByRole("listitem")).toContainText(["Interactive case studies", "Workflows you can run", "Failures you can inject", "Components documented"]);
-    await expect(counts.getByRole("listitem").first()).toContainText("8");
     // The picture says what it is and how big the real thing is.
     await expect(page.getByText(/The real system behind .*: 14 components, 18 connections\./)).toBeVisible();
 
-    // One way to the demo from the first screen, and the demo itself shows its stages.
-    await page.getByRole("link", { name: "Try an automation demo" }).click();
-    await expect(page).toHaveURL(/#demo$/);
+    // The demo is further down, and shows its stages.
+    await page.goto("/#demo");
     await expect(simulator(page).getByRole("button", { name: "Run workflow" })).toBeInViewport();
     await expect(simulator(page).getByRole("list", { name: "Stages of this workflow" }).getByRole("listitem")).toContainText(["Intake", "Human decision", "Booking", "Background work"]);
   });
@@ -102,8 +110,8 @@ test.describe("recruiter explores a project", () => {
     await cards.first().getByRole("link", { name: /^Read the case study: / }).click();
     await expect(page).toHaveURL(new RegExp(`${CRM}$`));
     await page.goto("/");
-    // The other case studies are one click away too.
-    await expect(page.locator("#work").getByRole("link", { name: /Lead Discovery and Contact Enrichment Engine/ })).toHaveAttribute("href", LEADS);
+    // The other case studies are one click away too: each skill leads to the one that shows it.
+    await expect(page.locator("#skills").getByRole("link", { name: /Web scraping and data collection/ })).toHaveAttribute("href", LEADS);
   });
 
   test("sees the short version by default, with measured results and their labels", async ({ page }) => {
@@ -156,13 +164,16 @@ test.describe("recruiter explores a project", () => {
   test("reads the About section, which is built from stated facts", async ({ page }) => {
     await page.goto("/#about");
     const about = page.locator("#about");
-    await expect(about.getByRole("heading", { name: "How I work" })).toBeInViewport();
+    await expect(about.getByRole("heading", { name: "About me" })).toBeInViewport();
+    // How I approach a problem is for the reader who asks for the engineering detail.
+    await expect(about.getByText("How I approach a problem")).toBeHidden();
     await expect(about.getByText("Experience", { exact: true })).toBeVisible();
     // Education and certificates are on the resume. Here they wait for the reader who asks for more detail.
     await expect(about.getByText("Education", { exact: true })).toBeHidden();
     await page.getByRole("banner").getByRole("button", { name: "Engineer" }).click();
     await expect(about.getByText("Education", { exact: true })).toBeVisible();
     await expect(about.getByText("Certifications", { exact: true })).toBeVisible();
+    await expect(about.getByText("How I approach a problem")).toBeVisible();
   });
 });
 

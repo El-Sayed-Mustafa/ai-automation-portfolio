@@ -66,6 +66,8 @@ export const iconSchema = z.enum([
   "gauge",
   "plug",
   "sparkles",
+  "chat",
+  "sheet",
 ]);
 export type IconName = z.infer<typeof iconSchema>;
 
@@ -387,6 +389,26 @@ export const siteSchema = z.object({
     /** Where the resume lives: the built-in /resume page, or a file under public/. */
     resume: z.string().startsWith("/").optional(),
   }),
+  /**
+   * What the owner can do for a client, in plain words, first on the home
+   * page. Each skill names the tools it is done with and the case study that
+   * shows it, so no skill is listed without a piece of work behind it.
+   */
+  skills: z
+    .array(
+      z.object({
+        id: z.string().regex(/^[a-z0-9-]+$/),
+        title: z.string().min(1).max(40),
+        text: z.string().min(1).max(90),
+        icon: iconSchema,
+        tone: toneSchema,
+        tools: z.array(z.string().min(1)).min(1).max(4),
+        projectId: z.string().min(1),
+      }),
+    )
+    .min(1),
+  /** The tools the skills are done with, as one row of logos. Each must be used in a case study. */
+  tools: z.array(z.string().min(1)).min(1),
   capabilities: z
     .array(
       z.object({

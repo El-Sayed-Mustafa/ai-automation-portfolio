@@ -41,10 +41,9 @@ export default function ProjectsPage() {
         <Tag tone="indigo" className="px-3 py-1 text-[0.8125rem]">
           Projects ({items.length})
         </Tag>
-        <h1 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">Systems, with their evidence</h1>
+        <h1 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">Projects I built</h1>
         <p className="mt-4 text-lg leading-relaxed text-muted">
-          What each system is for, what my part in it was, and what supports the claim. The case studies are interactive; the rest
-          link to public write-ups.
+          Real systems for real businesses. Open one to see what it does, and try it.
         </p>
       </header>
       <CategoryFilter items={items} />

@@ -66,7 +66,7 @@ export function CategoryFilter({ items }: { items: FilterItem[] }) {
           <h2 id="case-studies-title" className="text-2xl font-bold">
             Interactive case studies
           </h2>
-          <p className="mt-1 text-muted">Run the workflow, break it, and explore the architecture.</p>
+          <p className="mt-1 text-muted">Each one has a demo you can run.</p>
           <ul className="mt-5 grid gap-5 lg:grid-cols-2">
             {caseStudies.map((item) => (
               <li key={item.id}>{item.content}</li>

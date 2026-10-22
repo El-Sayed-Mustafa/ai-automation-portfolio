@@ -69,7 +69,7 @@ test.describe("the picture beside the headline", () => {
   for (const size of [
     { name: "a wide screen", width: 1920, height: 1000 },
     { name: "a laptop", width: 1280, height: 800 },
-    { name: "a phone", width: 390, height: 844 },
+    { name: "a small tablet", width: 700, height: 900 },
   ]) {
     test(`nothing under the picture moves as the words beside the button change, on ${size.name}`, async ({ page }) => {
       await page.setViewportSize({ width: size.width, height: size.height });
@@ -81,7 +81,7 @@ test.describe("the picture beside the headline", () => {
       const button = hub.getByRole("button", { name: /^(Pause|Play) the animation$/ });
       await expect(button).toHaveText("Pause the animation");
       // The list itself has no box of its own (its items are laid out by the bar around it), so its first item stands for it.
-      const below = page.getByRole("list", { name: "This site in numbers" }).getByRole("listitem").first();
+      const below = page.locator("#skills-title");
       const measure = async () => {
         const row = (await controls.boundingBox())!;
         const press = (await button.boundingBox())!;
@@ -132,7 +132,7 @@ test.describe("the picture beside the headline", () => {
   });
 
   for (const size of [
-    { name: "a phone", width: 390, height: 844 },
+    { name: "a small tablet", width: 700, height: 900 },
     { name: "a laptop", width: 1280, height: 800 },
   ]) {
     test(`keeps its shape on ${size.name}: every card inside the picture, none over another`, async ({ page }) => {
@@ -179,14 +179,14 @@ test.describe("the page on a wide screen", () => {
     });
   }
 
-  test("the figures under the headline count up to their real values", async ({ page }) => {
+  test("on a phone the skills follow the name, without the picture too small to read", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/");
-    const counts = page.getByRole("list", { name: "This site in numbers" }).getByRole("listitem");
-    await expect(counts).toContainText(["8", "8", "71", "122"]);
-    // They settle on the values and stay there.
-    await page.waitForTimeout(1200);
-    await expect(counts.nth(3)).toContainText("122");
-    await expect(counts.nth(2)).toContainText("71");
+    await expect(page.locator("[data-hub]")).toBeHidden();
+    const skills = page.locator("#skills");
+    await skills.getByRole("listitem").first().scrollIntoViewIfNeeded();
+    await expect(skills.getByRole("listitem").first()).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   });
 });
 

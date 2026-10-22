@@ -7,11 +7,13 @@ import {
   ChartCandlestick,
   Database,
   Gauge,
+  MessageCircle,
   Plug,
   Radar,
   RefreshCcw,
   Server,
   ShieldCheck,
+  Sheet,
   Sparkles,
   Star,
   Store,
@@ -40,6 +42,8 @@ const ICONS: Record<IconName, LucideIcon> = {
   gauge: Gauge,
   plug: Plug,
   sparkles: Sparkles,
+  chat: MessageCircle,
+  sheet: Sheet,
 };
 
 export function AppIcon({ name, size = 20 }: { name: IconName; size?: number }) {

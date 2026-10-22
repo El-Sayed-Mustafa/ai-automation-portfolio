@@ -242,7 +242,7 @@ test.describe("navigation on a wide screen", () => {
     await main.getByRole("link", { name: "Automation Lab" }).click();
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Run the workflows");
     await main.getByRole("link", { name: "Projects" }).click();
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Systems, with their evidence");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Projects I built");
     await main.getByRole("link", { name: "Resume" }).click();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Resume");
     await main.getByRole("link", { name: "About" }).click();

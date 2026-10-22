@@ -315,14 +315,14 @@ test.describe("rating estimator: built from the public write-up only", () => {
 });
 
 test.describe("the home page with eight case studies", () => {
-  test("features four in full and lists the rest", async ({ page }) => {
+  test("features four in full and leads to the rest", async ({ page }) => {
     await page.goto("/");
     const work = page.locator("#work");
     await expect(work.locator("article").filter({ has: page.getByRole("link", { name: /^Read the case study: / }) })).toHaveCount(4);
-    await expect(work.getByRole("heading", { name: "More case studies" })).toBeVisible();
-    for (const study of STUDIES.slice(4)) {
-      await expect(work.getByRole("link", { name: new RegExp(study.title.replace(/[()]/g, "\\$&")) })).toHaveAttribute("href", study.path);
-    }
     await expect(work.getByRole("link", { name: "All 9 projects" })).toHaveAttribute("href", "/projects");
+    await page.goto("/projects");
+    for (const study of STUDIES.slice(4)) {
+      await expect(page.locator(`a[href="${study.path}"]`).first()).toBeVisible();
+    }
   });
 });

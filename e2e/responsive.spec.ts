@@ -106,6 +106,6 @@ test.describe("on a phone", () => {
     await page.getByRole("button", { name: "Menu" }).click();
     await page.getByRole("navigation", { name: "Main, mobile" }).getByRole("link", { name: "Projects" }).click();
     await expect(page).toHaveURL(/\/projects$/);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Systems, with their evidence");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Projects I built");
   });
 });

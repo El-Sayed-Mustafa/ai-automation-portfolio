@@ -26,6 +26,20 @@ describe("content manifests", () => {
     }
   });
 
+  it("only list a skill or a tool that a case study shows", () => {
+    /** Everything a case study says it is built with, as one text to search. */
+    const builtWith = (project: (typeof projects)[number]) =>
+      [...project.stack.map((item) => item.name), ...project.architecture.nodes.flatMap((node) => [node.label, node.technology])].join(" | ").toLowerCase();
+    // A tool's name can be shorter than the way a case study writes it ("Gemini through the google-genai SDK").
+    const named = (text: string, tool: string) => text.includes(tool.toLowerCase().replace(/^google (?=gemini)/, ""));
+    for (const skill of getSite().skills) {
+      const project = getProject(skill.projectId);
+      expect(project, skill.projectId).toBeDefined();
+      for (const tool of skill.tools) expect(named(builtWith(project!), tool), `${skill.id}: ${tool} in ${skill.projectId}`).toBe(true);
+    }
+    for (const tool of getSite().tools) expect(projects.some((project) => named(builtWith(project), tool)), tool).toBe(true);
+  });
+
   it("reject a manifest with a missing field", () => {
     const broken: Record<string, unknown> = { ...projects[0] };
     delete broken.title;

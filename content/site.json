@@ -21,6 +21,97 @@
     "upwork": "https://www.upwork.com/freelancers/elsayedm7",
     "resume": "/resume"
   },
+  "skills": [
+    {
+      "id": "automation",
+      "title": "Business automation",
+      "text": "Repeated manual steps turned into a system that runs by itself.",
+      "icon": "workflow",
+      "tone": "indigo",
+      "tools": [
+        "Google Apps Script",
+        "Shopify",
+        "Supabase"
+      ],
+      "projectId": "rug-inventory-sync"
+    },
+    {
+      "id": "messaging",
+      "title": "WhatsApp and Telegram bots",
+      "text": "Messages that create records, alert your team and wait for an answer.",
+      "icon": "chat",
+      "tone": "green",
+      "tools": [
+        "WhatsApp",
+        "Gmail"
+      ],
+      "projectId": "pest-control-crm"
+    },
+    {
+      "id": "ai",
+      "title": "AI in your workflow",
+      "text": "AI that reads and sorts the work. Code checks it, a person decides.",
+      "icon": "bot",
+      "tone": "violet",
+      "tools": [
+        "Google Gemini",
+        "Python"
+      ],
+      "projectId": "job-triage-pipeline"
+    },
+    {
+      "id": "scraping",
+      "title": "Web scraping and data collection",
+      "text": "Businesses, contacts and reviews collected from websites into clean tables.",
+      "icon": "radar",
+      "tone": "rose",
+      "tools": [
+        "Selenium",
+        "Python",
+        "pandas"
+      ],
+      "projectId": "lead-enrichment-engine"
+    },
+    {
+      "id": "sheets",
+      "title": "Google Sheets reports",
+      "text": "Reports your team works from, refreshed every day without copy and paste.",
+      "icon": "sheet",
+      "tone": "teal",
+      "tools": [
+        "Google Sheets",
+        "pandas"
+      ],
+      "projectId": "review-intelligence-pipeline"
+    },
+    {
+      "id": "data",
+      "title": "Databases and APIs",
+      "text": "Your data in a real database, with an API and alerts on top.",
+      "icon": "database",
+      "tone": "blue",
+      "tools": [
+        "PostgreSQL",
+        "FastAPI",
+        "Docker"
+      ],
+      "projectId": "market-data-platform"
+    }
+  ],
+  "tools": [
+    "Python",
+    "Google Apps Script",
+    "Google Sheets",
+    "Supabase",
+    "PostgreSQL",
+    "WhatsApp",
+    "Telegram",
+    "Google Gemini",
+    "Selenium",
+    "FastAPI",
+    "Shopify",
+    "pandas"
+  ],
   "capabilities": [
     {
       "id": "ai-workflows",
