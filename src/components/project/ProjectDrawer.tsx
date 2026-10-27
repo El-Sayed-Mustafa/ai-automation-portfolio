@@ -16,7 +16,7 @@ export function ProjectDrawer({ items, currentId }: { items: SidebarItem[]; curr
 
   return (
     <>
-      <button type="button" className="btn btn-secondary btn-sm xl:hidden" aria-haspopup="dialog" onClick={() => dialog.current?.showModal()}>
+      <button type="button" className="case-drawer-button btn btn-secondary btn-sm xl:hidden" aria-haspopup="dialog" onClick={() => dialog.current?.showModal()}>
         <PanelLeft size={14} aria-hidden />
         All projects ({count})
       </button>

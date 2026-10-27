@@ -67,9 +67,11 @@ test.describe("recruiter explores a project", () => {
 
   test("the home page leads with what I can do, each skill shown in a real system", async ({ page }) => {
     await page.goto("/");
-    // The skills come straight after the name, in plain words, each with the tools and a piece of work behind it.
-    await page.getByRole("link", { name: "What I can do" }).click();
-    await expect(page).toHaveURL(/#skills$/);
+    // The way to hire me comes first, on Upwork.
+    const hire = page.locator("#hero-title").locator("xpath=..").getByRole("link", { name: /Hire me on Upwork/ });
+    await expect(hire).toHaveAttribute("href", "https://www.upwork.com/freelancers/~0137385c9c3fcfc8b1");
+    // The skills come straight after the name, in plain words, each with a piece of work behind it.
+    await page.goto("/#skills");
     const skills = page.locator("#skills");
     await expect(skills.getByRole("heading", { name: "What I can do for you" })).toBeInViewport();
     const cards = skills.getByRole("listitem").filter({ has: page.getByRole("link") });
@@ -78,6 +80,11 @@ test.describe("recruiter explores a project", () => {
     await expect(cards.first().getByRole("link")).toHaveAttribute("href", "/projects/rug-inventory-sync");
     for (const card of await cards.all()) await expect(card.getByRole("link")).toHaveAttribute("href", /^\/projects\/[a-z-]+$/);
     await expect(skills.getByRole("list", { name: "Tools I work with" }).getByRole("listitem")).toHaveCount(12);
+    // Under them, the Upwork profile in large: its badge, rating and hours as the profile shows them, and a client's words.
+    const upwork = page.getByRole("region", { name: "Hire me on Upwork" });
+    await expect(upwork.getByRole("list", { name: "On my Upwork profile" }).getByRole("listitem")).toHaveText(["Rising Talent", "5.0 client rating", "155 hours worked"]);
+    await expect(upwork.locator("blockquote")).toContainText("professional, knowledgeable");
+    await expect(upwork.getByRole("link", { name: /View my Upwork profile/ })).toHaveAttribute("href", /upwork\.com\/freelancers\/~0137385c9c3fcfc8b1$/);
     // Nothing on the first screen asks the reader to understand engineering figures.
     await expect(page.getByText("Failures you can inject")).toHaveCount(0);
     // The picture beside the headline is the first case study's own architecture, not an illustration.
@@ -99,7 +106,8 @@ test.describe("recruiter explores a project", () => {
     await expect(cards).toHaveCount(4);
     for (const card of await cards.all()) {
       await expect(card.getByRole("heading", { level: 3 }).getByRole("link")).toBeVisible();
-      await expect(card.getByRole("list", { name: "Categories" }).getByRole("listitem").first()).toBeVisible();
+      // A title and a picture: the sentence about it is its tooltip and the first line of the case study.
+      await expect(card).toHaveAttribute("title", /.+/);
       // A screenshot where the project has one, otherwise its own architecture drawn small. Never a stock image.
       await expect(card.getByRole("img").first()).toBeVisible();
       await expect(card.getByRole("link", { name: /^Read the case study: / })).toBeVisible();
@@ -1287,7 +1295,7 @@ test.describe("preferences", () => {
         return { background: style.backgroundColor, color: style.color };
       });
     }
-    expect(seen.light.background).toBe("rgb(248, 250, 255)");
+    expect(seen.light.background).toBe("rgb(239, 243, 250)");
     expect(seen.dark.background).toBe("rgb(10, 15, 30)");
     expect(seen.light.color).not.toBe(seen.dark.color);
   });

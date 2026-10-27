@@ -49,7 +49,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: BOOT_SCRIPT }} />
       </head>
       <body className="flex min-h-full flex-col">
-        <SiteHeader name={site.name} role={site.role} links={{ github: site.links.github, linkedin: site.links.linkedin, resume: site.links.resume }} />
+        <SiteHeader name={site.name} role={site.role} links={{ github: site.links.github, linkedin: site.links.linkedin, upwork: site.links.upwork, resume: site.links.resume }} />
         <main id="main" className="flex-1">
           {children}
         </main>

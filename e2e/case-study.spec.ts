@@ -20,9 +20,27 @@ async function expectTab(page: Page, id: string) {
   await expect(page.locator(`#${id}:visible`)).toHaveCount(1);
 }
 
+test.describe("the project list in the short view", () => {
+  test.use({ viewport: { width: 1700, height: 950 } });
+
+  test("is a button above the title, so the study is the only thing to read", async ({ page }) => {
+    await page.goto(CRM);
+    await expect(page.getByRole("navigation", { name: "Projects", exact: true })).toBeHidden();
+    await page.getByRole("button", { name: "All projects (8)" }).click();
+    const drawer = page.getByRole("dialog", { name: "Projects" });
+    await expect(drawer.locator('[aria-current="page"]')).toHaveText(/Pest Control CRM and Field Operations/);
+    await drawer.getByRole("link", { name: /Solana Trading Research Platform/ }).click();
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Solana Trading Research Platform");
+  });
+});
+
 test.describe("the project rail", () => {
   // From 1660px the rail is an open list unless the visitor folded it.
   test.use({ viewport: { width: 1700, height: 950 } });
+  // The rail is part of the Engineer view; the short view lists the projects behind a button.
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem("lens", "engineer"));
+  });
 
   test("lists every project, marks the current one and opens another", async ({ page }) => {
     await page.goto(CRM);
@@ -35,8 +53,6 @@ test.describe("the project rail", () => {
     await expect(rail.locator('[aria-current="page"]')).toHaveText(/Solana Trading Research Platform/);
     // A new project opens on its overview, and its own links still work: the page it replaced is not in the way.
     await expectTab(page, "overview");
-    // The list is names only: what each project is waits for the Engineer view.
-    await expect(rail.getByText(/A research platform that runs trading strategies/)).toBeHidden();
     await page.locator("[data-main]:visible").getByRole("link", { name: "Try the demo" }).click();
     await expectTab(page, "demo");
     await expect(page.getByTestId("workflow-simulator").getByRole("heading", { level: 3 }).first()).toBeInViewport();
@@ -89,6 +105,10 @@ test.describe("the project rail", () => {
 });
 
 test.describe("the project rail on a laptop", () => {
+  // The rail is part of the Engineer view; the short view lists the projects behind a button.
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem("lens", "engineer"));
+  });
   test("is a strip of icons that opens into the list and remembers it", async ({ page }) => {
     await page.goto(CRM);
     const rail = page.getByRole("navigation", { name: "Projects", exact: true });
@@ -256,8 +276,11 @@ test.describe("the first screen of a case study", () => {
     await expect(page.getByRole("complementary", { name: "About this project" })).toBeHidden();
 
     await tabs(page).getByRole("link", { name: "Overview" }).click();
-    await expect(page.getByRole("complementary", { name: "About this project" })).toBeVisible();
-    await page.locator("[data-main]").getByRole("link", { name: "Request the source" }).click();
+    const side = page.getByRole("complementary", { name: "About this project" });
+    await expect(side).toBeVisible();
+    // One button under the title in the short view; asking for the source is in the side column.
+    await expect(page.locator("[data-main]").getByRole("link", { name: "Request the source" })).toBeHidden();
+    await side.getByRole("link", { name: /Source code/ }).click();
     await expect(page).toHaveURL(/\/source-access\?project=pest-control-crm$/);
   });
 
@@ -293,7 +316,8 @@ test.describe("the side column", () => {
   });
 
   test("lists what the system does and where to go next", async ({ page }) => {
-    await page.goto(CRM);
+    // What it does is listed beside the study in the Engineer view; the short view has it once, in the study.
+    await page.goto(`${CRM}?lens=engineer`);
     const side = page.getByRole("complementary", { name: "About this project" });
     const does = side.getByRole("region", { name: "Key features" });
     expect(await does.getByRole("listitem").count()).toBeGreaterThanOrEqual(3);

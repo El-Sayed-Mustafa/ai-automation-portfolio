@@ -29,16 +29,16 @@
  *              for the background behind them
  */
 :root {
-  --bg: #f8faff;
+  --bg: #eff3fa;
   --surface: #ffffff;
   --surface-2: #f3f6fc;
   --surface-3: #e7edf8;
-  --line: #e5eaf4;
-  --line-strong: #c3cde2;
+  --line: #d8dfec;
+  --line-strong: #b4c0d8;
   --line-control: #76819b;
-  --fg: #101b35;
-  --muted: #47546f;
-  --subtle: #5a6682;
+  --fg: #0b1530;
+  --muted: #36425c;
+  --subtle: #4a5671;
   --accent: #2563eb;
   --accent-hover: #1d4ed8;
   /* The accent for small text that may sit on any tinted card, where the accent itself falls just short of 4.5:1. */
@@ -96,12 +96,12 @@
   --surface: #111a2e;
   --surface-2: #17223a;
   --surface-3: #21304f;
-  --line: #1f2c49;
-  --line-strong: #33446b;
+  --line: #2a3859;
+  --line-strong: #3e5180;
   --line-control: #6c7ba0;
   --fg: #edf1fb;
-  --muted: #b3bdd4;
-  --subtle: #8e9ab6;
+  --muted: #c7cfe2;
+  --subtle: #a5b0cc;
   --accent: #8db1ff;
   --accent-hover: #abc5ff;
   --accent-strong: #abc5ff;
@@ -681,6 +681,51 @@
  */
 [data-lens="recruiter"] .eng-only {
   display: none !important;
+}
+
+/* Upwork's own green, darkened until white text on it is clear (4.5:1). */
+.btn-upwork {
+  background: #0d7a00;
+  color: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+.btn-upwork:hover {
+  background: #0a6400;
+  transform: translateY(-1px);
+}
+.upwork-card {
+  border-color: color-mix(in srgb, #14a800 45%, var(--line));
+  background: linear-gradient(100deg, color-mix(in srgb, #14a800 9%, var(--surface)), var(--surface) 55%);
+}
+.upwork-tile {
+  background: #14a800;
+  color: #ffffff;
+  box-shadow: 0 6px 18px -6px color-mix(in srgb, #14a800 70%, transparent);
+}
+.upwork-link {
+  color: #0d7a00;
+}
+[data-theme="dark"] .upwork-link {
+  color: #3ccf2e;
+}
+.upwork-chip {
+  background: color-mix(in srgb, #14a800 12%, var(--surface));
+  color: var(--fg);
+  border: 1px solid color-mix(in srgb, #14a800 35%, var(--line));
+}
+
+/*
+ * A case study in the short lens: one column to read and one beside it. The
+ * list of every project is a button above the title instead of a rail.
+ */
+html[data-lens="recruiter"] .case-rail {
+  display: none !important;
+}
+html[data-lens="recruiter"] .case-shell {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+html[data-lens="recruiter"] .case-drawer-button {
+  display: inline-flex !important;
 }
 [data-lens="engineer"] .rec-only {
   display: none !important;

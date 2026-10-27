@@ -21,6 +21,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { ReactNode } from "react";
+import { siUpwork } from "simple-icons";
 import type { Category, IconName, Tone } from "@/content/schema";
 
 /** Icons that content may name. A manifest picks one by key; it never carries markup. */
@@ -77,6 +78,15 @@ export function Tag({ tone = "slate", children, className = "" }: { tone?: Tone;
     <span data-tone={tone} className={`tag ${className}`}>
       {children}
     </span>
+  );
+}
+
+/** The Upwork logo, from the same set of brand marks as the technology logos. */
+export function UpworkMark({ size = 20 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d={siUpwork.path} />
+    </svg>
   );
 }
 

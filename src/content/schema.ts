@@ -394,6 +394,19 @@ export const siteSchema = z.object({
    * page. Each skill names the tools it is done with and the case study that
    * shows it, so no skill is listed without a piece of work behind it.
    */
+  /**
+   * The Upwork profile as it showed on `asOf`, copied by hand: the badge, the
+   * rating, the hours worked and one client's review, word for word.
+   */
+  upwork: z
+    .object({
+      asOf: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+      badge: z.string().min(1),
+      rating: z.string().regex(/^[0-5]\.\d$/),
+      hours: z.number().int().positive(),
+      review: z.object({ quote: z.string().min(1).max(140), job: z.string().min(1) }),
+    })
+    .optional(),
   skills: z
     .array(
       z.object({

@@ -18,14 +18,24 @@
     "email": "elsayed.mustafa.ibrahim@gmail.com",
     "github": "https://github.com/El-Sayed-Mustafa",
     "linkedin": "https://www.linkedin.com/in/eng-elsayed-mustafa/",
-    "upwork": "https://www.upwork.com/freelancers/elsayedm7",
+    "upwork": "https://www.upwork.com/freelancers/~0137385c9c3fcfc8b1",
     "resume": "/resume"
+  },
+  "upwork": {
+    "asOf": "2026-10-14",
+    "badge": "Rising Talent",
+    "rating": "5.0",
+    "hours": 155,
+    "review": {
+      "quote": "He is professional, knowledgeable, and clearly knows what he is doing.",
+      "job": "Python Pricing Automation with Telegram Integration"
+    }
   },
   "skills": [
     {
       "id": "automation",
       "title": "Business automation",
-      "text": "Repeated manual steps turned into a system that runs by itself.",
+      "text": "Manual steps that now run by themselves.",
       "icon": "workflow",
       "tone": "indigo",
       "tools": [
@@ -38,7 +48,7 @@
     {
       "id": "messaging",
       "title": "WhatsApp and Telegram bots",
-      "text": "Messages that create records, alert your team and wait for an answer.",
+      "text": "Messages that create records and alert your team.",
       "icon": "chat",
       "tone": "green",
       "tools": [
@@ -50,7 +60,7 @@
     {
       "id": "ai",
       "title": "AI in your workflow",
-      "text": "AI that reads and sorts the work. Code checks it, a person decides.",
+      "text": "AI that sorts the work, while a person decides.",
       "icon": "bot",
       "tone": "violet",
       "tools": [
@@ -62,7 +72,7 @@
     {
       "id": "scraping",
       "title": "Web scraping and data collection",
-      "text": "Businesses, contacts and reviews collected from websites into clean tables.",
+      "text": "Data from websites, in clean tables.",
       "icon": "radar",
       "tone": "rose",
       "tools": [
@@ -75,7 +85,7 @@
     {
       "id": "sheets",
       "title": "Google Sheets reports",
-      "text": "Reports your team works from, refreshed every day without copy and paste.",
+      "text": "Daily reports, with no copy and paste.",
       "icon": "sheet",
       "tone": "teal",
       "tools": [
@@ -87,7 +97,7 @@
     {
       "id": "data",
       "title": "Databases and APIs",
-      "text": "Your data in a real database, with an API and alerts on top.",
+      "text": "Your data in a real database, with an API.",
       "icon": "database",
       "tone": "blue",
       "tools": [
@@ -295,9 +305,9 @@
       "summary": "Internal products that combine automation, backend engineering, data systems and applied machine learning."
     },
     {
-      "title": "AI Automation Developer",
-      "organisation": "Upwork and freelance clients",
-      "period": "June 2024 to present",
+      "title": "Freelance AI Automation Developer",
+      "organisation": "Upwork and direct clients",
+      "period": "2022 to present",
       "summary": "Client-facing CRM systems, data pipelines, dashboards, bots and e-commerce operations tools."
     }
   ],

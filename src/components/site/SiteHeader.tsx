@@ -4,7 +4,7 @@ import { ArrowRight, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { GithubMark, LinkedinMark } from "@/components/ui/Icon";
+import { GithubMark, LinkedinMark, UpworkMark } from "@/components/ui/Icon";
 import { LENSES, LensToggle, ThemeToggle } from "./PreferenceToggles";
 
 interface NavItem {
@@ -13,7 +13,7 @@ interface NavItem {
   match(path: string): boolean;
 }
 
-export function SiteHeader({ name, role, links }: { name: string; role: string; links: { github: string; linkedin: string; resume?: string } }) {
+export function SiteHeader({ name, role, links }: { name: string; role: string; links: { github: string; linkedin: string; upwork?: string; resume?: string } }) {
   const pathname = usePathname();
   // The menu is open only for the page it was opened on, so navigating closes it.
   const [openedOn, setOpenedOn] = useState<string | null>(null);
@@ -45,6 +45,11 @@ export function SiteHeader({ name, role, links }: { name: string; role: string; 
       <a href={links.linkedin} target="_blank" rel="noreferrer" aria-label="LinkedIn profile" className="grid h-9 w-9 place-items-center rounded-lg text-fg transition-colors hover:bg-surface-2 hover:text-accent">
         <LinkedinMark size={18} />
       </a>
+      {links.upwork ? (
+        <a href={links.upwork} target="_blank" rel="noreferrer" aria-label="Upwork profile" className="upwork-link grid h-9 w-9 place-items-center rounded-lg transition-colors hover:bg-surface-2">
+          <UpworkMark size={20} />
+        </a>
+      ) : null}
     </>
   );
 

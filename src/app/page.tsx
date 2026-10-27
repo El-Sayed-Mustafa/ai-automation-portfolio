@@ -10,7 +10,6 @@ import {
   LayoutGrid,
   Mail,
   MapPin,
-  Zap,
   type LucideIcon,
 } from "lucide-react";
 import Image from "next/image";
@@ -18,13 +17,14 @@ import Link from "next/link";
 import { MiniArchitecture } from "@/components/architecture/MiniArchitecture";
 import { runMapSystem } from "@/components/simulator/run-map-system";
 import { Skills, ToolStrip } from "@/components/home/Skills";
+import { UpworkCard } from "@/components/home/Upwork";
 import { SystemHub, type HubLayer, type HubRoute, type HubSide } from "@/components/home/SystemHub";
 import { layerTone } from "@/components/architecture/NodeDetails";
 import { WorkflowSimulator } from "@/components/simulator/WorkflowSimulator";
-import { AppIcon, CATEGORY_TONE, GithubMark, LinkedinMark, TONE_CYCLE, Tag, Tile } from "@/components/ui/Icon";
+import { AppIcon, GithubMark, LinkedinMark, TONE_CYCLE, Tile, UpworkMark } from "@/components/ui/Icon";
 import { Section } from "@/components/ui/Section";
 import { getProjects, getSite } from "@/content/load";
-import { CATEGORY_SHORT, type ArchitectureNode, type Project, type Tone } from "@/content/schema";
+import { type ArchitectureNode, type Project, type Tone } from "@/content/schema";
 
 /** How many case studies the home page shows in full. */
 const FEATURED = 4;
@@ -104,28 +104,17 @@ function FeaturedCard({ project }: { project: Project }) {
   const href = `/projects/${project.id}`;
   const shot = project.screenshots[0];
   return (
-    <article data-tone={project.tone} className="panel panel-link flex h-full flex-col p-3.5 shadow-sm">
+    <article data-tone={project.tone} className="panel panel-link flex h-full flex-col p-4 shadow-sm" title={project.tagline}>
       <div className="flex items-start gap-3">
         <Tile tone={project.tone} solid className="!h-11 !w-11 !rounded-xl">
           <AppIcon name={project.icon} size={21} />
         </Tile>
-        <h3 className="min-w-0 text-[0.9375rem] font-bold leading-snug">
+        <h3 className="min-w-0 self-center text-base font-bold leading-snug">
           <Link href={href} className="hover:text-accent">
             {project.title}
           </Link>
         </h3>
       </div>
-      <p className="mt-2.5 line-clamp-3 text-[0.8125rem] leading-relaxed text-muted">{project.tagline}</p>
-      {/* One row: a category that does not fit is left out here and shown in the case study. */}
-      <ul className="mt-2.5 flex max-h-[1.375rem] flex-wrap gap-1 overflow-hidden" aria-label="Categories">
-        {project.categories.map((category) => (
-          <li key={category}>
-            <Tag tone={CATEGORY_TONE[category]} className="!px-2 !py-px !text-[0.6875rem]">
-              {CATEGORY_SHORT[category]}
-            </Tag>
-          </li>
-        ))}
-      </ul>
       <Link href={href} className="group relative mt-3 block overflow-hidden rounded-xl border border-line bg-surface-2" aria-label={`Read the case study: ${project.title}`}>
         {shot ? (
           // eslint-disable-next-line @next/next/no-img-element -- a static file with known dimensions
@@ -180,9 +169,11 @@ export default function HomePage() {
               {site.intro}
             </p>
             <div className="enter mt-6 flex flex-wrap gap-3" style={{ "--i": 3 } as React.CSSProperties}>
-              <a href="#skills" className="btn btn-primary">
-                <Zap size={15} aria-hidden /> What I can do <ArrowRight size={15} aria-hidden />
-              </a>
+              {site.links.upwork ? (
+                <a href={site.links.upwork} target="_blank" rel="noreferrer" className="btn btn-upwork">
+                  <UpworkMark size={17} /> Hire me on Upwork <ArrowUpRight size={15} aria-hidden />
+                </a>
+              ) : null}
               <a href="#contact" className="btn border-accent/25 bg-accent-soft text-accent hover:border-accent">
                 <Mail size={15} aria-hidden /> Contact me
               </a>
@@ -223,11 +214,17 @@ export default function HomePage() {
         <div className="mt-4">
           <Skills skills={site.skills} projects={projects} />
         </div>
-        <div className="reveal panel mt-3 flex flex-col gap-3 p-4 lg:flex-row lg:items-center lg:gap-6">
+        <div className="reveal mt-5 flex flex-col gap-3 px-1 lg:flex-row lg:items-center lg:gap-6">
           <h3 className="shrink-0 text-[0.8125rem] font-bold uppercase tracking-[0.06em] text-subtle">Tools I work with</h3>
           <ToolStrip tools={site.tools} />
         </div>
       </section>
+
+      {site.links.upwork && site.upwork ? (
+        <div className="container-page mt-8">
+          <UpworkCard url={site.links.upwork} profile={site.upwork} />
+        </div>
+      ) : null}
 
       <div className="container-page mt-8">
         <section id="work" aria-labelledby="work-title" className="reveal panel p-4 sm:p-5">
@@ -371,8 +368,8 @@ export default function HomePage() {
               <GithubMark size={16} /> GitHub <ArrowUpRight size={14} aria-hidden />
             </a>
             {site.links.upwork ? (
-              <a href={site.links.upwork} target="_blank" rel="noreferrer" className="btn border-primary-fg/30 text-primary-fg hover:bg-primary-fg/10">
-                Upwork <ArrowUpRight size={14} aria-hidden />
+              <a href={site.links.upwork} target="_blank" rel="noreferrer" className="btn btn-upwork">
+                <UpworkMark size={16} /> Hire me on Upwork <ArrowUpRight size={14} aria-hidden />
               </a>
             ) : null}
           </div>

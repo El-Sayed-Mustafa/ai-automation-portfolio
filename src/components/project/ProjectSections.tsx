@@ -126,7 +126,7 @@ export function ProjectHero({ project, projectList }: { project: Project; projec
           </div>
           <ul className="mt-3.5 flex flex-wrap gap-1.5" aria-label="Kind of project and technology">
             {project.categories.map((category) => (
-              <li key={category}>
+              <li key={category} className="eng-only">
                 <Tag tone={CATEGORY_TONE[category]}>{CATEGORY_LABELS[category]}</Tag>
               </li>
             ))}
@@ -153,7 +153,7 @@ export function ProjectHero({ project, projectList }: { project: Project; projec
               Open on GitHub <ArrowUpRight size={15} aria-hidden />
             </a>
           ) : (
-            <Link href={`/source-access?project=${project.id}`} className="btn btn-secondary max-sm:flex-1">
+            <Link href={`/source-access?project=${project.id}`} className="eng-only btn btn-secondary max-sm:flex-1">
               <KeyRound size={15} aria-hidden /> Request the source
             </Link>
           )}
@@ -726,7 +726,7 @@ export function ProjectAside({ project }: { project: Project }) {
         </section>
       ) : null}
 
-      <section aria-labelledby="highlights-title" className="enter panel p-5" style={{ "--i": 2 } as React.CSSProperties}>
+      <section aria-labelledby="highlights-title" className="eng-only enter panel p-5" style={{ "--i": 2 } as React.CSSProperties}>
         <h2 id="highlights-title" className="flex items-center gap-2 text-[1.0625rem] font-bold">
           <ListChecks size={17} className="text-accent" aria-hidden />
           Key features

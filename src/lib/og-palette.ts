@@ -6,11 +6,11 @@ import type { Tone } from "@/content/schema";
  * written out here. A test keeps them equal to the ones in globals.css.
  */
 export const OG_COLOURS = {
-  bg: "#f8faff",
+  bg: "#eff3fa",
   surface: "#ffffff",
-  line: "#e5eaf4",
-  fg: "#101b35",
-  muted: "#47546f",
+  line: "#d8dfec",
+  fg: "#0b1530",
+  muted: "#36425c",
   accent: "#2563eb",
   "accent-soft": "#eaf1ff",
 } as const;

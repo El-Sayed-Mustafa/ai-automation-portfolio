@@ -62,7 +62,9 @@ for (const study of STUDIES) {
       await expect(page.locator("#system").getByRole("img", { name: /^The architecture of .*: \d+ components in \d+ layers\./ })).toBeVisible();
       expect(await page.locator("#how-it-works").getByRole("listitem").count()).toBeGreaterThanOrEqual(3);
       const side = page.getByRole("complementary", { name: "About this project" });
-      expect(await side.getByRole("region", { name: "Key features" }).getByRole("listitem").count()).toBeGreaterThanOrEqual(3);
+      // What it does is in the study, under "What I built"; the side column repeats it only in the Engineer view.
+      expect(await page.locator("#summary li").count()).toBeGreaterThanOrEqual(3);
+      await expect(side.getByRole("region", { name: "Key features" })).toBeHidden();
       const source = side.getByRole("region", { name: "Links and resources" }).getByRole("link", { name: /Source code/ });
       await expect(source).toHaveAttribute("href", "linked" in study ? /^https:\/\/github\.com\// : /^\/source-access\?project=/);
     });
