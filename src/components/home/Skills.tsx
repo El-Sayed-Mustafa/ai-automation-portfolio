@@ -41,11 +41,11 @@ export function Skills({ skills, projects }: { skills: Site["skills"]; projects:
 /** The tools I work with, as one row of logos with their names. */
 export function ToolStrip({ tools }: { tools: string[] }) {
   return (
-    <ul aria-label="Tools I work with" className="flex flex-wrap items-center gap-x-5 gap-y-3">
+    <ul aria-label="Tools I work with" className="flex flex-wrap items-center gap-2.5">
       {tools.map((tool) => (
-        <li key={tool} className="flex items-center gap-1.5 text-[0.8125rem] font-semibold">
-          <TechTile name={tool} size={24} />
-          {tool}
+        <li key={tool} title={tool} className="relative flex transition-transform hover:-translate-y-0.5">
+          <TechTile name={tool} size={34} />
+          <span className="sr-only">{tool}</span>
         </li>
       ))}
     </ul>

@@ -7,6 +7,7 @@ import {
   ChartCandlestick,
   Database,
   Gauge,
+  GraduationCap,
   MessageCircle,
   Plug,
   Radar,
@@ -45,6 +46,7 @@ const ICONS: Record<IconName, LucideIcon> = {
   sparkles: Sparkles,
   chat: MessageCircle,
   sheet: Sheet,
+  school: GraduationCap,
 };
 
 export function AppIcon({ name, size = 20 }: { name: IconName; size?: number }) {

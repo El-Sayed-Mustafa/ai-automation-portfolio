@@ -683,6 +683,13 @@
   display: none !important;
 }
 
+/* About: the paragraph beside education in the Engineer view, alone and full width in the short one. */
+@media (min-width: 1024px) {
+  html[data-lens="engineer"] .about-grid {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  }
+}
+
 /* Upwork's own green, darkened until white text on it is clear (4.5:1). */
 .btn-upwork {
   background: #0d7a00;
@@ -705,7 +712,8 @@
 .upwork-link {
   color: #0d7a00;
 }
-[data-theme="dark"] .upwork-link {
+[data-theme="dark"] .upwork-link,
+[data-theme="dark"] .dark-upwork {
   color: #3ccf2e;
 }
 .upwork-chip {

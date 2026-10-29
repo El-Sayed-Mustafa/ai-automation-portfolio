@@ -79,7 +79,7 @@ export function LabWorkspace({ entries }: { entries: LabEntry[] }) {
                   <span className="min-w-0 flex-1">
                     <span className="line-clamp-2 font-display text-[0.9375rem] font-bold leading-snug">{entry.workflow.title}</span>
                     <span className="mt-0.5 block truncate text-xs text-muted">{entry.projectTitle}</span>
-                    <span className="mt-2.5 flex flex-wrap items-center justify-between gap-x-2 gap-y-2">
+                    <span className="eng-only mt-2.5 flex flex-wrap items-center justify-between gap-x-2 gap-y-2">
                       <TechRow names={entry.workflow.technologies} compact />
                       {/* Steps, failures that can be injected, decisions a person makes. */}
                       <span className="ml-auto flex shrink-0 items-center gap-2.5 text-xs font-bold">

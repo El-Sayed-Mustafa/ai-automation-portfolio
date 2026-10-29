@@ -2,7 +2,6 @@ import {
   ArrowRight,
   ArrowUpRight,
   Award,
-  Briefcase,
   FileText,
   FlaskConical,
   GraduationCap,
@@ -214,19 +213,19 @@ export default function HomePage() {
         <div className="mt-4">
           <Skills skills={site.skills} projects={projects} />
         </div>
-        <div className="reveal mt-5 flex flex-col gap-3 px-1 lg:flex-row lg:items-center lg:gap-6">
+        <div className="reveal mt-6 flex flex-col gap-3 px-1 sm:flex-row sm:items-center sm:gap-5">
           <h3 className="shrink-0 text-[0.8125rem] font-bold uppercase tracking-[0.06em] text-subtle">Tools I work with</h3>
           <ToolStrip tools={site.tools} />
         </div>
       </section>
 
       {site.links.upwork && site.upwork ? (
-        <div className="container-page mt-8">
+        <div className="container-page mt-12">
           <UpworkCard url={site.links.upwork} profile={site.upwork} />
         </div>
       ) : null}
 
-      <div className="container-page mt-8">
+      <div className="container-page mt-12">
         <section id="work" aria-labelledby="work-title" className="reveal panel p-4 sm:p-5">
           <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
             <div className="flex min-w-0 items-start gap-3">
@@ -271,8 +270,26 @@ export default function HomePage() {
           <WorkflowSimulator workflow={workflow} system={runMapSystem(flagship.architecture)} nodeLabels={nodeLabels} repository={flagship.repository} variant="compact" caseStudyHref={`/projects/${flagship.id}#demo`} />
         </Section>
 
+        <Section id="experience" kicker="Experience" title="Where I have worked">
+          <ol className="relative grid gap-4 md:grid-cols-2">
+            {site.experience.map((job, index) => (
+              <li key={job.organisation} data-tone={TONE_CYCLE[index % TONE_CYCLE.length]} className="reveal panel flex items-start gap-4 p-5">
+                <span className="tile !h-12 !w-12 shrink-0 !rounded-2xl" aria-hidden>
+                  <AppIcon name={job.icon} size={22} />
+                </span>
+                <div className="min-w-0">
+                  <h3 className="text-[1.0625rem] font-bold leading-snug">{job.title}</h3>
+                  <p className="mt-0.5 text-[0.9375rem] font-semibold text-tone">{job.organisation}</p>
+                  <p className="mt-0.5 text-sm text-muted">{job.period}</p>
+                  <p className="mt-2 text-[0.9375rem] leading-relaxed text-muted">{job.summary}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </Section>
+
         <Section id="about" kicker="About" title="About me">
-          <div className="grid gap-5 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-start">
+          <div className="about-grid grid gap-5 lg:items-start">
             <div className="panel p-5 sm:p-6">
               <p className="text-[1.0625rem] leading-relaxed">{site.about}</p>
               <h3 className="eng-only label mt-6">How I approach a problem</h3>
@@ -296,24 +313,8 @@ export default function HomePage() {
               ) : null}
             </div>
 
-            <div className="space-y-5">
+            <div className="eng-only space-y-5">
               <div className="panel p-5">
-                <SideHeading icon={Briefcase} tone="blue">
-                  Experience
-                </SideHeading>
-                <ol className="mt-4 space-y-4">
-                  {site.experience.map((job) => (
-                    <li key={job.organisation} className="border-l-2 border-accent/40 pl-4">
-                      <p className="font-bold">{job.title}</p>
-                      <p className="text-sm text-muted">
-                        {job.organisation} · {job.period}
-                      </p>
-                      <p className="mt-1 text-sm leading-relaxed text-muted">{job.summary}</p>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-              <div className="eng-only panel p-5">
                 <SideHeading icon={GraduationCap} tone="violet">
                   Education
                 </SideHeading>
@@ -328,7 +329,7 @@ export default function HomePage() {
                   ))}
                 </ul>
               </div>
-              <div className="eng-only panel p-5">
+              <div className="panel p-5">
                 <SideHeading icon={Award} tone="amber">
                   Certifications
                 </SideHeading>

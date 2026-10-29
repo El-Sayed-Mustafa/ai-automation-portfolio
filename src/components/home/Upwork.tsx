@@ -25,10 +25,10 @@ export function UpworkCard({ url, profile }: { url: string; profile: NonNullable
             <h2 id="upwork-title" className="text-xl font-bold leading-tight sm:text-2xl">
               Hire me on Upwork
             </h2>
-            <ul aria-label="On my Upwork profile" className="mt-2 flex flex-wrap gap-2">
+            <ul aria-label="On my Upwork profile" className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-[0.9375rem] font-semibold text-muted">
               {facts.map((fact) => (
-                <li key={fact.text} className="upwork-chip inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[0.8125rem] font-semibold">
-                  <fact.icon size={14} aria-hidden />
+                <li key={fact.text} className="inline-flex items-center gap-1.5">
+                  <fact.icon size={15} aria-hidden className="text-[#0d7a00] dark-upwork" />
                   {fact.text}
                 </li>
               ))}

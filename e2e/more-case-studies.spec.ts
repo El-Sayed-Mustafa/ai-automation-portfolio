@@ -162,8 +162,8 @@ test.describe("rug inventory: preview first, then a person decides", () => {
     await page.goto(`${RUGS}#screenshots`);
     const figure = page.locator("#screenshots figure");
     await expect(figure.getByRole("img")).toBeVisible();
-    expect(await figure.getByRole("img").evaluate((image: HTMLImageElement) => image.naturalWidth)).toBe(1892);
-    await expect(figure).toContainText("as published by the author in the project's public write-up");
+    expect(await figure.getByRole("img").evaluate((image: HTMLImageElement) => image.naturalWidth)).toBe(1915);
+    await expect(figure).toContainText("provided by the author. The signed-in account is covered.");
     await expect(figure).toContainText("not results claimed on this page");
     await page.goto(`${RUGS}#demo`);
     await expect(simulator(page).getByText(/The limits and timings are invented for the demo, because the real values are private/)).toBeVisible();

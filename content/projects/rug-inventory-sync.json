@@ -2505,14 +2505,13 @@
   ],
   "screenshots": [
     {
-      "src": "/projects/rug-inventory-sync/dashboard.png",
-      "alt": "The inventory workspace: counters for rugs in scope, needing attention, with problems and photographed, a second row for rugs on Shopify, in the queue, awaiting approval and missing data, and a grid of rug cards with their status.",
-      "caption": "The inventory workspace, as published by the author in the project's public write-up. The counters are the retailer's inventory on the day of the screenshot, not results claimed on this page.",
-      "width": 1892,
-      "height": 901
+      "src": "/projects/rug-inventory-sync/inventory.webp",
+      "alt": "The inventory workspace: counters for rugs in scope, needing attention, with problems and photographed, a second row for rugs live on Shopify, ready to create, waiting approval and missing listing data, and a grid of rug cards with their photographs, prices and status.",
+      "caption": "The inventory workspace with the rug photographs, provided by the author. The signed-in account is covered. The counters are the retailer's inventory on the day of the screenshot, not results claimed on this page.",
+      "width": 1915,
+      "height": 1077
     }
   ],
-  "screenshotsNote": "The write-up has a second screenshot of the same view. It is not copied here because the edge of the author's desktop shows in it.",
   "evidence": [
     {
       "label": "Public write-up",

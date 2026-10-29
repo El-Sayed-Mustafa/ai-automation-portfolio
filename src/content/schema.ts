@@ -68,6 +68,7 @@ export const iconSchema = z.enum([
   "sparkles",
   "chat",
   "sheet",
+  "school",
 ]);
 export type IconName = z.infer<typeof iconSchema>;
 
@@ -437,7 +438,14 @@ export const siteSchema = z.object({
     )
     .min(1),
   experience: z.array(
-    z.object({ title: z.string().min(1), organisation: z.string().min(1), period: z.string().min(1), summary: z.string().min(1) }),
+    z.object({
+      title: z.string().min(1),
+      organisation: z.string().min(1),
+      period: z.string().min(1),
+      summary: z.string().min(1),
+      /** A generic icon for the kind of work. Never an employer's logo. */
+      icon: iconSchema.default("briefcase"),
+    }),
   ),
   education: z.array(z.object({ title: z.string().min(1), institution: z.string().min(1), period: z.string().min(1) })),
   certifications: z.array(z.object({ name: z.string().min(1), issuer: z.string().min(1), url: z.url() })),

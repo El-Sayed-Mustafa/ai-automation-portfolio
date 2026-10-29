@@ -180,7 +180,18 @@ test.describe("recruiter explores a project", () => {
     await expect(about.getByRole("heading", { name: "About me" })).toBeInViewport();
     // How I approach a problem is for the reader who asks for the engineering detail.
     await expect(about.getByText("How I approach a problem")).toBeHidden();
-    await expect(about.getByText("Experience", { exact: true })).toBeVisible();
+    // Experience is its own section, just above: every role, newest first, including the teaching and AI-training work.
+    const experience = page.locator("#experience");
+    await expect(experience.getByRole("listitem")).toHaveCount(5);
+    await expect(experience.getByRole("heading", { level: 3 })).toHaveText([
+      "AI & Automation Engineer",
+      "Freelance AI Automation Developer",
+      "Programming Instructor & Content Developer",
+      "AI Trainer, Math & Coding",
+      "Instructor",
+    ]);
+    await expect(experience).toContainText("Outlier");
+    await expect(experience).toContainText("iSchool");
     // Education and certificates are on the resume. Here they wait for the reader who asks for more detail.
     await expect(about.getByText("Education", { exact: true })).toBeHidden();
     await page.getByRole("banner").getByRole("button", { name: "Engineer" }).click();

@@ -10,9 +10,9 @@
     "Keep credentials server-side, apply least privilege, and make important actions auditable.",
     "Build resumable pipelines that can recover from API limits, timeouts and partial runs."
   ],
-  "seeking": "Open to AI Automation Engineer, Python Automation Engineer and Applied AI Engineer roles.",
+  "seeking": "Open to full-time roles and freelance projects, remote or on site, and to relocating to Saudi Arabia or the UAE.",
   "location": "Cairo, Egypt",
-  "availability": "Open to remote work",
+  "availability": "Available now · Open to relocation",
   "url": "https://el-sayed-mustafa.github.io",
   "links": {
     "email": "elsayed.mustafa.ibrahim@gmail.com",
@@ -302,13 +302,36 @@
       "title": "AI & Automation Engineer",
       "organisation": "BlueBug",
       "period": "February 2026 to present",
+      "icon": "workflow",
       "summary": "Internal products that combine automation, backend engineering, data systems and applied machine learning."
     },
     {
       "title": "Freelance AI Automation Developer",
       "organisation": "Upwork and direct clients",
       "period": "2022 to present",
+      "icon": "briefcase",
       "summary": "Client-facing CRM systems, data pipelines, dashboards, bots and e-commerce operations tools."
+    },
+    {
+      "title": "Programming Instructor & Content Developer",
+      "organisation": "CodeX Hub",
+      "period": "July 2024 to March 2025",
+      "icon": "school",
+      "summary": "Taught courses in C++, object-oriented programming, algorithms and databases, and built students' problem-solving skills."
+    },
+    {
+      "title": "AI Trainer, Math & Coding",
+      "organisation": "Outlier",
+      "period": "March 2024 to February 2025",
+      "icon": "bot",
+      "summary": "Reviewed and evaluated math and coding tasks used to train AI models, across large volumes with close attention to detail."
+    },
+    {
+      "title": "Instructor",
+      "organisation": "iSchool",
+      "period": "June 2024 to December 2024",
+      "icon": "school",
+      "summary": "Taught online classes."
     }
   ],
   "education": [

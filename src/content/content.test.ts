@@ -220,7 +220,7 @@ describe("what a case study may claim", () => {
   it("serves every screenshot from this site, with its size and where it comes from", () => {
     for (const project of projects) {
       for (const shot of project.screenshots) {
-        expect(shot.src, project.id).toMatch(new RegExp(`^/projects/${project.id}/[a-z0-9-]+\\.png$`));
+        expect(shot.src, project.id).toMatch(new RegExp(`^/projects/${project.id}/[a-z0-9-]+\\.(png|webp)$`));
         expect(shot.caption.length, shot.src).toBeGreaterThan(30);
         expect(shot.alt.length, shot.src).toBeGreaterThan(30);
       }

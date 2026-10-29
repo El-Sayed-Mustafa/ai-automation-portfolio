@@ -42,19 +42,19 @@ export function CaseStudyCard({ project, headingLevel = 3 }: { project: Project;
       <Link href={href} tabIndex={-1} aria-hidden className="block border-b border-line bg-surface-2">
         {shot ? (
           // eslint-disable-next-line @next/next/no-img-element -- a static file with known dimensions
-          <img src={shot.src} alt="" width={shot.width} height={shot.height} loading="lazy" className="aspect-[16/7] w-full object-cover object-top" />
+          <img src={shot.src} alt="" width={shot.width} height={shot.height} loading="lazy" className="aspect-[16/9] w-full object-cover object-top" />
         ) : (
-          <MiniArchitecture architecture={project.architecture} className="aspect-[16/7] w-full bg-surface p-3" />
+          <MiniArchitecture architecture={project.architecture} className="aspect-[16/9] w-full bg-surface p-3" />
         )}
       </Link>
 
-      <div className="flex flex-1 flex-col p-5">
+      <div className="flex flex-1 flex-col p-4">
         <div className="flex items-start gap-3.5">
-          <Tile tone={project.tone} solid>
-            <AppIcon name={project.icon} />
+          <Tile tone={project.tone} solid className="!h-10 !w-10 !rounded-xl">
+            <AppIcon name={project.icon} size={19} />
           </Tile>
           <div className="min-w-0 flex-1">
-            <Heading className="text-lg font-bold leading-snug">
+            <Heading className="text-base font-bold leading-snug">
               <Link href={href} className="hover:text-accent">
                 {project.title}
               </Link>
@@ -63,8 +63,8 @@ export function CaseStudyCard({ project, headingLevel = 3 }: { project: Project;
           </div>
         </div>
 
-        <p className="mt-3 line-clamp-3 text-[0.9375rem] leading-relaxed text-muted">{project.tagline}</p>
-        <ul className="mt-3 flex flex-wrap gap-1.5" aria-label="Categories">
+        <p className="mt-2.5 line-clamp-2 text-sm leading-relaxed text-muted">{project.tagline}</p>
+        <ul className="eng-only mt-3 flex flex-wrap gap-1.5" aria-label="Categories">
           {project.categories.map((category) => (
             <li key={category}>
               <Tag tone={CATEGORY_TONE[category]}>{CATEGORY_LABELS[category]}</Tag>
@@ -84,7 +84,7 @@ export function CaseStudyCard({ project, headingLevel = 3 }: { project: Project;
         </dl>
 
         {metric ? (
-          <p className="mt-4 rounded-xl border border-tone-vivid/20 bg-tone-soft px-3.5 py-2.5 text-sm">
+          <p className="eng-only mt-4 rounded-xl border border-tone-vivid/20 bg-tone-soft px-3.5 py-2.5 text-sm">
             <span className="block text-xs font-semibold text-muted">{metric.label}</span>
             <span className="mt-0.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
               <MetricValue metric={metric} className="text-lg font-bold text-tone" />

@@ -345,8 +345,8 @@ test.describe("screenshots", () => {
     const shots = page.locator("#screenshots");
     const card = shots.getByRole("link", { name: /^Open full size: The inventory workspace/ });
     // Without JavaScript the card is a plain link to the file.
-    await expect(card).toHaveAttribute("href", "/projects/rug-inventory-sync/dashboard.png");
-    await expect(shots.getByText(/as published by the author in the project's public write-up/)).toBeVisible();
+    await expect(card).toHaveAttribute("href", "/projects/rug-inventory-sync/inventory.webp");
+    await expect(shots.getByText(/provided by the author\. The signed-in account is covered\./)).toBeVisible();
 
     const lightbox = page.getByRole("dialog", { name: /^Screenshot: The inventory workspace/ });
     await expect(lightbox).toBeHidden();
@@ -356,7 +356,7 @@ test.describe("screenshots", () => {
     const picture = lightbox.getByRole("img");
     await expect(picture).toBeVisible();
     // The picture is the real file, and it fits the window.
-    expect(await picture.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth)).toBe(1892);
+    expect(await picture.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth)).toBe(1915);
     const box = (await lightbox.boundingBox())!;
     expect(box.x).toBeGreaterThanOrEqual(0);
     expect(box.x + box.width).toBeLessThanOrEqual(1280);
