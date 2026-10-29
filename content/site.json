@@ -108,19 +108,94 @@
       "projectId": "market-data-platform"
     }
   ],
-  "tools": [
-    "Python",
-    "Google Apps Script",
-    "Google Sheets",
-    "Supabase",
-    "PostgreSQL",
-    "WhatsApp",
-    "Telegram",
-    "Google Gemini",
-    "Selenium",
-    "FastAPI",
-    "Shopify",
-    "pandas"
+  "skillGroups": [
+    {
+      "title": "AI & Machine Learning",
+      "icon": "bot",
+      "tone": "violet",
+      "items": [
+        "LLMs",
+        "RAG",
+        "AI Agents",
+        "Prompt Engineering",
+        "Google Gemini",
+        "Ollama",
+        "Whisper",
+        "LightGBM",
+        "scikit-learn",
+        "NLP"
+      ]
+    },
+    {
+      "title": "Automation & Scraping",
+      "icon": "workflow",
+      "tone": "indigo",
+      "items": [
+        "Python",
+        "Google Apps Script",
+        "Selenium",
+        "Playwright",
+        "BeautifulSoup",
+        "Data Pipelines",
+        "Workflow Automation"
+      ]
+    },
+    {
+      "title": "Backend & APIs",
+      "icon": "server",
+      "tone": "blue",
+      "items": [
+        "FastAPI",
+        "REST APIs",
+        "Webhooks",
+        "Authentication",
+        "Supabase Edge Functions",
+        "Docker"
+      ]
+    },
+    {
+      "title": "Data & Analytics",
+      "icon": "database",
+      "tone": "teal",
+      "items": [
+        "PostgreSQL",
+        "Supabase",
+        "SQL",
+        "SQLite",
+        "pandas",
+        "NumPy",
+        "Power BI",
+        "Looker Studio",
+        "Google Sheets",
+        "Excel"
+      ]
+    },
+    {
+      "title": "Integrations",
+      "icon": "plug",
+      "tone": "green",
+      "items": [
+        "WhatsApp (Green API)",
+        "Telegram Bots",
+        "Shopify",
+        "Gmail",
+        "Google Drive",
+        "Amazon SP-API",
+        "eBay API"
+      ]
+    },
+    {
+      "title": "Business Systems",
+      "icon": "briefcase",
+      "tone": "amber",
+      "items": [
+        "CRM Systems",
+        "Inventory & Pricing",
+        "Role-Based Access",
+        "Audit History",
+        "Operational Dashboards"
+      ]
+    }
   ],
   "capabilities": [
     {
@@ -303,28 +378,48 @@
       "organisation": "BlueBug",
       "period": "February 2026 to present",
       "icon": "workflow",
-      "summary": "Internal products that combine automation, backend engineering, data systems and applied machine learning."
+      "summary": "Internal products that combine automation, data systems and applied machine learning.",
+      "highlights": [
+        "Improved the review scrapers the team runs and fixed the problems that stopped reviews from being collected, so more reviews now come in.",
+        "Organised the review database.",
+        "Built the system that tracks about 10,000 products and keeps 800,000 reviews reconciled.",
+        "Built a rating model that gets the exact star rating right 80.7% of the time on products it has never seen."
+      ]
     },
     {
       "title": "Freelance AI Automation Developer",
       "organisation": "Upwork and direct clients",
       "period": "2022 to present",
       "icon": "briefcase",
-      "summary": "Client-facing CRM systems, data pipelines, dashboards, bots and e-commerce operations tools."
+      "summary": "CRM systems, data pipelines, dashboards, bots and e-commerce tools for clients.",
+      "highlights": [
+        "Moved a field-service CRM in Bahrain from Google Sheets to PostgreSQL: 17,000+ records, and the slowest page from 5.6 s to 0.56 s.",
+        "Built inventory and pricing sync for Amazon, eBay and Shopify across 25,000+ items.",
+        "Built a lead pipeline across 2,662 towns that resumes where it stopped.",
+        "Earned Upwork Rising Talent and a 5.0 client rating."
+      ]
     },
     {
       "title": "Programming Instructor & Content Developer",
       "organisation": "CodeX Hub",
       "period": "July 2024 to March 2025",
       "icon": "school",
-      "summary": "Taught courses in C++, object-oriented programming, algorithms and databases, and built students' problem-solving skills."
+      "summary": "Taught programming and prepared course material.",
+      "highlights": [
+        "Delivered courses in C++, object-oriented programming, algorithms and databases.",
+        "Developed students' problem-solving and analytical skills."
+      ]
     },
     {
       "title": "AI Trainer, Math & Coding",
       "organisation": "Outlier",
       "period": "March 2024 to February 2025",
       "icon": "bot",
-      "summary": "Reviewed and evaluated math and coding tasks used to train AI models, across large volumes with close attention to detail."
+      "summary": "Helped train AI models on math and coding.",
+      "highlights": [
+        "Reviewed and evaluated math and coding tasks for accuracy.",
+        "Handled large task volumes with close attention to detail."
+      ]
     },
     {
       "title": "Instructor",

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { AppIcon, Tile } from "@/components/ui/Icon";
 import { TechTile } from "@/components/ui/TechIcon";
 import type { Project, Site } from "@/content/schema";
+import { brandFor } from "@/components/ui/brand";
 
 /**
  * What I can do for a client, in plain words: one card per skill, the tools it
@@ -38,14 +39,26 @@ export function Skills({ skills, projects }: { skills: Site["skills"]; projects:
   );
 }
 
-/** The tools I work with, as one row of logos with their names. */
-export function ToolStrip({ tools }: { tools: string[] }) {
+/** My skills in the CV's groups: a card per group, each skill with its logo when it has one. */
+export function SkillGroups({ groups }: { groups: Site["skillGroups"] }) {
   return (
-    <ul aria-label="Tools I work with" className="flex flex-wrap items-center gap-2.5">
-      {tools.map((tool) => (
-        <li key={tool} title={tool} className="relative flex transition-transform hover:-translate-y-0.5">
-          <TechTile name={tool} size={34} />
-          <span className="sr-only">{tool}</span>
+    <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      {groups.map((group, index) => (
+        <li key={group.title} data-tone={group.tone} className="reveal panel p-5" style={{ "--i": index } as React.CSSProperties}>
+          <h3 className="flex items-center gap-3 text-[1.0625rem] font-bold">
+            <Tile tone={group.tone} solid className="!h-10 !w-10 !rounded-xl">
+              <AppIcon name={group.icon} size={19} />
+            </Tile>
+            {group.title}
+          </h3>
+          <ul aria-label={group.title} className="mt-4 flex flex-wrap gap-2">
+            {group.items.map((item) => (
+              <li key={item} className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface-2 py-1 pl-1 pr-2.5 text-[0.875rem] font-semibold">
+                {brandFor(item) ? <TechTile name={item} size={22} /> : <span aria-hidden className="mx-1.5 h-2 w-2 rounded-full bg-tone-vivid" />}
+                {item}
+              </li>
+            ))}
+          </ul>
         </li>
       ))}
     </ul>

@@ -421,8 +421,10 @@ export const siteSchema = z.object({
       }),
     )
     .min(1),
-  /** The tools the skills are done with, as one row of logos. Each must be used in a case study. */
-  tools: z.array(z.string().min(1)).min(1),
+  /** The owner's skills as the CV groups them, shown on the home page with a logo where a technology has one. */
+  skillGroups: z
+    .array(z.object({ title: z.string().min(1), icon: iconSchema, tone: toneSchema, items: z.array(z.string().min(1)).min(1) }))
+    .min(1),
   capabilities: z
     .array(
       z.object({
@@ -445,6 +447,8 @@ export const siteSchema = z.object({
       summary: z.string().min(1),
       /** A generic icon for the kind of work. Never an employer's logo. */
       icon: iconSchema.default("briefcase"),
+      /** What the owner added there, as the owner or the CV states it. */
+      highlights: z.array(z.string().min(1)).default([]),
     }),
   ),
   education: z.array(z.object({ title: z.string().min(1), institution: z.string().min(1), period: z.string().min(1) })),

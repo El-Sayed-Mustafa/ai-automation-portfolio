@@ -37,7 +37,6 @@ describe("content manifests", () => {
       expect(project, skill.projectId).toBeDefined();
       for (const tool of skill.tools) expect(named(builtWith(project!), tool), `${skill.id}: ${tool} in ${skill.projectId}`).toBe(true);
     }
-    for (const tool of getSite().tools) expect(projects.some((project) => named(builtWith(project), tool)), tool).toBe(true);
   });
 
   it("reject a manifest with a missing field", () => {

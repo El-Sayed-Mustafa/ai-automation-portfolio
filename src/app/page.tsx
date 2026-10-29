@@ -15,7 +15,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { MiniArchitecture } from "@/components/architecture/MiniArchitecture";
 import { runMapSystem } from "@/components/simulator/run-map-system";
-import { Skills, ToolStrip } from "@/components/home/Skills";
+import { ExperienceTimeline } from "@/components/home/Experience";
+import { SkillGroups, Skills } from "@/components/home/Skills";
 import { UpworkCard } from "@/components/home/Upwork";
 import { SystemHub, type HubLayer, type HubRoute, type HubSide } from "@/components/home/SystemHub";
 import { layerTone } from "@/components/architecture/NodeDetails";
@@ -213,9 +214,25 @@ export default function HomePage() {
         <div className="mt-4">
           <Skills skills={site.skills} projects={projects} />
         </div>
-        <div className="reveal mt-6 flex flex-col gap-3 px-1 sm:flex-row sm:items-center sm:gap-5">
-          <h3 className="shrink-0 text-[0.8125rem] font-bold uppercase tracking-[0.06em] text-subtle">Tools I work with</h3>
-          <ToolStrip tools={site.tools} />
+      </section>
+
+      <section id="experience" aria-labelledby="experience-title" className="container-page mt-14 scroll-mt-20">
+        <p className="text-xs font-bold uppercase tracking-[0.08em] text-accent">Experience</p>
+        <h2 id="experience-title" className="mt-1 text-2xl font-bold sm:text-[1.75rem]">
+          Where I have worked
+        </h2>
+        <div className="mt-6">
+          <ExperienceTimeline jobs={site.experience} />
+        </div>
+      </section>
+
+      <section id="my-skills" aria-labelledby="my-skills-title" className="container-page mt-14 scroll-mt-20">
+        <p className="text-xs font-bold uppercase tracking-[0.08em] text-accent">Skills</p>
+        <h2 id="my-skills-title" className="mt-1 text-2xl font-bold sm:text-[1.75rem]">
+          Tools and skills I work with
+        </h2>
+        <div className="mt-6">
+          <SkillGroups groups={site.skillGroups} />
         </div>
       </section>
 
@@ -268,24 +285,6 @@ export default function HomePage() {
           }
         >
           <WorkflowSimulator workflow={workflow} system={runMapSystem(flagship.architecture)} nodeLabels={nodeLabels} repository={flagship.repository} variant="compact" caseStudyHref={`/projects/${flagship.id}#demo`} />
-        </Section>
-
-        <Section id="experience" kicker="Experience" title="Where I have worked">
-          <ol className="relative grid gap-4 md:grid-cols-2">
-            {site.experience.map((job, index) => (
-              <li key={job.organisation} data-tone={TONE_CYCLE[index % TONE_CYCLE.length]} className="reveal panel flex items-start gap-4 p-5">
-                <span className="tile !h-12 !w-12 shrink-0 !rounded-2xl" aria-hidden>
-                  <AppIcon name={job.icon} size={22} />
-                </span>
-                <div className="min-w-0">
-                  <h3 className="text-[1.0625rem] font-bold leading-snug">{job.title}</h3>
-                  <p className="mt-0.5 text-[0.9375rem] font-semibold text-tone">{job.organisation}</p>
-                  <p className="mt-0.5 text-sm text-muted">{job.period}</p>
-                  <p className="mt-2 text-[0.9375rem] leading-relaxed text-muted">{job.summary}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
         </Section>
 
         <Section id="about" kicker="About" title="About me">

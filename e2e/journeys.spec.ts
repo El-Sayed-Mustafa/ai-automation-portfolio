@@ -79,7 +79,11 @@ test.describe("recruiter explores a project", () => {
     await expect(cards.first()).toContainText("Business automation");
     await expect(cards.first().getByRole("link")).toHaveAttribute("href", "/projects/rug-inventory-sync");
     for (const card of await cards.all()) await expect(card.getByRole("link")).toHaveAttribute("href", /^\/projects\/[a-z-]+$/);
-    await expect(skills.getByRole("list", { name: "Tools I work with" }).getByRole("listitem")).toHaveCount(12);
+    // Right after: where I have worked, as a timeline, and the CV's skills in groups, each with its logo.
+    await expect(page.locator("#experience").getByRole("heading", { level: 2 })).toHaveText("Where I have worked");
+    const groups = page.locator("#my-skills");
+    await expect(groups.getByRole("heading", { level: 3 })).toHaveText(["AI & Machine Learning", "Automation & Scraping", "Backend & APIs", "Data & Analytics", "Integrations", "Business Systems"]);
+    await expect(groups.getByRole("list", { name: "Data & Analytics" })).toContainText("PostgreSQL");
     // Under them, the Upwork profile in large: its badge, rating and hours as the profile shows them, and a client's words.
     const upwork = page.getByRole("region", { name: "Hire me on Upwork" });
     await expect(upwork.getByRole("list", { name: "On my Upwork profile" }).getByRole("listitem")).toHaveText(["Rising Talent", "5.0 client rating", "155 hours worked"]);
@@ -182,7 +186,8 @@ test.describe("recruiter explores a project", () => {
     await expect(about.getByText("How I approach a problem")).toBeHidden();
     // Experience is its own section, just above: every role, newest first, including the teaching and AI-training work.
     const experience = page.locator("#experience");
-    await expect(experience.getByRole("listitem")).toHaveCount(5);
+    // What I did at each place is listed under the role.
+    await expect(experience.getByRole("list", { name: "What I did at BlueBug" })).toContainText("Organised the review database.");
     await expect(experience.getByRole("heading", { level: 3 })).toHaveText([
       "AI & Automation Engineer",
       "Freelance AI Automation Developer",
