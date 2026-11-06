@@ -202,6 +202,13 @@ export default function HomePage() {
 
       </section>
 
+      {/* The Upwork profile right under the introduction: the first thing a client can act on. */}
+      {site.links.upwork && site.upwork ? (
+        <div className="container-page mb-12">
+          <UpworkCard url={site.links.upwork} profile={site.upwork} />
+        </div>
+      ) : null}
+
       <section id="skills" aria-labelledby="skills-title" className="container-page scroll-mt-20">
         <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
           <div>
@@ -235,12 +242,6 @@ export default function HomePage() {
           <SkillGroups groups={site.skillGroups} />
         </div>
       </section>
-
-      {site.links.upwork && site.upwork ? (
-        <div className="container-page mt-12">
-          <UpworkCard url={site.links.upwork} profile={site.upwork} />
-        </div>
-      ) : null}
 
       <div className="container-page mt-12">
         <section id="work" aria-labelledby="work-title" className="reveal panel p-4 sm:p-5">
