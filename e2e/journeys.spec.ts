@@ -86,7 +86,7 @@ test.describe("recruiter explores a project", () => {
     await expect(groups.getByRole("list", { name: "Data & Analytics" })).toContainText("PostgreSQL");
     // Under them, the Upwork profile in large: its badge, rating and hours as the profile shows them, and a client's words.
     const upwork = page.getByRole("region", { name: "Hire me on Upwork" });
-    await expect(upwork.getByRole("list", { name: "On my Upwork profile" }).getByRole("listitem")).toHaveText(["Rising Talent", "5.0 client rating", "155 hours worked"]);
+    await expect(upwork.getByRole("list", { name: "On my Upwork profile" }).getByRole("listitem")).toHaveText(["Top Rated", "5.0 client rating", "155 hours worked"]);
     await expect(upwork.locator("blockquote")).toContainText("professional, knowledgeable");
     await expect(upwork.getByRole("link", { name: /View my Upwork profile/ })).toHaveAttribute("href", /upwork\.com\/freelancers\/~0137385c9c3fcfc8b1$/);
     // Nothing on the first screen asks the reader to understand engineering figures.
