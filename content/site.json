@@ -26,10 +26,14 @@
     "badge": "Top Rated",
     "rating": "5.0",
     "hours": 155,
-    "review": {
-      "quote": "He is professional, knowledgeable, and clearly knows what he is doing.",
-      "job": "Python Pricing Automation with Telegram Integration"
-    }
+    "reviews": [
+      {
+        "quote": "I had a great experience working with Elsayed. He is professional, knowledgeable, and clearly knows what he is doing. He takes the time to understand your needs and delivers results…",
+        "job": "Python Pricing Automation with Telegram Integration",
+        "rating": 5,
+        "period": "July to August 2026"
+      }
+    ]
   },
   "skills": [
     {

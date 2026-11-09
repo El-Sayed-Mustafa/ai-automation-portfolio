@@ -397,7 +397,8 @@ export const siteSchema = z.object({
    */
   /**
    * The Upwork profile as it showed on `asOf`, copied by hand: the badge, the
-   * rating, the hours worked and one client's review, word for word.
+   * rating, the hours worked and the clients' reviews, word for word. A review
+   * the profile shows cut short ends in "…" here too.
    */
   upwork: z
     .object({
@@ -405,7 +406,16 @@ export const siteSchema = z.object({
       badge: z.string().min(1),
       rating: z.string().regex(/^[0-5]\.\d$/),
       hours: z.number().int().positive(),
-      review: z.object({ quote: z.string().min(1).max(140), job: z.string().min(1) }),
+      reviews: z
+        .array(
+          z.object({
+            quote: z.string().min(1).max(400),
+            job: z.string().min(1),
+            rating: z.number().min(1).max(5),
+            period: z.string().min(1).optional(),
+          }),
+        )
+        .min(1),
     })
     .optional(),
   skills: z

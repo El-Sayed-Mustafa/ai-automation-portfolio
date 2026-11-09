@@ -712,6 +712,32 @@
 .upwork-link {
   color: #0d7a00;
 }
+
+/* Upwork's own colours for its badge: blue for Top Rated, gold for the stars. */
+.badge-top-rated {
+  background: #1d4ed8;
+  color: #ffffff;
+  box-shadow: 0 4px 12px -4px color-mix(in srgb, #1d4ed8 60%, transparent);
+}
+.badge-rating {
+  background: color-mix(in srgb, #f59e0b 14%, var(--surface));
+  border: 1px solid color-mix(in srgb, #f59e0b 45%, var(--line));
+  color: var(--fg);
+}
+.star-on {
+  color: #f59e0b;
+  fill: #f59e0b;
+}
+.star-off {
+  color: var(--line-strong);
+}
+.review-card {
+  background: var(--surface);
+  border-color: color-mix(in srgb, #14a800 25%, var(--line));
+}
+.review-mark {
+  color: color-mix(in srgb, #14a800 30%, transparent);
+}
 [data-theme="dark"] .upwork-link,
 [data-theme="dark"] .dark-upwork {
   color: #3ccf2e;
