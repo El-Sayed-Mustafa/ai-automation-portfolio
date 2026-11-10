@@ -1,4 +1,4 @@
-import { ArrowUpRight, Award, Clock, Quote, Star } from "lucide-react";
+import { ArrowUpRight, Award, Clock, Crown, Quote, Star } from "lucide-react";
 import { UpworkMark } from "@/components/ui/Icon";
 import type { Site } from "@/content/schema";
 
@@ -37,6 +37,12 @@ export function UpworkCard({ url, profile }: { url: string; profile: NonNullable
                 <Award size={15} aria-hidden />
                 {profile.badge}
               </li>
+              {profile.jobSuccess !== undefined ? (
+                <li className="badge-job-success inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[0.875rem] font-bold">
+                  <Crown size={15} aria-hidden />
+                  {profile.jobSuccess}% Job Success
+                </li>
+              ) : null}
               <li className="badge-rating inline-flex items-center gap-2 rounded-full px-3 py-1 text-[0.875rem] font-bold">
                 <Stars rating={rating} size={14} />
                 {profile.rating} client rating

@@ -719,6 +719,15 @@
   color: #ffffff;
   box-shadow: 0 4px 12px -4px color-mix(in srgb, #1d4ed8 60%, transparent);
 }
+.badge-job-success {
+  background: var(--surface);
+  border: 1.5px solid #1d4ed8;
+  color: #1d4ed8;
+}
+[data-theme="dark"] .badge-job-success {
+  border-color: #6b8cff;
+  color: #9db4ff;
+}
 .badge-rating {
   background: color-mix(in srgb, #f59e0b 14%, var(--surface));
   border: 1px solid color-mix(in srgb, #f59e0b 45%, var(--line));

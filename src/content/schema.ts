@@ -404,6 +404,8 @@ export const siteSchema = z.object({
     .object({
       asOf: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
       badge: z.string().min(1),
+      /** The Job Success Score as the profile shows it, in percent. */
+      jobSuccess: z.number().int().min(0).max(100).optional(),
       rating: z.string().regex(/^[0-5]\.\d$/),
       hours: z.number().int().positive(),
       reviews: z

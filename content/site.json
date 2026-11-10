@@ -22,8 +22,9 @@
     "resume": "/resume"
   },
   "upwork": {
-    "asOf": "2026-11-06",
+    "asOf": "2026-11-10",
     "badge": "Top Rated",
+    "jobSuccess": 100,
     "rating": "5.0",
     "hours": 155,
     "reviews": [
